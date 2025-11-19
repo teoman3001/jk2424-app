@@ -1,0 +1,184 @@
+
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const { Pool } = require('pg');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+
+
+
+
+
+
+// Orta katmanlar
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// PostgreSQL bağlantısı
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Tabloyu oluştur
+async function ensureBookingsTable() {
+  const createSql = `
+    CREATE TABLE IF NOT EXISTS bookings (
+      id             BIGSERIAL PRIMARY KEY,
+      pickup         TEXT NOT NULL,
+      stop           TEXT,
+      dropoff        TEXT NOT NULL,
+      ride_date      DATE NOT NULL,
+      ride_time      VARCHAR(10) NOT NULL,
+      ampm           VARCHAR(2)  NOT NULL,
+      miles          NUMERIC(10,2),
+      total          NUMERIC(10,2),
+      customer_name  TEXT NOT NULL,
+      customer_phone TEXT NOT NULL,
+      customer_email TEXT,
+      status         VARCHAR(20) NOT NULL DEFAULT 'pending',
+      notes          TEXT,
+      created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `;
+  await pool.query(createSql);
+  console.log('✅ bookings tablosu hazır');
+}
+
+ensureBookingsTable().catch((err) => {
+  console.error('Tablo oluşturulurken hata:', err);
+});
+
+// Yardımcı: tarih string'ini (YYYY-MM-DD gibi) güvenli al
+function normalizeDate(dateStr) {
+  if (!dateStr) return null;
+  // Render tarafında DATE tipi YYYY-MM-DD bekliyor
+  // HTML <input type="date"> zaten bu formatı gönderiyor.
+  return dateStr;
+}
+
+// ------------- KULLANICI FORMU: REZERVASYON OLUŞTURMA -------------
+
+app.post('/api/bookings', async (req, res) => {
+  try {
+    const {
+      pickup,
+      stop,
+      dropoff,
+      date,
+      time,
+      ampm,
+      miles,
+      total,
+      customerName,
+      customerPhone,
+      customerEmail,
+      notes
+    } = req.body;
+
+    const rideDate = normalizeDate(date);
+
+    if (!pickup || !dropoff || !rideDate || !time || !ampm || !customerName || !customerPhone) {
+      return res.status(400).json({ ok: false, message: 'Eksik zorunlu alanlar var.' });
+    }
+
+    const insertSql = `
+      INSERT INTO bookings
+      (pickup, stop, dropoff, ride_date, ride_time, ampm, miles, total,
+       customer_name, customer_phone, customer_email, notes, status)
+      VALUES
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'pending')
+      RETURNING id;
+    `;
+
+    const values = [
+      pickup,
+      stop || null,
+      dropoff,
+      rideDate,
+      time,
+      ampm.toLowerCase(),
+      miles ? Number(miles) : null,
+      total ? Number(total) : null,
+      customerName,
+      customerPhone,
+      customerEmail || null,
+      notes || null
+    ];
+
+    const result = await pool.query(insertSql, values);
+    const newId = result.rows[0].id;
+
+    console.log('📝 Yeni rezervasyon kaydedildi, id =', newId);
+
+    res.json({ ok: true, id: newId, message: 'Rezervasyon isteğin alındı.' });
+  } catch (err) {
+    console.error('POST /api/bookings hata:', err);
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
+  }
+});
+
+// ------------- ADMIN API: REZERVASYONLARI GÖR / GÜNCELLE -------------
+
+// Tüm rezervasyonları listele
+app.get('/api/admin/bookings', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM bookings ORDER BY created_at DESC;'
+    );
+    res.json({ ok: true, bookings: result.rows });
+  } catch (err) {
+    console.error('GET /api/admin/bookings hata:', err);
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
+  }
+});
+
+// Rezervasyon durumunu güncelle (pending, confirmed, on_the_way, arrived, completed, cancelled)
+app.patch('/api/admin/bookings/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowed = [
+      'pending',
+      'confirmed',
+      'on_the_way',
+      'arrived',
+      'completed',
+      'cancelled'
+    ];
+
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ ok: false, message: 'Geçersiz status.' });
+    }
+
+    await pool.query(
+      'UPDATE bookings SET status = $1 WHERE id = $2;',
+      [status, id]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('PATCH /api/admin/bookings/:id/status hata:', err);
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
+  }
+});
+
+// ------------- SAYFALAR -------------
+
+// Admin paneli HTML
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// (Kullanıcı tarafı için zaten public/index.html statik olarak servis ediliyor)
+
+// ------------- SUNUCUYU BAŞLAT -------------
+
+app.listen(PORT, () => {
+  console.log(`🚗 JK2424 server ayakta: http://localhost:${PORT}`);
+});

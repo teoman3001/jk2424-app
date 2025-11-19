@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JK2424 Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #050505;
+      color: #f5f5f5;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 4px;
+      color: #f3c94d;
+    }
+    header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #cccccc;
+    }
+    .card {
+      background-color: #111111;
+      border-radius: 14px;
+      padding: 20px 20px 24px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04);
+      margin-bottom: 18px;
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #b3b3b3;
+      margin-bottom: 18px;
+    }
+
+    .step-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background-color: #1c1c1c;
+      font-size: 11px;
+      color: #e5e5e5;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #cccccc;
+      margin-bottom: 4px;
+    }
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #333333;
+      background-color: #050505;
+      color: #f5f5f5;
+      font-size: 13px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    input[type="email"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus {
+      border-color: #f3c94d;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .row > .col {
+      flex: 1;
+      min-width: 0;
+    }
+    .btn-main {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      background-color: #f3c94d;
+      color: #161616;
+      margin-top: 14px;
+    }
+    .btn-main:hover {
+      background-color: #ffda62;
+    }
+    .btn-ampm {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #333333;
+      background-color: #050505;
+      color: #f5f5f5;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-ampm.active {
+      background-color: #f3c94d;
+      color: #111111;
+      border-color: #f3c94d;
+      font-weight: 600;
+    }
+    .muted {
+      font-size: 11px;
+      color: #777777;
+    }
+    .estimate-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .estimate-label {
+      color: #cfcfcf;
+    }
+    .estimate-value {
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .estimate-total {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f3c94d;
+      text-align: right;
+      margin-top: 6px;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #333333, transparent);
+      margin: 12px 0;
+    }
+
+    .message-line {
+      font-size: 12px;
+      color: #90ee90;
+      margin-top: 6px;
+    }
+
+    /* My Rides table */
+    #myRidesSection {
+      display: none;
+    }
+    .myrides-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .myrides-header input {
+      max-width: 260px;
+    }
+    .btn-small {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      background-color: #262626;
+      color: #f5f5f5;
+    }
+    .btn-small:hover {
+      background-color: #333333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 6px 6px;
+      border-bottom: 1px solid #222222;
+      text-align: left;
+    }
+    th {
+      font-weight: 600;
+      color: #bfbfbf;
+      font-size: 11px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .status-pending {
+      background-color: #3a2a00;
+      color: #ffdd7c;
+    }
+    .status-confirmed {
+      background-color: #042f1a;
+      color: #5bffb2;
+    }
+    .status-on_the_way {
+      background-color: #002b3a;
+      color: #7de3ff;
+    }
+    .status-arrived {
+      background-color: #143700;
+      color: #a6ff7f;
+    }
+    .status-completed {
+      background-color: #132d1f;
+      color: #9fffb7;
+    }
+    .status-cancelled {
+      background-color: #3a1010;
+      color: #ff9b9b;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 11px;
+      color: #777777;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>JK2424</h1>
+      <p>Private Chauffeur Service</p>
+    </header>
+
+    <!-- STEP 1: TRIP DETAILS -->
+    <div class="card">
+      <div class="step-pill">Step 1 · Trip details</div>
+      <h2>Book Your Ride</h2>
+      <p class="card-subtitle">
+        Fast, simple and premium. Enter your trip details to see an instant estimate and submit your reservation request.
+      </p>
+
+      <div>
+        <label for="pickup">Pickup Location</label>
+        <input id="pickup" type="text" placeholder="e.g. 1523 17th St NW, Washington, DC" />
+      </div>
+
+      <div style="margin-top: 10px;">
+        <label for="stop">Extra Stop (optional)</label>
+        <input id="stop" type="text" placeholder="Optional extra stop address" />
+      </div>
+
+      <div style="margin-top: 10px;">
+        <label for="dropoff">Drop-off Location</label>
+        <input id="dropoff" type="text" placeholder="e.g. Dulles International Airport" />
+      </div>
+
+      <div class="row" style="margin-top: 12px;">
+        <div class="col">
+          <label for="date">Date (MM/DD/YYYY)</label>
+          <input id="date" type="date" />
+        </div>
+        <div class="col">
+          <label for="time">Time</label>
+          <input id="time" type="time" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 12px;">
+        <div class="col">
+          <label>AM / PM</label>
+          <button id="amBtn" type="button" class="btn-ampm active">AM</button>
+        </div>
+        <div class="col">
+          <label>&nbsp;</label>
+          <button id="pmBtn" type="button" class="btn-ampm">PM</button>
+        </div>
+      </div>
+
+      <input type="hidden" id="miles" />
+      <input type="hidden" id="estimated_total" />
+
+      <button id="calcPriceBtn" class="btn-main" type="button">CALCULATE PRICE</button>
+      <p class="muted" style="margin-top: 6px;">
+        Final price may vary slightly due to real route and waiting times. Driver will confirm before the trip.
+      </p>
+    </div>
+
+    <!-- ESTIMATE BOX -->
+    <div id="estimateBox" class="card" style="display:none;">
+      <h2>Estimate</h2>
+      <div class="estimate-line">
+        <span class="estimate-label">Distance:</span>
+        <span id="estimateDistance" class="estimate-value">0 miles</span>
+      </div>
+      <div class="estimate-line">
+        <span class="estimate-label">Base fare:</span>
+        <span id="estimateBaseFare" class="estimate-value">$0.00</span>
+      </div>
+      <div class="estimate-line">
+        <span class="estimate-label">Extra miles:</span>
+        <span id="estimateExtraMiles" class="estimate-value">$0.00</span>
+      </div>
+      <div class="estimate-line">
+        <span class="estimate-label">Night fare:</span>
+        <span id="estimateNightFare" class="estimate-value">No</span>
+      </div>
+      <div class="divider"></div>
+      <div class="estimate-line">
+        <span class="estimate-label">Estimated Total</span>
+        <span id="estimateTotal" class="estimate-total">$0.00</span>
+      </div>
+      <p class="muted" style="margin-top: 6px;">
+        Open this route in Google Maps to see the real road and driving time. Driver will confirm availability.
+      </p>
+    </div>
+
+    <!-- STEP 2: PASSENGER DETAILS -->
+    <form id="bookingForm" class="card">
+      <div class="step-pill">Step 2 · Passenger details</div>
+      <h2>Passenger details</h2>
+      <p class="card-subtitle">
+        After you submit, I will review your request and confirm availability. You will receive a message with Zelle payment details. Your trip is only confirmed after payment is received.
+      </p>
+
+      <div class="row">
+        <div class="col">
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" placeholder="Your full name" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 10px;">
+        <div class="col">
+          <label for="phone">Mobile phone</label>
+          <input id="phone" type="tel" placeholder="+1 771 217 3111" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 10px;">
+        <div class="col">
+          <label for="email">Email (for confirmation)</label>
+          <input id="email" type="email" placeholder="you@example.com" />
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <label for="notes">Notes</label>
+        <input id="notes" type="text" placeholder="Gate code, luggage, etc." />
+      </div>
+
+      <!-- Summary (shows after booking) -->
+      <div id="summaryBox" style="display:none; margin-top: 14px;">
+        <div class="divider"></div>
+        <div class="muted" style="margin-bottom:4px;">Trip summary</div>
+        <div style="font-size: 12px;">
+          <div id="summaryPickup"></div>
+          <div id="summaryDropoff"></div>
+          <div id="summaryDateTime"></div>
+          <div id="summaryTotal" style="margin-top:4px; font-weight:600;"></div>
+        </div>
+      </div>
+
+      <button id="submitBtn" class="btn-main" type="submit">
+        SEND RESERVATION REQUEST
+      </button>
+      <div id="messageLine" class="message-line"></div>
+    </form>
+
+    <!-- MY RIDES (CUSTOMER DASHBOARD) -->
+    <div id="myRidesSection" class="card">
+      <div class="myrides-header">
+        <h2 style="margin:0;">My rides</h2>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input id="myRidesEmail" type="email" placeholder="Enter your email to see your rides" />
+          <button id="showMyRidesBtn" class="btn-small" type="button">Show my rides</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date &amp; time</th>
+            <th>Trip</th>
+            <th>Miles</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="myRidesTableBody">
+          <tr>
+            <td colspan="5">No rides loaded.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      Need help or a special request? Call / text: +1 (771) 217 31 11
+    </footer>
+  </div>
+
+  <script>
+    // ----------------- GLOBAL STATE -----------------
+    let currentEstimate = null;
+    let currentCustomerEmail = null;
+    let myRidesTimer = null;
+
+    // Form elements
+    const pickupInput = document.getElementById('pickup');
+    const stopInput = document.getElementById('stop');
+    const dropoffInput = document.getElementById('dropoff');
+    const dateInput = document.getElementById('date');
+    const timeInput = document.getElementById('time');
+    const amBtn = document.getElementById('amBtn');
+    const pmBtn = document.getElementById('pmBtn');
+
+    const milesInput = document.getElementById('miles');
+    const estimatedTotalInput = document.getElementById('estimated_total');
+
+    const fullNameInput = document.getElementById('fullName');
+    const phoneInput = document.getElementById('phone');
+    const emailInput = document.getElementById('email');
+    const notesInput = document.getElementById('notes');
+
+    const estimateBox = document.getElementById('estimateBox');
+    const estimateDistanceEl = document.getElementById('estimateDistance');
+    const estimateBaseFareEl = document.getElementById('estimateBaseFare');
+    const estimateExtraMilesEl = document.getElementById('estimateExtraMiles');
+    const estimateNightFareEl = document.getElementById('estimateNightFare');
+    const estimateTotalEl = document.getElementById('estimateTotal');
+
+    const summaryBox = document.getElementById('summaryBox');
+    const summaryPickupEl = document.getElementById('summaryPickup');
+    const summaryDropoffEl = document.getElementById('summaryDropoff');
+    const summaryDateTimeEl = document.getElementById('summaryDateTime');
+    const summaryTotalEl = document.getElementById('summaryTotal');
+
+    const messageLine = document.getElementById('messageLine');
+
+    // My rides elements
+    const myRidesSection = document.getElementById('myRidesSection');
+    const myRidesEmailInput = document.getElementById('myRidesEmail');
+    const myRidesTableBody = document.getElementById('myRidesTableBody');
+
+    // AM/PM
+    let currentAmPm = 'AM';
+    function setAmPm(value) {
+      currentAmPm = value;
+      if (value === 'AM') {
+        amBtn.classList.add('active');
+        pmBtn.classList.remove('active');
+      } else {
+        pmBtn.classList.add('active');
+        amBtn.classList.remove('active');
+      }
+    }
+    amBtn.addEventListener('click', () => setAmPm('AM'));
+    pmBtn.addEventListener('click', () => setAmPm('PM'));
+
+    // ----------------- CALCULATE PRICE -----------------
+    document.getElementById('calcPriceBtn').addEventListener('click', async () => {
+      const pickup = pickupInput.value.trim();
+      const stop = stopInput.value.trim();
+      const dropoff = dropoffInput.value.trim();
+      const date = dateInput.value;
+      const time = timeInput.value;
+
+      if (!pickup || !dropoff || !date || !time) {
+        alert('Please fill pickup, drop-off, date and time.');
+        return;
+      }
+
+      const url = `/api/calc-price?pickup=${encodeURIComponent(
+        pickup
+      )}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(
+        dropoff
+      )}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(
+        time
+      )}&ampm=${encodeURIComponent(currentAmPm)}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.error) {
+          alert('Error: ' + data.error);
+          console.log(data);
+          return;
+        }
+
+        milesInput.value = data.miles;
+        estimatedTotalInput.value = data.price;
+
+        currentEstimate = {
+          pickup,
+          stop,
+          dropoff,
+          date,
+          time,
+          ampm: currentAmPm,
+          miles: data.miles,
+          total: data.price,
+          nightFare: data.nightFare || false
+        };
+
+        estimateDistanceEl.textContent = `${data.miles} miles`;
+        estimateBaseFareEl.textContent = data.baseFareText;
+        estimateExtraMilesEl.textContent = data.extraMilesText;
+        estimateNightFareEl.textContent = data.nightFareText;
+        estimateTotalEl.textContent = `$${data.price}`;
+
+        estimateBox.style.display = 'block';
+        messageLine.textContent = '';
+      } catch (err) {
+        console.error('Request Error:', err);
+        alert('Server error while calculating price.');
+      }
+    });
+
+    // ----------------- SEND RESERVATION REQUEST -----------------
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentEstimate) {
+        alert('Please calculate the price first.');
+        return;
+      }
+
+      const fullName = fullNameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const email = emailInput.value.trim();
+      const notes = notesInput.value.trim();
+
+      if (!fullName || !phone || !email) {
+        alert('Full name, mobile phone and email are required.');
+        return;
+      }
+
+      const body = {
+        pickup: currentEstimate.pickup,
+        stop: currentEstimate.stop,
+        dropoff: currentEstimate.dropoff,
+        date: currentEstimate.date,
+        time: currentEstimate.time,
+        ampm: currentEstimate.ampm,
+        miles: currentEstimate.miles,
+        total: currentEstimate.total,
+        customerName: fullName,
+        customerPhone: phone,
+        customerEmail: email.toLowerCase(),
+        notes
+      };
+
+      try {
+        const response = await fetch('/api/bookings2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (!data.ok) {
+          console.error('Booking error:', data);
+          messageLine.textContent = 'An error occurred. Please try again.';
+          return;
+        }
+
+        summaryPickupEl.textContent = `${currentEstimate.pickup} → ${currentEstimate.dropoff}`;
+        summaryDropoffEl.textContent = currentEstimate.stop
+          ? `Extra stop: ${currentEstimate.stop}`
+          : 'No extra stop';
+        summaryDateTimeEl.textContent =
+          `${currentEstimate.date} • ${currentEstimate.time} ${currentEstimate.ampm}`;
+        summaryTotalEl.textContent = `Estimated total: $${currentEstimate.total}`;
+
+        summaryBox.style.display = 'block';
+        messageLine.textContent =
+          'Reservation request received. I will confirm as soon as possible.';
+
+        currentCustomerEmail = email.toLowerCase();
+        localStorage.setItem('jk2424_email', currentCustomerEmail);
+        myRidesEmailInput.value = currentCustomerEmail;
+        myRidesSection.style.display = 'block';
+        await loadMyBookings();
+        startMyRidesAutoRefresh();
+      } catch (err) {
+        console.error('POST /api/bookings2 error:', err);
+        messageLine.textContent = 'Server error. Please try again.';
+      }
+    });
+
+    // ----------------- MY RIDES -----------------
+    async function loadMyBookings() {
+      if (!currentCustomerEmail) return;
+
+      try {
+        const res = await fetch(
+          `/api/my-bookings?email=${encodeURIComponent(currentCustomerEmail)}`
+        );
+        const data = await res.json();
+
+        if (!data.ok) {
+          console.error('My bookings error:', data);
+          return;
+        }
+
+        renderMyRidesTable(data.bookings);
+      } catch (err) {
+        console.error('loadMyBookings error:', err);
+      }
+    }
+
+    function renderMyRidesTable(bookings) {
+      myRidesTableBody.innerHTML = '';
+
+      if (!bookings || bookings.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.textContent = 'No rides found for this email.';
+        tr.appendChild(td);
+        myRidesTableBody.appendChild(tr);
+        return;
+      }
+
+      bookings.forEach((b) => {
+        const tr = document.createElement('tr');
+
+        const tdDate = document.createElement('td');
+        tdDate.textContent = `${b.ride_date} • ${b.ride_time} ${b.ampm}`;
+        tr.appendChild(tdDate);
+
+        const tdTrip = document.createElement('td');
+        tdTrip.textContent = `${b.pickup} → ${b.dropoff}`;
+        tr.appendChild(tdTrip);
+
+        const tdMiles = document.createElement('td');
+        tdMiles.textContent = b.miles != null ? Number(b.miles).toFixed(2) : '-';
+        tr.appendChild(tdMiles);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.textContent = b.total != null ? `$${Number(b.total).toFixed(2)}` : '-';
+        tr.appendChild(tdTotal);
+
+        const tdStatus = document.createElement('td');
+        const span = document.createElement('span');
+        const status = (b.status || 'pending').toLowerCase();
+        span.textContent = (b.status || 'PENDING').toUpperCase();
+        span.classList.add('status-badge', `status-${status}`);
+        tdStatus.appendChild(span);
+        tr.appendChild(tdStatus);
+
+        myRidesTableBody.appendChild(tr);
+      });
+    }
+
+    function startMyRidesAutoRefresh() {
+      if (myRidesTimer) clearInterval(myRidesTimer);
+      myRidesTimer = setInterval(loadMyBookings, 30000); // 30s
+    }
+
+    document.getElementById('showMyRidesBtn').addEventListener('click', async () => {
+      const email = myRidesEmailInput.value.trim().toLowerCase();
+      if (!email) {
+        alert('Please enter your email.');
+        return;
+      }
+      currentCustomerEmail = email;
+      localStorage.setItem('jk2424_email', currentCustomerEmail);
+      myRidesSection.style.display = 'block';
+      await loadMyBookings();
+      startMyRidesAutoRefresh();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('jk2424_email');
+      if (savedEmail) {
+        currentCustomerEmail = savedEmail;
+        myRidesEmailInput.value = savedEmail;
+        myRidesSection.style.display = 'block';
+        loadMyBookings();
+        startMyRidesAutoRefresh();
+      }
+    });
+  </script>
+</body>
+</html>
