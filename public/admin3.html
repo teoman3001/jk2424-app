@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JK2424 Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#050505; color:#f5f5f5; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 24px; border-bottom:1px solid #333; background:#000;}
+    .topbar-title { font-weight:700; letter-spacing:0.15em; font-size:14px; color:#f3c24a;}
+    .topbar-sub { font-size:12px; color:#aaa; }
+    .status-filters { display:flex; gap:6px; }
+    .chip { padding:4px 10px; border-radius:999px; border:1px solid #444; font-size:11px; cursor:pointer; color:#aaa;}
+    .chip.active { background:#f3c24a; border-color:#f3c24a; color:#000; font-weight:600;}
+    main { padding:16px 24px 40px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th, td { padding:8px 6px; border-bottom:1px solid #222; vertical-align:middle;}
+    th { text-transform:uppercase; font-size:11px; letter-spacing:0.06em; color:#888;}
+    tr:nth-child(even) { background:#0b0b0b;}
+    .badge { padding:2px 8px; border-radius:999px; font-size:10px; text-transform:uppercase; letter-spacing:0.06em;}
+    .badge.pending { background:#332400; color:#ffd166;}
+    .badge.confirmed { background:#003116; color:#5af29a;}
+    .badge.paid { background:#003046; color:#58c7ff;}
+    .badge.on_the_way { background:#132642; color:#7fb5ff;}
+    .badge.arrived { background:#2f2436; color:#ffbefc;}
+    .badge.completed { background:#122f12; color:#8cff8c;}
+    .badge.cancelled { background:#3a1515; color:#ff7b7b;}
+    .pill-btn { border-radius:999px; padding:3px 9px; border:none; font-size:10px; cursor:pointer; margin:1px; }
+    .pill-outline { background:transparent; border:1px solid #555; color:#ddd;}
+    .pill-outline.danger { border-color:#ff6b6b; color:#ff8b8b;}
+    .pill-gold { background:#f3c24a; color:#000; font-weight:600;}
+    .pill-outline.small { font-size:9px; padding:2px 7px;}
+    .pill-outline.blue { border-color:#7fb5ff; color:#9fcbff;}
+    .pill-outline.green { border-color:#68f29b; color:#68f29b;}
+    .pill-outline.purple { border-color:#d197ff; color:#e0b4ff;}
+    .text-muted { color:#888; }
+    .trip-loc { display:flex; flex-direction:column; gap:2px;}
+    .trip-main { font-weight:500; }
+    .trip-sub { color:#777; font-size:11px;}
+    .toast { position:fixed; right:20px; bottom:20px; background:#111; color:#f5f5f5; padding:10px 14px; border-radius:8px; border:1px solid #444; font-size:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6); opacity:0; transform:translateY(10px); transition:all .2s ease-out;}
+    .toast.show { opacity:1; transform:translateY(0);}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="topbar-title">JK2424 ADMIN</div>
+      <div class="topbar-sub"><span id="bookingCount">0</span> bookings loaded · Today: <span id="todayStr"></span></div>
+    </div>
+    <div class="status-filters">
+      <div class="chip active" data-filter="all">All</div>
+      <div class="chip" data-filter="pending">Pending</div>
+      <div class="chip" data-filter="confirmed">Confirmed</div>
+      <div class="chip" data-filter="paid">Paid</div>
+      <div class="chip" data-filter="on_the_way">On the way</div>
+      <div class="chip" data-filter="arrived">Arrived</div>
+      <div class="chip" data-filter="completed">Completed</div>
+      <div class="chip" data-filter="cancelled">Cancelled</div>
+    </div>
+  </header>
+
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Client</th>
+          <th>Trip</th>
+          <th>Date & time</th>
+          <th class="text-right">Miles</th>
+          <th class="text-right">Total</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="bookingRows"></tbody>
+    </table>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const bookingRows = document.getElementById('bookingRows');
+    const bookingCount = document.getElementById('bookingCount');
+    const todayStrEl = document.getElementById('todayStr');
+    const toastEl = document.getElementById('toast');
+
+    todayStrEl.textContent = new Date().toLocaleDateString('en-US', { month:'short', day:'2-digit', year:'numeric' });
+
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 2200);
+    }
+
+    function fmtDateTime(raw) {
+      if (!raw) return '-';
+      // raw is stored as timestamptz; server sends already in local string or ISO
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return raw;
+      const dateStr = d.toLocaleDateString('en-US', { month:'2-digit', day:'2-digit', year:'numeric' });
+      const timeStr = d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+      return dateStr + ' · ' + timeStr;
+    }
+
+    const statusLabels = {
+      pending: 'PENDING',
+      confirmed: 'CONFIRMED',
+      paid: 'PAID',
+      on_the_way: 'ON THE WAY',
+      arrived: 'ARRIVED',
+      completed: 'COMPLETED',
+      cancelled: 'CANCELLED'
+    };
+
+    function makeStatusBadge(status) {
+      const span = document.createElement('span');
+      span.className = 'badge ' + status;
+      span.textContent = statusLabels[status] || status;
+      return span;
+    }
+
+    function makeActionButtons(b) {
+      const wrap = document.createElement('div');
+
+      const makeBtn = (label, status, extraClass='') => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.className = 'pill-btn pill-outline small ' + extraClass;
+        btn.dataset.id = b.id;
+        btn.dataset.status = status;   // IMPORTANT: canonical value sent to API
+        btn.addEventListener('click', onStatusClick);
+        return btn;
+      };
+
+      const openRoute = document.createElement('button');
+      openRoute.textContent = 'Open route';
+      openRoute.className = 'pill-btn pill-gold small';
+      openRoute.addEventListener('click', () => {
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(b.pickup)}&destination=${encodeURIComponent(b.dropoff)}${b.stop ? '&waypoints=' + encodeURIComponent(b.stop) : ''}`;
+        window.open(url, '_blank');
+      });
+      wrap.appendChild(openRoute);
+
+      wrap.appendChild(document.createElement('br'));
+
+      wrap.appendChild(makeBtn('Confirm', 'confirmed', 'green'));
+      wrap.appendChild(makeBtn('Paid', 'paid', 'blue'));
+      wrap.appendChild(makeBtn('On the way', 'on_the_way', 'blue'));
+      wrap.appendChild(makeBtn('Arrived', 'arrived', 'purple'));
+      wrap.appendChild(makeBtn('Completed', 'completed', 'green'));
+      wrap.appendChild(makeBtn('Cancel', 'cancelled', 'danger'));
+
+      return wrap;
+    }
+
+    async function onStatusClick(e) {
+      const btn = e.currentTarget;
+      const id = btn.dataset.id;
+      const status = btn.dataset.status;
+
+      try {
+        const res = await fetch(`/api/admin/bookings/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          console.error('Status update error:', data);
+          showToast('Status update failed.');
+          return;
+        }
+        showToast('Status updated: ' + statusLabels[status]);
+        await loadBookings(currentFilter);
+      } catch (err) {
+        console.error('Request error', err);
+        showToast('Server error while updating.');
+      }
+    }
+
+    let currentFilter = 'all';
+
+    async function loadBookings(filter = 'all') {
+      currentFilter = filter;
+      bookingRows.innerHTML = '<tr><td colspan="8" class="text-muted">Loading…</td></tr>';
+      try {
+        const res = await fetch('/api/admin/bookings');
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          bookingRows.innerHTML = '<tr><td colspan="8" class="text-muted">Error loading bookings.</td></tr>';
+          return;
+        }
+        const list = data.bookings || [];
+        bookingCount.textContent = list.length;
+
+        bookingRows.innerHTML = '';
+        list
+          .filter(b => filter === 'all' ? true : b.status === filter)
+          .forEach((b, idx) => {
+            const tr = document.createElement('tr');
+
+            const tdIndex = document.createElement('td');
+            tdIndex.textContent = '#' + b.id;
+            tr.appendChild(tdIndex);
+
+            const tdClient = document.createElement('td');
+            tdClient.innerHTML = `<div>${b.customer_name || '-'}</div>
+              <div class="text-muted" style="font-size:11px;">${b.customer_phone || ''}</div>
+              <div class="text-muted" style="font-size:11px;">${b.customer_email || ''}</div>`;
+            tr.appendChild(tdClient);
+
+            const tdTrip = document.createElement('td');
+            tdTrip.innerHTML = `<div class="trip-loc">
+              <span class="trip-main">${b.pickup} → ${b.dropoff}</span>
+              ${b.stop ? `<span class="trip-sub">Stop: ${b.stop}</span>` : ''}
+            </div>`;
+            tr.appendChild(tdTrip);
+
+            const tdDate = document.createElement('td');
+            tdDate.textContent = fmtDateTime(b.ride_datetime);
+            tr.appendChild(tdDate);
+
+            const tdMiles = document.createElement('td');
+            tdMiles.style.textAlign = 'right';
+            tdMiles.textContent = (b.miles || 0).toFixed(2);
+            tr.appendChild(tdMiles);
+
+            const tdTotal = document.createElement('td');
+            tdTotal.style.textAlign = 'right';
+            tdTotal.textContent = '$' + (b.total || 0).toFixed(2);
+            tr.appendChild(tdTotal);
+
+            const tdStatus = document.createElement('td');
+            tdStatus.appendChild(makeStatusBadge(b.status));
+            tr.appendChild(tdStatus);
+
+            const tdActions = document.createElement('td');
+            tdActions.appendChild(makeActionButtons(b));
+            tr.appendChild(tdActions);
+
+            bookingRows.appendChild(tr);
+          });
+
+        if (!bookingRows.children.length) {
+          bookingRows.innerHTML = '<tr><td colspan="8" class="text-muted">No bookings for this filter.</td></tr>';
+        }
+
+      } catch (err) {
+        console.error('Load error', err);
+        bookingRows.innerHTML = '<tr><td colspan="8" class="text-muted">Server error while loading.</td></tr>';
+      }
+    }
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const filter = chip.dataset.filter;
+        loadBookings(filter);
+      });
+    });
+
+    loadBookings();
+  </script>
+</body>
+</html>
