@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JK2424 – Instant Quote</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:#000;
+      color:#f5f5f5;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    .wrap {
+      max-width:420px;
+      margin:40px auto;
+      padding:24px 24px 32px;
+      background:#111;
+      border-radius:12px;
+      border:1px solid #333;
+    }
+    h1 {
+      font-size:24px;
+      margin-bottom:8px;
+      color:#f5c84c;
+    }
+    p.sub {
+      font-size:13px;
+      margin-bottom:18px;
+      color:#bbb;
+    }
+    label {
+      display:block;
+      font-size:12px;
+      margin-top:10px;
+      margin-bottom:4px;
+      color:#ddd;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width:100%;
+      padding:7px 10px;
+      border-radius:8px;
+      border:1px solid #444;
+      background:#050505;
+      color:#f5f5f5;
+      font-size:13px;
+    }
+    input::placeholder,
+    textarea::placeholder { color:#666; }
+    select {
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      appearance:none;
+    }
+    textarea { resize:vertical; min-height:60px; }
+    button {
+      width:100%;
+      padding:9px 12px;
+      margin-top:14px;
+      border-radius:999px;
+      border:none;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+    }
+    #calcPriceBtn {
+      background:#d4aa37;
+      color:#000;
+      margin-top:12px;
+    }
+    #sendbtn {
+      background:#f0c44a;
+      color:#000;
+    }
+    #calcPriceBtn:hover,
+    #sendbtn:hover { opacity:0.9; }
+    .msg {
+      margin-top:6px;
+      font-size:12px;
+      color:#9be27b;
+    }
+    .msg.error { color:#ff8080; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>JK2424 Booking</h1>
+    <p class="sub">Fill in the details and request a reservation.</p>
+
+    <label for="pickup">Pickup address</label>
+    <input id="pickup" type="text" placeholder="Tysons, VA" />
+
+    <label for="stop">Extra stop (optional)</label>
+    <input id="stop" type="text" placeholder="Optional" />
+
+    <label for="dropoff">Drop-off address</label>
+    <input id="dropoff" type="text" placeholder="Dulles Airport" />
+
+    <label for="ride-date">Date</label>
+    <input id="ride-date" type="date" />
+
+    <label for="ride-time">Time</label>
+    <input id="ride-time" type="time" step="900" />
+
+    <label for="ampm">AM / PM</label>
+    <select id="ampm">
+      <option value="">Select</option>
+      <option value="am">AM</option>
+      <option value="pm">PM</option>
+    </select>
+
+    <label for="miles">Miles (optional – şimdilik elle)</label>
+    <input id="miles" type="text" placeholder="Auto-calculated" />
+
+    <label for="estimated_total">Estimated total ($ – optional)</label>
+    <input id="estimated_total" type="text" placeholder="Auto-calculated" />
+
+    <button id="calcPriceBtn">Calculate Price</button>
+
+    <label for="name">Your name</label>
+    <input id="name" type="text" placeholder="Teoman Deveci" />
+
+    <label for="phone">Mobile phone</label>
+    <input id="phone" type="text" placeholder="+1 771 217 3111" />
+
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="you@example.com" />
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" placeholder="Gate code, luggage, etc."></textarea>
+
+    <button id="sendbtn">Send Reservation Request</button>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <script>
+    // --- Rezervasyon gönderme ---
+    document.getElementById('sendbtn').addEventListener('click', async () => {
+      const payload = {
+        pickup: document.getElementById('pickup').value,
+        stop: document.getElementById('stop').value,
+        dropoff: document.getElementById('dropoff').value,
+        rideDate: document.getElementById('ride-date').value,
+        rideTime: document.getElementById('ride-time').value,
+        ampm: document.getElementById('ampm').value,
+        miles: document.getElementById('miles').value,
+        total: document.getElementById('estimated_total').value,
+        customerName: document.getElementById('name').value,
+        customerPhone: document.getElementById('phone').value,
+        customerEmail: document.getElementById('email').value,
+        notes: document.getElementById('notes').value,
+      };
+
+      const msgEl = document.getElementById('msg');
+      msgEl.className = 'msg';
+      msgEl.textContent = 'Gönderiliyor...';
+
+      try {
+        const res = await fetch('/api/bookings2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          msgEl.className = 'msg';
+          msgEl.textContent = 'Rezervasyon isteğin alındı. En kısa sürede onaylayacağım.';
+        } else {
+          msgEl.className = 'msg error';
+          msgEl.textContent = data.message || 'Bir hata oluştu, lütfen tekrar dene.';
+        }
+      } catch (e) {
+        console.error(e);
+        const msgEl2 = document.getElementById('msg');
+        msgEl2.className = 'msg error';
+        msgEl2.textContent = 'Sunucuya ulaşılamıyor.';
+      }
+    });
+
+    // --- Fiyat hesaplama ---
+    document.getElementById('calcPriceBtn').addEventListener('click', async () => {
+      const pickup = document.getElementById('pickup').value;
+      const stop = document.getElementById('stop').value;
+      const dropoff = document.getElementById('dropoff').value;
+
+      if (!pickup || !dropoff) {
+        alert('Pickup and Dropoff are required!');
+        return;
+      }
+
+      const url = `/api/calc-price?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.error) {
+          alert('Error: ' + data.error);
+          console.log(data);
+          return;
+        }
+
+        document.getElementById('miles').value = data.miles ?? '';
+        const totalValue = (data.total ?? data.price ?? '').toString();
+        document.getElementById('estimated_total').value = totalValue;
+      } catch (err) {
+        console.error('Request Error:', err);
+        alert('Server error while calculating price.');
+      }
+    });
+  </script>
+</body>
+</html>
