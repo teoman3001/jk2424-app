@@ -293,11 +293,26 @@
         `;
         tr.appendChild(tdTrip);
 
-       const tdDate = document.createElement('td');
-       tdDate.setAttribute('data-label', 'Date & Time');
-       tdDate.innerHTML = `${b.ride_date || ''} ${b.ride_time || ''}`.trim();
-       tr.appendChild(tdDate);
+      const tdDate = document.createElement('td');
+tdDate.setAttribute('data-label', 'Date & Time');
 
+// b.ride_datetime -> veritabanından gelen ISO tarih/saat string’i
+const rideDateObj = new Date(b.ride_datetime);
+
+// Tarih kısmı (MM/DD/YYYY)
+const datePart = rideDateObj.toLocaleDateString('en-US');
+
+// Saat kısmı (hh:mm AM/PM)
+const timePart = rideDateObj.toLocaleTimeString('en-US', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true,
+});
+
+// Örnek: "12/25/2025 · 04:45 PM"
+tdDate.textContent = `${datePart} · ${timePart}`;
+
+tr.appendChild(tdDate);
 
 
 
