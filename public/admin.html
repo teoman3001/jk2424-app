@@ -294,15 +294,9 @@
         tr.appendChild(tdTrip);
 
         const tdDate = document.createElement('td');
-tdDate.setAttribute('data-label', 'Date & Time');
-
-const pickupDateTime =
-  b.ride_time
-    ? `${b.ride_date} ${b.ride_time}`
-    : b.ride_date;
-
-tdDate.innerHTML = pickupDateTime;
-tr.appendChild(tdDate);
+        tdDate.setAttribute('data-label', 'Date & Time');
+        tdDate.innerHTML = `${b.ride_date || ''} ${b.ride_time || ''}`.trim();
+        tr.appendChild(tdDate);
 
 
         const tdMiles = document.createElement('td');
