@@ -235,6 +235,36 @@
       body { padding:18px 8px 32px; }
       .card { padding:16px 14px 18px; }
     }
+
+    /* Google Places autocomplete dropdown styling */
+    .pac-container {
+      background:#000 !important;
+      border:1px solid #444 !important;
+      color:#f5d05c !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+      border-radius:8px !important;
+      box-shadow:0 10px 25px rgba(0,0,0,0.7) !important;
+      z-index:9999 !important;
+    }
+    .pac-item {
+      background:#000 !important;
+      color:#f5d05c !important;
+      padding:6px 10px !important;
+      border-top:1px solid #222 !important;
+    }
+    .pac-item:hover {
+      background:#222 !important;
+    }
+    .pac-matched {
+      color:#ffffff !important;
+      font-weight:600;
+    }
+    .pac-item-query {
+      color:#ffffff !important;
+    }
+    .pac-icon {
+      filter: invert(80%) sepia(60%) saturate(400%) hue-rotate(10deg) brightness(1.2);
+    }
   </style>
 </head>
 <body>
@@ -634,40 +664,51 @@
         bookingMsg.classList.add('error');
       }
     });
-
-    // ---- Google Places Autocomplete ----
-    function initAutocomplete() {
-      try {
-        const pickupInput  = document.getElementById('pickup');
-        const stopInput    = document.getElementById('stop');     // DÜZELTİLDİ
-        const dropoffInput = document.getElementById('dropoff');
-
-        const options = {
-          componentRestrictions: { country: 'us' },
-          fields: ['formatted_address', 'geometry', 'name'],
-          types: ['geocode']
-        };
-
-        if (pickupInput) {
-          new google.maps.places.Autocomplete(pickupInput, options);
-        }
-        if (stopInput) {
-          new google.maps.places.Autocomplete(stopInput, options);
-        }
-        if (dropoffInput) {
-          new google.maps.places.Autocomplete(dropoffInput, options);
-        }
-      } catch (e) {
-        console.error('Autocomplete init error:', e);
-      }
-    }
   </script>
 
-  <!-- Google Maps JavaScript + Places (FRONTEND KEY – SADECE TARAYICI İÇİN) -->
+  <!-- Google Maps JavaScript + Places (FRONTEND KEY) -->
   <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places&callback=initAutocomplete"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"
     async
     defer
   ></script>
+
+  <script>
+    function initAutocomplete() {
+      const pickupInput  = document.getElementById('pickup');
+      const stopInput    = document.getElementById('stop');
+      const dropoffInput = document.getElementById('dropoff');
+
+      const options = {
+        componentRestrictions: { country: 'us' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['geocode']
+      };
+
+      if (pickupInput) {
+        new google.maps.places.Autocomplete(pickupInput, options);
+      }
+      if (stopInput) {
+        new google.maps.places.Autocomplete(stopInput, options);
+      }
+      if (dropoffInput) {
+        new google.maps.places.Autocomplete(dropoffInput, options);
+      }
+    }
+
+    window.addEventListener('load', function () {
+      if (window.google && google.maps && google.maps.places) {
+        initAutocomplete();
+      } else {
+        // Google script async geldiğinde tekrar dene
+        const interval = setInterval(() => {
+          if (window.google && google.maps && google.maps.places) {
+            clearInterval(interval);
+            initAutocomplete();
+          }
+        }, 300);
+      }
+    });
+  </script>
 </body>
 </html>
