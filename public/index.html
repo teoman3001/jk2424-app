@@ -679,10 +679,19 @@
       const stopInput    = document.getElementById('stop');
       const dropoffInput = document.getElementById('dropoff');
 
+      // DC + Northern Virginia + Maryland bölgesi için yaklaşık bounds
+      const dcMetroBounds = new google.maps.LatLngBounds(
+        // Güney-batı
+        new google.maps.LatLng(38.3, -78.8),
+        // Kuzey-doğu
+        new google.maps.LatLng(39.9, -76.0)
+      );
+
       const options = {
         componentRestrictions: { country: 'us' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode']
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        bounds: dcMetroBounds,
+        strictBounds: false // Bölgeyi önceliklendir ama tamamen kilitleme
       };
 
       if (pickupInput) {
@@ -696,11 +705,11 @@
       }
     }
 
+    // Google script async geldiğinde hazır olduğunda initAutocomplete'i çalıştır
     window.addEventListener('load', function () {
       if (window.google && google.maps && google.maps.places) {
         initAutocomplete();
       } else {
-        // Google script async geldiğinde tekrar dene
         const interval = setInterval(() => {
           if (window.google && google.maps && google.maps.places) {
             clearInterval(interval);
