@@ -208,6 +208,7 @@
     let allBookings = [];
     let currentFilter = 'all';
 
+    // (Mevcut ama şu an kullanılmayan yardımcı)
     function formatDateTime(iso) {
       if (!iso) return '-';
       const d = new Date(iso);
@@ -221,6 +222,28 @@
       hrs = hrs % 12;
       if (hrs === 0) hrs = 12;
       return `${month}/${day}/${year} · ${String(hrs).padStart(2,'0')}:${mins} ${ampm}`;
+    }
+
+    // Sadece ride_date için (MM/DD/YYYY)
+    function formatRideDate(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '-';
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day   = String(d.getDate()).padStart(2, '0');
+      const year  = d.getFullYear();
+      return `${month}/${day}/${year}`;
+    }
+
+    // Notes alanını güvenli göstermek için basit HTML escape
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function statusClass(st) {
@@ -290,24 +313,29 @@
           <div><span style="color:#9ca3af;">Pickup:</span> ${b.pickup}</div>
           <div><span style="color:#9ca3af;">Drop-off:</span> ${b.dropoff}</div>
           ${b.stop ? `<div><span style="color:#9ca3af;">Extra stop:</span> ${b.stop}</div>` : ''}
+          ${b.notes ? `<div style="margin-top:4px;"><span style="color:#9ca3af;">Notes:</span> <span style="color:#eab308;">${escapeHtml(b.notes)}</span></div>` : ''}
         `;
         tr.appendChild(tdTrip);
 
-        // DATE & TIME (only user-selected time with AM/PM)
-const tdDateTime = document.createElement('td');
-tdDateTime.setAttribute('data-label', 'Date & Time');
+        // DATE & TIME: müşteri seçtiği tarih + saat (AM/PM)
+        const tdDateTime = document.createElement('td');
+        tdDateTime.setAttribute('data-label', 'Date & Time');
 
-if (b.ride_time && b.ampm) {
-  tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
-} else if (b.ride_time) {
-  tdDateTime.textContent = b.ride_time;
-} else {
-  tdDateTime.textContent = '-';
-}
+        const rideDateStr = formatRideDate(b.ride_date);
+        if (rideDateStr !== '-' && b.ride_time) {
+          const timePart = b.ampm ? `${b.ride_time} ${b.ampm}` : b.ride_time;
+          tdDateTime.textContent = `${rideDateStr} · ${timePart}`;
+        } else if (rideDateStr !== '-') {
+          tdDateTime.textContent = rideDateStr;
+        } else if (b.ride_time && b.ampm) {
+          tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
+        } else if (b.ride_time) {
+          tdDateTime.textContent = b.ride_time;
+        } else {
+          tdDateTime.textContent = '-';
+        }
 
-tr.appendChild(tdDateTime);
-
-
+        tr.appendChild(tdDateTime);
 
         const tdMiles = document.createElement('td');
         tdMiles.className = 'num';
