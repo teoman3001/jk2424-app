@@ -293,22 +293,22 @@
         `;
         tr.appendChild(tdTrip);
 
-      c// Format ride_date + ride_time into readable format
-const dateObj = new Date(`${fb.ride_date}T${fb.ride_time}:00`);
-const options = { 
-  year: 'numeric', 
-  month: '2-digit', 
-  day: '2-digit',
-  hour: 'numeric', 
-  minute: '2-digit', 
-  hour12: true 
-};
-const pickupDateTime = dateObj.toLocaleString('en-US', options);
-tdDate.innerHTML = pickupDateTime;
-tr.appendChild(tdDate);
 
+               // DATE & TIME (only user-selected time with AM/PM)
+        const tdDateTime = document.createElement('td');
+        tdDateTime.setAttribute('data-label', 'Date & Time');
 
+        if (b.ride_time && b.ampm) {
+          tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
+        } else if (b.ride_time) {
+          tdDateTime.textContent = b.ride_time;
+        } else {
+          tdDateTime.textContent = '-';
+        }
 
+        tr.appendChild(tdDateTime);
+
+       
         const tdMiles = document.createElement('td');
         tdMiles.className = 'num';
         tdMiles.setAttribute('data-label', 'Miles');
