@@ -293,10 +293,20 @@
         `;
         tr.appendChild(tdTrip);
 
-        const tdDate = document.createElement('td');
-        tdDate.setAttribute('data-label', 'Date & Time');
-        tdDate.innerHTML = `${b.ride_date || ''} ${b.ride_time || ''}`.trim();
-        tr.appendChild(tdDate);
+        // DATE & TIME (only user-selected time with AM/PM)
+const tdDateTime = document.createElement('td');
+tdDateTime.setAttribute('data-label', 'Date & Time');
+
+if (b.ride_time && b.ampm) {
+  tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
+} else if (b.ride_time) {
+  tdDateTime.textContent = b.ride_time;
+} else {
+  tdDateTime.textContent = '-';
+}
+
+tr.appendChild(tdDateTime);
+
 
 
         const tdMiles = document.createElement('td');
