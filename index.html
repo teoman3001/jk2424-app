@@ -635,5 +635,39 @@
       }
     });
   </script>
+<!-- Google Maps JavaScript + Places (FRONTEND KEY) -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgnDJwKDpN2fWL5NCDCd44kunvC89_4-8&libraries=places"
+  async
+  defer
+></script>
+
+<script>
+  function initAutocomplete() {
+    // Buradaki ID'leri senin input id'lerine göre düzeltelim:
+    const pickupInput   = document.getElementById('pickup');
+    const stopInput     = document.getElementById('stop');
+    const dropoffInput  = document.getElementById('dropoff');
+
+    const options = {
+      componentRestrictions: { country: 'us' }, // sadece USA adreslerini önersin
+      fields: ['formatted_address', 'geometry', 'name'],
+      types: ['geocode']
+    };
+
+    if (pickupInput) {
+      new google.maps.places.Autocomplete(pickupInput, options);
+    }
+    if (stopInput) {
+      new google.maps.places.Autocomplete(stopInput, options);
+    }
+    if (dropoffInput) {
+      new google.maps.places.Autocomplete(dropoffInput, options);
+    }
+  }
+
+  // Sayfa tamamen yüklendiğinde başlat
+  window.addEventListener('load', initAutocomplete);
+</script>
 </body>
 </html>
