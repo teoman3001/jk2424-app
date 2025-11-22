@@ -294,19 +294,15 @@
         tr.appendChild(tdTrip);
 
 
-               // DATE & TIME (only user-selected time with AM/PM)
-        const tdDateTime = document.createElement('td');
-        tdDateTime.setAttribute('data-label', 'Date & Time');
+    // DATE & TIME TEST – sabit yazı
+const tdDateTime = document.createElement('td');
+tdDateTime.setAttribute('data-label', 'Date & Time');
 
-        if (b.ride_time && b.ampm) {
-          tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
-        } else if (b.ride_time) {
-          tdDateTime.textContent = b.ride_time;
-        } else {
-          tdDateTime.textContent = '-';
-        }
+// TEST: ne olursa olsun hep aynı yazıyı göster
+tdDateTime.textContent = 'TEST TIME';
 
-        tr.appendChild(tdDateTime);
+tr.appendChild(tdDateTime);
+
 
        
         const tdMiles = document.createElement('td');
