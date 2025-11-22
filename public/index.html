@@ -634,6 +634,40 @@
         bookingMsg.classList.add('error');
       }
     });
+
+    // ---- Google Places Autocomplete ----
+    function initAutocomplete() {
+      try {
+        const pickupInput  = document.getElementById('pickup');
+        const stopInput    = document.getElementById('stop');     // DÜZELTİLDİ
+        const dropoffInput = document.getElementById('dropoff');
+
+        const options = {
+          componentRestrictions: { country: 'us' },
+          fields: ['formatted_address', 'geometry', 'name'],
+          types: ['geocode']
+        };
+
+        if (pickupInput) {
+          new google.maps.places.Autocomplete(pickupInput, options);
+        }
+        if (stopInput) {
+          new google.maps.places.Autocomplete(stopInput, options);
+        }
+        if (dropoffInput) {
+          new google.maps.places.Autocomplete(dropoffInput, options);
+        }
+      } catch (e) {
+        console.error('Autocomplete init error:', e);
+      }
+    }
   </script>
+
+  <!-- Google Maps JavaScript + Places (FRONTEND KEY – SADECE TARAYICI İÇİN) -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places&callback=initAutocomplete"
+    async
+    defer
+  ></script>
 </body>
 </html>
