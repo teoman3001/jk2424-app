@@ -508,6 +508,7 @@
     const summaryDateTime = document.getElementById('summaryDateTime');
     const summaryTotal = document.getElementById('summaryTotal');
     const bookingMsg = document.getElementById('bookingMsg');
+    const sendBookingBtn = document.getElementById('sendBookingBtn');
 
     let lastQuote = null; // store last calculation
 
@@ -625,8 +626,8 @@
       }
     });
 
-    // Send reservation
-    document.getElementById('sendBookingBtn').addEventListener('click', async () => {
+    // Send reservation (double-click protection)
+    sendBookingBtn.addEventListener('click', async () => {
       bookingMsg.textContent = '';
       bookingMsg.className = 'msg';
 
@@ -662,6 +663,11 @@
         notes
       };
 
+      // double-click koruması: tek istek
+      if (sendBookingBtn.disabled) return;
+      sendBookingBtn.disabled = true;
+      sendBookingBtn.textContent = 'Sending...';
+
       try {
         bookingMsg.textContent = 'Sending reservation request...';
         const response = await fetch('/api/bookings2', {
@@ -683,6 +689,9 @@
         console.error('Booking request error:', err);
         bookingMsg.textContent = 'Server error while sending reservation.';
         bookingMsg.classList.add('error');
+      } finally {
+        sendBookingBtn.disabled = false;
+        sendBookingBtn.textContent = 'Send reservation request';
       }
     });
   </script>
