@@ -432,15 +432,28 @@
       input.value = v.slice(0, 5);
     }
 
+    // 12-hour time parse with validation (01–12 & 00–59)
     function parseTimeTo24h(timeStr, ampm) {
-      if (!timeStr || timeStr.length < 4) return null;
+      // Expected format: "HH:MM" and HH between 1–12, MM between 0–59
+      if (!timeStr || timeStr.length < 4 || !timeStr.includes(':')) return null;
+
       const [hhStr, mmStr] = timeStr.split(':');
-      let h = parseInt(hhStr, 10);
+      const h = parseInt(hhStr, 10);
       const m = parseInt(mmStr, 10);
-      if (isNaN(h) || isNaN(m)) return null;
-      if (ampm === 'PM' && h !== 12) h += 12;
-      if (ampm === 'AM' && h === 12) h = 0;
-      return { h, m };
+
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      if (h < 1 || h > 12) return null;
+      if (m < 0 || m > 59) return null;
+
+      let hour24 = h;
+      if (ampm === 'PM' && h !== 12) {
+        hour24 = h + 12;
+      }
+      if (ampm === 'AM' && h === 12) {
+        hour24 = 0;
+      }
+
+      return { h: hour24, m };
     }
 
     function getNightMultiplier(dateStr, timeStr, ampm) {
@@ -519,6 +532,14 @@
 
       if (!rideDate || rideDate.length < 8 || !rideTime || rideTime.length < 4) {
         calcMsg.textContent = 'Please enter date and time.';
+        calcMsg.classList.add('error');
+        return;
+      }
+
+      // Enforce valid 12h time: 01–12 hours and 00–59 minutes
+      const parsedTime = parseTimeTo24h(rideTime, currentAmpm);
+      if (!parsedTime) {
+        calcMsg.textContent = 'Please enter a valid time between 01:00 and 12:59 with AM / PM.';
         calcMsg.classList.add('error');
         return;
       }
