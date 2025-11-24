@@ -16,11 +16,19 @@
       margin: 0 auto;
       padding: 16px;
     }
+
+    /* --------- HEADER + TOP NAV --------- */
     header {
       display:flex;
       justify-content:space-between;
-      align-items:center;
+      align-items:flex-start;
       margin-bottom:12px;
+      gap:16px;
+    }
+    .header-left {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
     }
     .brand {
       font-weight:700;
@@ -32,6 +40,46 @@
       font-size:11px;
       color:#aaa;
     }
+
+    .header-right {
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:6px;
+    }
+
+    .top-nav {
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:6px;
+    }
+    .top-nav a {
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid #333;
+      background:#0b0b0b;
+      color:#e5e7eb;
+      text-decoration:none;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+    }
+    .top-nav a:hover {
+      background:#111827;
+    }
+    .top-nav a.active {
+      background:#f9d25a;
+      color:#111;
+      border-color:#f9d25a;
+      font-weight:600;
+    }
+    .top-nav a.disabled {
+      opacity:0.4;
+      cursor:default;
+      pointer-events:none;
+    }
+
     .badge {
       font-size:11px;
       padding:2px 8px;
@@ -41,6 +89,7 @@
       margin-left:8px;
     }
 
+    /* --------- STATUS FILTER BUTTONS --------- */
     .filters {
       display:flex;
       gap:6px;
@@ -63,6 +112,7 @@
       font-weight:600;
     }
 
+    /* --------- TABLE --------- */
     table {
       width:100%;
       border-collapse:collapse;
@@ -99,6 +149,7 @@
 
     td.num { text-align:right; }
 
+    /* --------- STATUS PILL --------- */
     .status-pill {
       display:inline-block;
       padding:2px 8px;
@@ -115,6 +166,7 @@
     .st-completed { background:#0f2f24; color:#6ee7b7; }
     .st-cancelled { background:#3b0f16; color:#fecaca; }
 
+    /* --------- ROW ACTION BUTTONS --------- */
     .actions {
       display:flex;
       flex-wrap:wrap;
@@ -144,6 +196,13 @@
     }
 
     @media (max-width:900px) {
+      header {
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .header-right {
+        align-items:flex-start;
+      }
       table, thead, tbody, th, td, tr { display:block; }
       thead { display:none; }
       tr { border-bottom:1px solid #222; padding:8px 0; }
@@ -162,11 +221,23 @@
 <body>
   <div class="wrap">
     <header>
-      <div>
+      <div class="header-left">
         <div class="brand">JK2424 ADMIN</div>
         <div class="sub" id="summaryText">Loading bookings…</div>
       </div>
-      <div class="badge" id="todayInfo"></div>
+      <div class="header-right">
+        <nav class="top-nav">
+          <!-- Dashboard ve Bookings şimdilik aynı sayfa -->
+          <a href="/admin" class="disabled">Dashboard</a>
+          <a href="/admin" class="active">Bookings</a>
+          <a href="/pricing.html">Pricing</a>
+          <a href="#!" class="disabled" title="Coming soon">Settings</a>
+          <a href="#!" class="disabled" title="Coming soon">Drivers</a>
+          <a href="#!" class="disabled" title="Coming soon">Messages</a>
+          <a href="#!" class="disabled" title="Coming soon">Logout</a>
+        </nav>
+        <div class="badge" id="todayInfo"></div>
+      </div>
     </header>
 
     <div class="filters">
@@ -282,7 +353,7 @@
         return;
       }
 
-      list.forEach((b, idx) => {
+      list.forEach((b) => {
         const tr = document.createElement('tr');
 
         const milesNum = Number(b.miles ?? 0);
@@ -380,7 +451,7 @@
 
         if (b.status === 'pending') {
           addStatusButton('Confirm', 'confirmed', 'confirm');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
+          addStatusButton('Cancel', 'cancel', 'cancel');
         } else if (b.status === 'confirmed') {
           addStatusButton('Payment received', 'paid', 'paid');
           addStatusButton('Cancel', 'cancelled', 'cancel');
