@@ -1,6 +1,7 @@
 {
   "baseFare": 65,
-  "includedMiles": 10,
-  "extraPerMile": 2.5,
-  "minFare": 65
+  "includedMiles": 15,
+  "extraPerMile": 2,
+  "minimumFare": 65,
+  "nightMultiplier": 1.25
 }
