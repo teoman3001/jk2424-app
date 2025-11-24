@@ -22,7 +22,7 @@ const pool = new Pool({
 // ---------------------- PRICING FILE HELPERS ----------------------
 const PRICING_FILE = path.join(__dirname, "pricing.json");
 
-// Default values (fallback)
+// Varsayılan fiyatlar (pricing.json okunamazsa bunlar kullanılır)
 const defaultPricing = {
   baseFare: 65,
   includedMiles: 15,
@@ -30,7 +30,6 @@ const defaultPricing = {
   minFare: 65
 };
 
-// Load pricing.json safely
 function loadPricing() {
   try {
     if (!fs.existsSync(PRICING_FILE)) {
@@ -45,7 +44,6 @@ function loadPricing() {
   }
 }
 
-// Save pricing.json safely
 function savePricing(p) {
   try {
     fs.writeFileSync(PRICING_FILE, JSON.stringify(p, null, 2));
@@ -86,19 +84,18 @@ app.get('/api/calc-price', async (req, res) => {
     const meters = data.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0);
     const miles = meters / 1609.34;
 
-    // Load dynamic pricing
+    // Dinamik fiyatlar (frontend şu anda sadece miles kullanıyor)
     const pricing = loadPricing();
 
-    let price = pricing.baseFare;
+    let dayPrice = pricing.baseFare;
     const extraMiles = Math.max(0, miles - pricing.includedMiles);
-    if (extraMiles > 0) price += extraMiles * pricing.extraPerMile;
-
-    if (price < pricing.minFare) price = pricing.minFare;
+    if (extraMiles > 0) dayPrice += extraMiles * pricing.extraPerMile;
+    if (dayPrice < pricing.minFare) dayPrice = pricing.minFare;
 
     res.json({
       miles: Number(miles.toFixed(2)),
       pricing,
-      dayPrice: Number(price.toFixed(2)),
+      dayPrice: Number(dayPrice.toFixed(2)),
       extraMiles: Number(extraMiles.toFixed(2))
     });
   } catch (err) {
@@ -157,8 +154,10 @@ async function ensureBookingsTable() {
 
 ensureBookingsTable().catch(console.error);
 
-// ---------------------- CREATE BOOKING ----------------------
+// ---------------------- CREATE BOOKING (duplicate korumalı) ----------------------
 app.post('/api/bookings2', async (req, res) => {
+  const client = await pool.connect();
+
   try {
     const {
       pickup, stop, dropoff,
@@ -171,7 +170,53 @@ app.post('/api/bookings2', async (req, res) => {
       return res.status(400).json({ ok: false, message: 'Eksik alanlar var.' });
     }
 
-    const sql = `
+    await client.query('BEGIN');
+
+    // ---- DUPLICATE KONTROL (son 60 saniye) ----
+    const dupSql = `
+      SELECT id, created_at
+      FROM bookings
+      WHERE pickup = $1
+        AND COALESCE(stop,'') = COALESCE($2,'')
+        AND dropoff = $3
+        AND ride_date = $4
+        AND ride_time = $5
+        AND ampm = $6
+        AND COALESCE(customer_email,'') = COALESCE($7,'')
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `;
+
+    const dupValues = [
+      pickup,
+      stop || null,
+      dropoff,
+      rideDate,
+      rideTime,
+      ampm,
+      customerEmail || null
+    ];
+
+    const dupRes = await client.query(dupSql, dupValues);
+    const now = new Date();
+
+    if (dupRes.rows.length > 0) {
+      const last = dupRes.rows[0];
+      const diffMs = now - new Date(last.created_at);
+      // 60 saniye içinde aynı rezervasyon geldiyse yeni kayıt açma
+      if (diffMs >= 0 && diffMs < 60 * 1000) {
+        await client.query('COMMIT');
+        return res.json({
+          ok: true,
+          duplicate: true,
+          id: last.id,
+          message: 'Bu rezervasyon isteği zaten alındı (tekrar kaydedilmedi).'
+        });
+      }
+    }
+    // ---- DUPLICATE KONTROL SONU ----
+
+    const insertSql = `
       INSERT INTO bookings
         (pickup, stop, dropoff, ride_date, ride_time, ampm, miles, total,
          customer_name, customer_phone, customer_email, notes, status)
@@ -179,7 +224,7 @@ app.post('/api/bookings2', async (req, res) => {
       RETURNING id;
     `;
 
-    const values = [
+    const insertValues = [
       pickup,
       stop || null,
       dropoff,
@@ -194,12 +239,23 @@ app.post('/api/bookings2', async (req, res) => {
       notes || null
     ];
 
-    const result = await pool.query(sql, values);
+    const result = await client.query(insertSql, insertValues);
 
-    res.json({ ok: true, id: result.rows[0].id });
+    await client.query('COMMIT');
+
+    res.json({
+      ok: true,
+      duplicate: false,
+      id: result.rows[0].id,
+      message: 'Rezervasyon isteğin alındı.'
+    });
+
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error("bookings2 hata:", err);
-    res.status(500).json({ ok: false });
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
+  } finally {
+    client.release();
   }
 });
 
