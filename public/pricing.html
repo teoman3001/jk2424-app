@@ -76,6 +76,9 @@
     <label>Minimum Fare ($)</label>
     <input id="minFare" type="number" step="0.01" />
 
+    <label>Night Fare Multiplier (e.g. 1.25)</label>
+    <input id="nightMultiplier" type="number" step="0.01" />
+
     <button id="saveBtn">Save Settings</button>
 
     <div id="msg"></div>
@@ -88,10 +91,11 @@
         const data = await res.json();
         if (!data.ok) return;
 
-        document.getElementById('baseFare').value = data.settings.baseFare;
-        document.getElementById('includedMiles').value = data.settings.includedMiles;
-        document.getElementById('extraPerMile').value = data.settings.extraPerMile;
-        document.getElementById('minFare').value = data.settings.minFare;
+        document.getElementById('baseFare').value       = data.settings.baseFare;
+        document.getElementById('includedMiles').value  = data.settings.includedMiles;
+        document.getElementById('extraPerMile').value   = data.settings.extraPerMile;
+        document.getElementById('minFare').value        = data.settings.minFare;
+        document.getElementById('nightMultiplier').value = data.settings.nightMultiplier;
 
       } catch (err) {
         console.error(err);
@@ -99,16 +103,18 @@
     }
 
     document.getElementById('saveBtn').addEventListener('click', async () => {
-      const baseFare = Number(document.getElementById('baseFare').value);
-      const includedMiles = Number(document.getElementById('includedMiles').value);
-      const extraPerMile = Number(document.getElementById('extraPerMile').value);
-      const minFare = Number(document.getElementById('minFare').value);
+      const baseFare       = Number(document.getElementById('baseFare').value);
+      const includedMiles  = Number(document.getElementById('includedMiles').value);
+      const extraPerMile   = Number(document.getElementById('extraPerMile').value);
+      const minFare        = Number(document.getElementById('minFare').value);
+      const nightMultiplier = Number(document.getElementById('nightMultiplier').value);
 
       const body = {
         baseFare,
         includedMiles,
         extraPerMile,
-        minFare
+        minFare,
+        nightMultiplier
       };
 
       document.getElementById('msg').textContent = 'Saving...';
