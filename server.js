@@ -8,69 +8,104 @@ const { Pool } = require('pg');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Static & JSON middlewares
+// ---------- MIDDLEWARE ----------
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Postgres connection
+// ---------- POSTGRES ----------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// ---------- PRICING CONFIG (pricing.json) ----------
-const PRICING_PATH = path.join(__dirname, 'pricing.json');
+// ---------- PRICING JSON (dosyadan okuma / yazma) ----------
+const PRICING_FILE = path.join(__dirname, 'pricing.json');
 
-function loadPricing() {
-  const defaults = {
+function getDefaultPricing() {
+  return {
     baseFare: 65,
     includedMiles: 15,
     extraPerMile: 2,
     minimumFare: 65,
     nightMultiplier: 1.25
   };
+}
 
+function loadPricing() {
   try {
-    const raw = fs.readFileSync(PRICING_PATH, 'utf8');
-    const data = JSON.parse(raw);
-    return { ...defaults, ...data };
+    const raw = fs.readFileSync(PRICING_FILE, 'utf8');
+    const data = JSON.parse(raw || '{}');
+    const def = getDefaultPricing();
+
+    return {
+      baseFare: Number(data.baseFare) || def.baseFare,
+      includedMiles: Number(data.includedMiles) || def.includedMiles,
+      extraPerMile: Number(data.extraPerMile) || def.extraPerMile,
+      minimumFare: Number(data.minimumFare) || def.minimumFare,
+      nightMultiplier: Number(data.nightMultiplier) || def.nightMultiplier
+    };
   } catch (err) {
-    // Dosya yoksa veya bozuksa default kullan
-    return defaults;
+    console.warn('Pricing file missing/invalid, using defaults.');
+    return getDefaultPricing();
   }
 }
 
-function savePricing(pricing) {
-  const toSave = {
-    baseFare: Number(pricing.baseFare) || 65,
-    includedMiles: Number(pricing.includedMiles) || 15,
-    extraPerMile: Number(pricing.extraPerMile) || 2,
-    minimumFare: Number(pricing.minimumFare) || Number(pricing.baseFare) || 65,
-    nightMultiplier: Number(pricing.nightMultiplier) || 1.25
+async function savePricing(settings) {
+  const clean = {
+    baseFare: Number(settings.baseFare) || 0,
+    includedMiles: Number(settings.includedMiles) || 0,
+    extraPerMile: Number(settings.extraPerMile) || 0,
+    minimumFare: Number(settings.minimumFare) || 0,
+    nightMultiplier: Number(settings.nightMultiplier) || 1
   };
 
-  fs.writeFileSync(PRICING_PATH, JSON.stringify(toSave, null, 2), 'utf8');
-  return toSave;
+  await fs.promises.writeFile(
+    PRICING_FILE,
+    JSON.stringify(clean, null, 2),
+    'utf8'
+  );
+
+  return clean;
 }
 
-// Pricing API – admin panel kullanıyor
+// ---------- API: PRICING (GET / POST) ----------
 app.get('/api/pricing', (req, res) => {
-  const pricing = loadPricing();
-  res.json({ ok: true, pricing });
-});
-
-app.post('/api/pricing', (req, res) => {
   try {
-    const updated = savePricing(req.body || {});
-    res.json({ ok: true, pricing: updated });
+    const settings = loadPricing();
+    res.json({ ok: true, settings });
   } catch (err) {
-    console.error('POST /api/pricing error:', err);
-    res.status(500).json({ ok: false, message: 'Could not save pricing.' });
+    console.error('GET /api/pricing error:', err);
+    res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
 
-// ---------- PRICE CALCULATION (Google Directions + miles) ----------
+app.post('/api/pricing', async (req, res) => {
+  try {
+    const {
+      baseFare,
+      includedMiles,
+      extraPerMile,
+      minimumFare,
+      nightMultiplier
+    } = req.body;
+
+    const saved = await savePricing({
+      baseFare,
+      includedMiles,
+      extraPerMile,
+      minimumFare,
+      nightMultiplier
+    });
+
+    res.json({ ok: true, settings: saved });
+  } catch (err) {
+    console.error('POST /api/pricing error:', err);
+    res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// ---------- PRICE CALCULATION (Google Directions + formula) ----------
 app.get('/api/calc-price', async (req, res) => {
   try {
     const { pickup, stop, dropoff } = req.query;
@@ -87,7 +122,9 @@ app.get('/api/calc-price', async (req, res) => {
     if (stop && stop.trim() !== '') {
       url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
         pickup
-      )}&destination=${encodeURIComponent(dropoff)}&waypoints=${encodeURIComponent(stop)}&key=${apiKey}`;
+      )}&destination=${encodeURIComponent(
+        dropoff
+      )}&waypoints=${encodeURIComponent(stop)}&key=${apiKey}`;
     }
 
     const response = await fetch(url);
@@ -97,16 +134,39 @@ app.get('/api/calc-price', async (req, res) => {
       return res.status(500).json({ error: 'Google API Error', details: data });
     }
 
-    const meters = data.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0);
+    const meters = data.routes[0].legs.reduce(
+      (sum, leg) => sum + leg.distance.value,
+      0
+    );
     const miles = meters / 1609.34;
 
+    // Dinamik fiyatları config'ten al
     const pricing = loadPricing();
+    const baseFare = pricing.baseFare;
+    const baseMiles = pricing.includedMiles;
+    const extraPerMile = pricing.extraPerMile;
 
-    // Burada sadece mesafe + pricing bilgisi dönüyoruz.
-    // Gece çarpanı ve minimum fare hesabi frontend’de yapılacak.
+    let totalPrice = baseFare;
+    const extraMiles = Math.max(0, miles - baseMiles);
+    if (extraMiles > 0) {
+      totalPrice += extraMiles * extraPerMile;
+    }
+
+    // Minimum fare
+    if (totalPrice < pricing.minimumFare) {
+      totalPrice = pricing.minimumFare;
+    }
+
+    // Night multiplier sadece frontend'de uygulanacak,
+    // burada sadece day price + nightMultiplier bilgisini dönüyoruz.
     res.json({
       miles: Number(miles.toFixed(2)),
-      pricing
+      baseFare,
+      baseMiles,
+      extraPerMile,
+      extraMiles: Number(extraMiles.toFixed(2)),
+      price: Number(totalPrice.toFixed(2)),
+      nightMultiplier: pricing.nightMultiplier
     });
   } catch (error) {
     console.error('Error calculating price:', error);
@@ -114,7 +174,7 @@ app.get('/api/calc-price', async (req, res) => {
   }
 });
 
-// ---------- Ensure bookings table ----------
+// ---------- BOOKINGS TABLOSU ----------
 async function ensureBookingsTable() {
   const createSql = `
     CREATE TABLE IF NOT EXISTS bookings (
@@ -171,7 +231,15 @@ app.post('/api/bookings2', async (req, res) => {
 
     const ride_date = normalizeDate(rideDate);
 
-    if (!pickup || !dropoff || !ride_date || !rideTime || !ampm || !customerName || !customerPhone) {
+    if (
+      !pickup ||
+      !dropoff ||
+      !ride_date ||
+      !rideTime ||
+      !ampm ||
+      !customerName ||
+      !customerPhone
+    ) {
       return res.status(400).json({ ok: false, message: 'Eksik alanlar var.' });
     }
 
@@ -213,7 +281,9 @@ app.post('/api/bookings2', async (req, res) => {
 // ---------- ADMIN API: list & update bookings ----------
 app.get('/api/admin/bookings', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM bookings ORDER BY created_at DESC;');
+    const result = await pool.query(
+      'SELECT * FROM bookings ORDER BY created_at DESC;'
+    );
     res.json({ ok: true, bookings: result.rows });
   } catch (err) {
     console.error('GET /api/admin/bookings hata:', err);
@@ -240,7 +310,10 @@ app.patch('/api/admin/bookings/:id/status', async (req, res) => {
       return res.status(400).json({ ok: false, message: 'Geçersiz status.' });
     }
 
-    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2', [status, id]);
+    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2', [
+      status,
+      id
+    ]);
     res.json({ ok: true });
   } catch (err) {
     console.error('PATCH /api/admin/bookings/:id/status hata:', err);
