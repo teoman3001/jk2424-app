@@ -70,17 +70,18 @@ async function savePricing(settings) {
 }
 
 // ---------- API: PRICING (GET / POST) ----------
-app.get('/api/pricing', (req, res) => {
+// Ana handler (tekrar kullanmak için)
+function handleGetPricing(req, res) {
   try {
     const settings = loadPricing();
     res.json({ ok: true, settings });
   } catch (err) {
-    console.error('GET /api/pricing error:', err);
+    console.error('GET pricing error:', err);
     res.status(500).json({ ok: false, message: 'Server error' });
   }
-});
+}
 
-app.post('/api/pricing', async (req, res) => {
+async function handlePostPricing(req, res) {
   try {
     const {
       baseFare,
@@ -100,10 +101,17 @@ app.post('/api/pricing', async (req, res) => {
 
     res.json({ ok: true, settings: saved });
   } catch (err) {
-    console.error('POST /api/pricing error:', err);
+    console.error('POST pricing error:', err);
     res.status(500).json({ ok: false, message: 'Server error' });
   }
-});
+}
+
+// İki farklı endpoint’i de aynı handler’a bağla:
+// /api/pricing ve /pricing
+app.get('/api/pricing', handleGetPricing);
+app.post('/api/pricing', handlePostPricing);
+app.get('/pricing', handleGetPricing);
+app.post('/pricing', handlePostPricing);
 
 // ---------- PRICE CALCULATION (Google Directions + formula) ----------
 app.get('/api/calc-price', async (req, res) => {
@@ -140,7 +148,6 @@ app.get('/api/calc-price', async (req, res) => {
     );
     const miles = meters / 1609.34;
 
-    // Dinamik fiyatları config'ten al
     const pricing = loadPricing();
     const baseFare = pricing.baseFare;
     const baseMiles = pricing.includedMiles;
@@ -152,13 +159,12 @@ app.get('/api/calc-price', async (req, res) => {
       totalPrice += extraMiles * extraPerMile;
     }
 
-    // Minimum fare
+    // Minimum fare uygula
     if (totalPrice < pricing.minimumFare) {
       totalPrice = pricing.minimumFare;
     }
 
-    // Night multiplier sadece frontend'de uygulanacak,
-    // burada sadece day price + nightMultiplier bilgisini dönüyoruz.
+    // Night multiplier bilgisi de dönüyor (frontend kullanacak)
     res.json({
       miles: Number(miles.toFixed(2)),
       baseFare,
@@ -207,8 +213,7 @@ ensureBookingsTable().catch((err) => {
 // Helper: normalize date string
 function normalizeDate(dateStr) {
   if (!dateStr) return null;
-  // input is already YYYY-MM-DD from the form
-  return dateStr;
+  return dateStr; // zaten YYYY-MM-DD formatında geliyor
 }
 
 // ---------- PUBLIC API: create booking from customer form ----------
