@@ -1,194 +1,184 @@
-const fs = require('fs');
-const fetch = require('node-fetch');
+// server.js
+// JK2424 – Backend sunucu
+
 require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ------------ MIDDLEWARE ------------
+// ---------- MIDDLEWARE ----------
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ------------ POSTGRES ------------
+// ---------- POSTGRES ----------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 
-// ------------ PRICING (JSON dosyadan okuma / yazma) ------------
+// ---------- PRICING JSON (dosyadan okuma / yazma) ----------
 const PRICING_FILE = path.join(__dirname, 'pricing.json');
 
 function getDefaultPricing() {
   return {
-    baseFare: 65,        // 65 $
-    includedMiles: 15,   // 15 mile kadar dahil
-    extraPerMile: 2,     // sonrası mile başı 2 $
-    minFare: 65,         // minimum ücret
-    nightMultiplier: 1.25 // gece çarpanı (ör. 1.25 = %25 zam)
+    baseFare: 65,
+    includedMiles: 15,
+    extraPerMile: 2,
+    minimumFare: 65,
+    nightMultiplier: 1.25,
   };
 }
 
 function loadPricing() {
   try {
     const raw = fs.readFileSync(PRICING_FILE, 'utf8');
-    const data = JSON.parse(raw);
+    const data = JSON.parse(raw || '{}');
     const def = getDefaultPricing();
 
     return {
-      baseFare: Number(data.baseFare) || def.baseFare,
-      includedMiles: Number(data.includedMiles) || def.includedMiles,
-      extraPerMile: Number(data.extraPerMile) || def.extraPerMile,
-      minFare: Number(data.minFare) || def.minFare,
-      nightMultiplier: Number(data.nightMultiplier) || def.nightMultiplier
+      baseFare: Number(data.baseFare || def.baseFare),
+      includedMiles: Number(data.includedMiles || def.includedMiles),
+      extraPerMile: Number(data.extraPerMile || def.extraPerMile),
+      minimumFare: Number(data.minimumFare || def.minimumFare),
+      nightMultiplier: Number(data.nightMultiplier || def.nightMultiplier),
     };
   } catch (err) {
-    console.warn('⚠ pricing.json okunamadı, varsayılan kullanılıyor', err.message);
+    console.warn('Pricing file missing/invalid, using defaults:', err.message);
     return getDefaultPricing();
   }
 }
 
-async function savePricingSettings(settings) {
+async function savePricing(settings) {
   const clean = {
-    baseFare: Number(settings.baseFare) || 0,
-    includedMiles: Number(settings.includedMiles) || 0,
-    extraPerMile: Number(settings.extraPerMile) || 0,
-    minFare: Number(settings.minFare) || 0,
-    nightMultiplier: Number(settings.nightMultiplier) || 1
+    baseFare: Number(settings.baseFare),
+    includedMiles: Number(settings.includedMiles),
+    extraPerMile: Number(settings.extraPerMile),
+    minimumFare: Number(settings.minimumFare),
+    nightMultiplier: Number(settings.nightMultiplier),
   };
 
   fs.writeFileSync(PRICING_FILE, JSON.stringify(clean, null, 2), 'utf8');
 }
 
-// ------ ADMIN API: pricing get / save ------
-app.get('/api/admin/pricing', (req, res) => {
+// ---------- ROUTES ----------
+
+// Ana sayfa (müşteri tarafı)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Admin paneli (eğer ayrı html kullanıyorsan)
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ---------- ADMIN – PRICING API ----------
+
+// Ayarları getir
+app.get('/api/admin/pricing', async (req, res) => {
   try {
     const settings = loadPricing();
     res.json({ ok: true, settings });
   } catch (err) {
-    console.error('GET /api/admin/pricing hata:', err);
-    res.status(500).json({ ok: false, message: 'Server error' });
+    console.error('GET /api/admin/pricing error:', err);
+    res.status(500).json({ ok: false, message: 'Server error.' });
   }
 });
 
+// Ayarları kaydet
 app.post('/api/admin/pricing', async (req, res) => {
   try {
-    const { baseFare, includedMiles, extraPerMile, minFare, nightMultiplier } = req.body;
-
-    await savePricingSettings({
+    const {
       baseFare,
       includedMiles,
       extraPerMile,
-      minFare,
-      nightMultiplier
+      minimumFare,
+      nightMultiplier,
+    } = req.body || {};
+
+    await savePricing({
+      baseFare,
+      includedMiles,
+      extraPerMile,
+      minimumFare,
+      nightMultiplier,
     });
 
     res.json({ ok: true });
   } catch (err) {
-    console.error('POST /api/admin/pricing hata:', err);
-    res.status(500).json({ ok: false, message: 'Server error' });
+    console.error('POST /api/admin/pricing error:', err);
+    res.status(500).json({ ok: false, message: 'Server error.' });
   }
 });
 
-// ---------- PRICE CALCULATION (Google Directions + dynamic pricing) ----------
+// ---------- PRICE CALCULATION API ----------
+// Mesafeyi Google Directions API ile hesaplar, paneldeki pricing ayarlarını döner.
+// Frontend (index.html) toplam ücreti kendisi hesaplıyor.
+
 app.get('/api/calc-price', async (req, res) => {
   try {
     const { pickup, stop, dropoff } = req.query;
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
     if (!pickup || !dropoff) {
-      return res.status(400).json({ error: 'Pickup and dropoff are required.' });
+      return res.status(400).json({ error: 'Pickup ve drop-off zorunlu.' });
     }
 
-    let url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-      pickup
-    )}&destination=${encodeURIComponent(dropoff)}&key=${apiKey}`;
-
-    if (stop && stop.trim() !== '') {
-      url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-        pickup
-      )}&destination=${encodeURIComponent(
-        dropoff
-      )}&waypoints=${encodeURIComponent(stop)}&key=${apiKey}`;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Google Maps API anahtarı eksik.' });
     }
 
-    const response = await fetch(url);
-    const data = await response.json();
+    const origin = encodeURIComponent(pickup);
+    const destination = encodeURIComponent(dropoff);
 
-    if (data.status !== 'OK') {
-      return res.status(500).json({ error: 'Google API Error', details: data });
+    let url =
+      `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}` +
+      `&destination=${destination}&key=${apiKey}`;
+
+    if (stop) {
+      const waypoint = encodeURIComponent(stop);
+      url += `&waypoints=${waypoint}`;
     }
 
-    const meters = data.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0);
-    const miles = meters / 1609.34;
+    // Node 18+ için global fetch var; yoksa hata verir.
+    const gmRes = await fetch(url);
+    const gmData = await gmRes.json();
 
-    // Dinamik pricing dosyadan
-    const pricing = loadPricing();
-    const baseFare = pricing.baseFare;
-    const baseMiles = pricing.includedMiles;
-    const extraPerMile = pricing.extraPerMile;
-
-    let totalPrice = baseFare;
-    const extraMiles = Math.max(0, miles - baseMiles);
-    if (extraMiles > 0) {
-      totalPrice += extraMiles * extraPerMile;
+    if (!gmData.routes || gmData.routes.length === 0) {
+      console.error('Directions cevap:', gmData);
+      return res.status(500).json({ error: 'Rota bulunamadı.' });
     }
 
-    // Gece çarpanı burada uygulanmıyor; frontend AM/PM + saat bilgisiyle uygular.
-    res.json({
-      miles: Number(miles.toFixed(2)),
-      baseFare,
-      baseMiles,
-      extraPerMile,
-      extraMiles: Number(extraMiles.toFixed(2)),
-      price: Number(totalPrice.toFixed(2)),
-      nightMultiplier: pricing.nightMultiplier
+    let meters = 0;
+    gmData.routes[0].legs.forEach((leg) => {
+      if (leg.distance && leg.distance.value) {
+        meters += leg.distance.value;
+      }
     });
-  } catch (error) {
-    console.error('Error calculating price:', error);
-    res.status(500).json({ error: 'Server error' });
+
+    const miles = meters / 1609.34;
+    const pricing = loadPricing();
+
+    return res.json({
+      ok: true,
+      miles: Number(miles.toFixed(2)),
+      pricing,
+    });
+  } catch (err) {
+    console.error('GET /api/calc-price hata:', err);
+    res.status(500).json({ error: 'Mesafe hesaplanırken sunucu hatası.' });
   }
 });
 
-// ---------- BOOKINGS TABLOSU ----------
-async function ensureBookingsTable() {
-  const createSql = `
-    CREATE TABLE IF NOT EXISTS bookings (
-      id BIGSERIAL PRIMARY KEY,
-      pickup TEXT NOT NULL,
-      stop TEXT,
-      dropoff TEXT NOT NULL,
-      ride_date DATE NOT NULL,
-      ride_time VARCHAR(10) NOT NULL,
-      ampm VARCHAR(2) NOT NULL,
-      miles NUMERIC(10,2),
-      total NUMERIC(10,2),
-      customer_name TEXT NOT NULL,
-      customer_phone TEXT NOT NULL,
-      customer_email TEXT,
-      notes TEXT,
-      status VARCHAR(20) NOT NULL DEFAULT 'pending',
-      created_at TIMESTAMP NOT NULL DEFAULT NOW()
-    );
-  `;
-  await pool.query(createSql);
-  console.log('✓ bookings tablosu hazır.');
-}
+// ---------- BOOKINGS API ----------
 
-ensureBookingsTable().catch((err) => {
-  console.error('Tablo oluşturulurken hata:', err);
-});
-
-// Helper: normalize date string
-function normalizeDate(dateStr) {
-  if (!dateStr) return null;
-  return dateStr; // YYYY-MM-DD zaten
-}
-
-// ---------- PUBLIC API: create booking from customer form ----------
+// Rezervasyon oluşturma (index.html'den gelen /api/bookings2 isteği)
 app.post('/api/bookings2', async (req, res) => {
   try {
     const {
@@ -203,61 +193,90 @@ app.post('/api/bookings2', async (req, res) => {
       customerName,
       customerPhone,
       customerEmail,
-      notes
-    } = req.body;
+      notes,
+    } = req.body || {};
 
-    const ride_date = normalizeDate(rideDate);
-
-    if (!pickup || !dropoff || !ride_date || !rideTime || !ampm || !customerName || !customerPhone) {
-      return res.status(400).json({ ok: false, message: 'Eksik alanlar var.' });
+    if (!pickup || !dropoff || !rideDate || !rideTime) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Trip details eksik.' });
     }
 
-    const insertSql = `
-      INSERT INTO bookings
-        (pickup, stop, dropoff, ride_date, ride_time, ampm, miles, total, customer_name, customer_phone, customer_email, notes, status)
-      VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-      RETURNING id;
-    `;
+    if (!customerName || !customerPhone || !customerEmail) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Name, phone ve email zorunlu.' });
+    }
 
-    const values = [
-      pickup,
-      stop || null,
-      dropoff,
-      ride_date,
-      rideTime,
-      ampm,
-      miles ? Number(miles) : null,
-      total ? Number(total) : null,
-      customerName,
-      customerPhone,
-      customerEmail || null,
-      notes || null,
-      'pending'
-    ];
+    const client = await pool.connect();
+    let newId;
 
-    const result = await pool.query(insertSql, values);
-    const newId = result.rows[0].id;
+    try {
+      const insertQuery = `
+        INSERT INTO bookings (
+          pickup,
+          stop,
+          dropoff,
+          ride_date,
+          ride_time,
+          ampm,
+          miles,
+          total,
+          customer_name,
+          customer_phone,
+          customer_email,
+          notes,
+          status
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+        )
+        RETURNING id;
+      `;
 
-    console.log('✓ new booking saved. id =', newId);
+      const result = await client.query(insertQuery, [
+        pickup,
+        stop || null,
+        dropoff,
+        rideDate,
+        rideTime,
+        ampm,
+        miles,
+        total,
+        customerName,
+        customerPhone,
+        customerEmail,
+        notes || null,
+        'pending',
+      ]);
+
+      newId = result.rows[0].id;
+    } finally {
+      client.release();
+    }
+
+    console.log('New booking saved. id =', newId);
     res.json({ ok: true, id: newId, message: 'Rezervasyon isteğin alındı.' });
   } catch (err) {
-    console.error('POST /api/bookings2 hata:', err);
+    console.error('POST /api/bookings2 hatası:', err);
     res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
   }
 });
 
-// ---------- ADMIN API: list & update bookings ----------
+// Admin: tüm rezervasyonları listele
 app.get('/api/admin/bookings', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM bookings ORDER BY created_at DESC;');
+    const result = await pool.query(
+      'SELECT * FROM bookings ORDER BY created_at DESC;'
+    );
     res.json({ ok: true, bookings: result.rows });
   } catch (err) {
-    console.error('GET /api/admin/bookings hata:', err);
+    console.error('GET /api/admin/bookings hatası:', err);
     res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
   }
 });
 
+// Admin: rezervasyon status güncelle
 app.patch('/api/admin/bookings/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
@@ -270,27 +289,26 @@ app.patch('/api/admin/bookings/:id/status', async (req, res) => {
       'on_the_way',
       'arrived',
       'completed',
-      'cancelled'
+      'cancelled',
     ];
 
     if (!allowed.includes(status)) {
       return res.status(400).json({ ok: false, message: 'Geçersiz status.' });
     }
 
-    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2', [status, id]);
+    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2;', [
+      status,
+      id,
+    ]);
+
     res.json({ ok: true });
   } catch (err) {
-    console.error('PATCH /api/admin/bookings/:id/status hata:', err);
+    console.error('PATCH /api/admin/bookings/:id/status hatası:', err);
     res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
   }
 });
 
-// ---------- PAGES ----------
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// Start server
+// ---------- START SERVER ----------
 app.listen(PORT, () => {
   console.log(`JK2424 server ayakta: http://localhost:${PORT}`);
 });
