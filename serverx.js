@@ -1,217 +1,269 @@
+// server.js
+// JK2424 – Backend sunucu
+
 require('dotenv').config();
-const fetch = require('node-fetch');
+
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ---------- PostgreSQL ----------
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-// ---------- Middleware ----------
+// ---------- MIDDLEWARE ----------
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Ensure bookings table exists
-async function ensureBookingsTable() {
-  const createSql = `
-    CREATE TABLE IF NOT EXISTS bookings (
-      id BIGSERIAL PRIMARY KEY,
-      pickup TEXT NOT NULL,
-      stop TEXT,
-      dropoff TEXT NOT NULL,
-      ride_date VARCHAR(10) NOT NULL,
-      ride_time VARCHAR(10) NOT NULL,
-      ampm VARCHAR(2) NOT NULL,
-      miles NUMERIC(10,2),
-      total NUMERIC(10,2),
-      customer_name TEXT NOT NULL,
-      customer_phone TEXT NOT NULL,
-      customer_email TEXT,
-      notes TEXT,
-      status VARCHAR(20) NOT NULL DEFAULT 'pending',
-      created_at TIMESTAMP NOT NULL DEFAULT NOW()
-    );
-  `;
-  await pool.query(createSql);
-  console.log('✅ bookings table is ready');
-}
-
-ensureBookingsTable().catch((err) => {
-  console.error('Error ensuring bookings table:', err);
+// ---------- POSTGRES ----------
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 });
 
-// ---------- Helpers ----------
-function normalizeDate(dateStr) {
-  // expect from HTML: YYYY-MM-DD
-  if (!dateStr) return null;
-  return dateStr;
+// ---------- PRICING JSON (dosyadan okuma / yazma) ----------
+const PRICING_FILE = path.join(__dirname, 'pricing.json');
+
+function getDefaultPricing() {
+  return {
+    baseFare: 65,
+    includedMiles: 15,
+    extraPerMile: 2,
+    minimumFare: 65,
+    nightMultiplier: 1.25,
+  };
 }
 
-function isNightRide(timeStr, ampm) {
-  if (!timeStr || !ampm) return false;
-  const [hStr] = timeStr.split(':');
-  const hour = Number(hStr);
-  if (Number.isNaN(hour)) return false;
-  // 00:00–05:59 AM night
-  return ampm.toUpperCase() === 'AM' && hour < 6;
-}
-
-// ---------- PRICE CALCULATION API ----------
-app.get('/api/calc-price', async (req, res) => {
+function loadPricing() {
   try {
-    const { pickup, stop, dropoff, date, time, ampm } = req.query;
-    let { miles } = req.query;
+    const raw = fs.readFileSync(PRICING_FILE, 'utf8');
+    const data = JSON.parse(raw || '{}');
+    const def = getDefaultPricing();
 
-    if (!pickup || !dropoff) {
-      return res.status(400).json({ error: 'Pickup and dropoff are required.' });
-    }
-
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!apiKey && !miles) {
-      return res.status(500).json({ error: 'Google Maps API key missing.' });
-    }
-
-    let distanceMiles;
-
-    // If miles is provided manually, use it
-    if (miles && !Number.isNaN(Number(miles))) {
-      distanceMiles = Number(miles);
-    } else {
-      // Use Google Directions API
-      let url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-        pickup
-      )}&destination=${encodeURIComponent(dropoff)}&key=${apiKey}`;
-
-      if (stop && stop.trim() !== '') {
-        url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-          pickup
-        )}&destination=${encodeURIComponent(
-          dropoff
-        )}&waypoints=${encodeURIComponent(stop)}&key=${apiKey}`;
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.status !== 'OK') {
-        console.error('Google API error:', data);
-        return res.status(500).json({
-          error: 'Google API Error',
-          details: data
-        });
-      }
-
-      const meters = data.routes[0].legs.reduce(
-        (sum, leg) => sum + (leg.distance.value || 0),
-        0
-      );
-      distanceMiles = meters / 1609.34;
-    }
-
-    // Round miles to 2 decimals
-    distanceMiles = Number(distanceMiles.toFixed(2));
-
-    // Pricing rules
-    const baseFare = 65; // up to 15 miles
-    const extraMileRate = 2; // per mile above 15
-    const night = isNightRide(time, ampm);
-    const nightMultiplier = night ? 1.25 : 1;
-
-    let extraMiles = 0;
-    if (distanceMiles > 15) {
-      extraMiles = distanceMiles - 15;
-    }
-
-    const rawSubtotal = baseFare + extraMiles * extraMileRate;
-    const total = Number((rawSubtotal * nightMultiplier).toFixed(2));
-
-    const baseFareText = `Base fare (up to 15 miles): $${baseFare.toFixed(2)}`;
-    const extraMilesText = `${extraMiles.toFixed(2)} × $${extraMileRate.toFixed(
-      2
-    )} = $${(extraMiles * extraMileRate).toFixed(2)}`;
-    const nightFareText = night ? 'Yes (×1.25)' : 'No (×1.00)';
-
-    res.json({
-      miles: distanceMiles,
-      price: total,
-      baseFareText,
-      extraMilesText,
-      nightFareText,
-      nightFare: night
-    });
+    return {
+      baseFare: Number(data.baseFare || def.baseFare),
+      includedMiles: Number(data.includedMiles || def.includedMiles),
+      extraPerMile: Number(data.extraPerMile || def.extraPerMile),
+      minimumFare: Number(data.minimumFare || def.minimumFare),
+      nightMultiplier: Number(data.nightMultiplier || def.nightMultiplier),
+    };
   } catch (err) {
-    console.error('Error calculating price:', err);
-    res.status(500).json({ error: 'Server error while calculating price.' });
+    console.warn('Pricing file missing/invalid, using defaults:', err.message);
+    return getDefaultPricing();
+  }
+}
+
+async function savePricing(settings) {
+  const clean = {
+    baseFare: Number(settings.baseFare),
+    includedMiles: Number(settings.includedMiles),
+    extraPerMile: Number(settings.extraPerMile),
+    minimumFare: Number(settings.minimumFare),
+    nightMultiplier: Number(settings.nightMultiplier),
+  };
+
+  fs.writeFileSync(PRICING_FILE, JSON.stringify(clean, null, 2), 'utf8');
+}
+
+// ---------- ROUTES ----------
+
+// Ana sayfa (müşteri tarafı)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Admin paneli (eğer ayrı html kullanıyorsan)
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ---------- ADMIN – PRICING API ----------
+
+// Ayarları getir
+app.get('/api/admin/pricing', async (req, res) => {
+  try {
+    const settings = loadPricing();
+    res.json({ ok: true, settings });
+  } catch (err) {
+    console.error('GET /api/admin/pricing error:', err);
+    res.status(500).json({ ok: false, message: 'Server error.' });
   }
 });
 
-// ---------- CUSTOMER: CREATE BOOKING ----------
+// Ayarları kaydet
+app.post('/api/admin/pricing', async (req, res) => {
+  try {
+    const {
+      baseFare,
+      includedMiles,
+      extraPerMile,
+      minimumFare,
+      nightMultiplier,
+    } = req.body || {};
+
+    await savePricing({
+      baseFare,
+      includedMiles,
+      extraPerMile,
+      minimumFare,
+      nightMultiplier,
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/admin/pricing error:', err);
+    res.status(500).json({ ok: false, message: 'Server error.' });
+  }
+});
+
+// ---------- PRICE CALCULATION API ----------
+// Mesafeyi Google Directions API ile hesaplar, paneldeki pricing ayarlarını döner.
+// Frontend (index.html) toplam ücreti kendisi hesaplıyor.
+
+app.get('/api/calc-price', async (req, res) => {
+  try {
+    const { pickup, stop, dropoff } = req.query;
+
+    if (!pickup || !dropoff) {
+      return res.status(400).json({ error: 'Pickup ve drop-off zorunlu.' });
+    }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Google Maps API anahtarı eksik.' });
+    }
+
+    const origin = encodeURIComponent(pickup);
+    const destination = encodeURIComponent(dropoff);
+
+    let url =
+      `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}` +
+      `&destination=${destination}&key=${apiKey}`;
+
+    if (stop) {
+      const waypoint = encodeURIComponent(stop);
+      url += `&waypoints=${waypoint}`;
+    }
+
+    // Node 18+ için global fetch var; yoksa hata verir.
+    const gmRes = await fetch(url);
+    const gmData = await gmRes.json();
+
+    if (!gmData.routes || gmData.routes.length === 0) {
+      console.error('Directions cevap:', gmData);
+      return res.status(500).json({ error: 'Rota bulunamadı.' });
+    }
+
+    let meters = 0;
+    gmData.routes[0].legs.forEach((leg) => {
+      if (leg.distance && leg.distance.value) {
+        meters += leg.distance.value;
+      }
+    });
+
+    const miles = meters / 1609.34;
+    const pricing = loadPricing();
+
+    return res.json({
+      ok: true,
+      miles: Number(miles.toFixed(2)),
+      pricing,
+    });
+  } catch (err) {
+    console.error('GET /api/calc-price hata:', err);
+    res.status(500).json({ error: 'Mesafe hesaplanırken sunucu hatası.' });
+  }
+});
+
+// ---------- BOOKINGS API ----------
+
+// Rezervasyon oluşturma (index.html'den gelen /api/bookings2 isteği)
 app.post('/api/bookings2', async (req, res) => {
   try {
     const {
       pickup,
       stop,
       dropoff,
-      date,
-      time,
+      rideDate,
+      rideTime,
       ampm,
       miles,
       total,
       customerName,
       customerPhone,
       customerEmail,
-      notes
-    } = req.body;
+      notes,
+    } = req.body || {};
 
-    if (!pickup || !dropoff || !date || !time || !ampm || !customerName || !customerPhone) {
-      return res.status(400).json({ ok: false, message: 'Missing required fields.' });
+    if (!pickup || !dropoff || !rideDate || !rideTime) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Trip details eksik.' });
     }
 
-    const rideDate = normalizeDate(date);
+    if (!customerName || !customerPhone || !customerEmail) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Name, phone ve email zorunlu.' });
+    }
 
-    const insertSql = `
-      INSERT INTO bookings
-        (pickup, stop, dropoff, ride_date, ride_time, ampm, miles, total,
-         customer_name, customer_phone, customer_email, notes, status)
-      VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'pending')
-      RETURNING id;
-    `;
+    const client = await pool.connect();
+    let newId;
 
-    const values = [
-      pickup,
-      stop || null,
-      dropoff,
-      rideDate,
-      time,
-      ampm,
-      miles ? Number(miles) : null,
-      total ? Number(total) : null,
-      customerName,
-      customerPhone,
-      customerEmail ? customerEmail.toLowerCase() : null,
-      notes || null
-    ];
+    try {
+      const insertQuery = `
+        INSERT INTO bookings (
+          pickup,
+          stop,
+          dropoff,
+          ride_date,
+          ride_time,
+          ampm,
+          miles,
+          total,
+          customer_name,
+          customer_phone,
+          customer_email,
+          notes,
+          status
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+        )
+        RETURNING id;
+      `;
 
-    const result = await pool.query(insertSql, values);
-    const newId = result.rows[0].id;
-    console.log('New booking created with id =', newId);
+      const result = await client.query(insertQuery, [
+        pickup,
+        stop || null,
+        dropoff,
+        rideDate,
+        rideTime,
+        ampm,
+        miles,
+        total,
+        customerName,
+        customerPhone,
+        customerEmail,
+        notes || null,
+        'pending',
+      ]);
 
-    res.json({ ok: true, id: newId, message: 'Reservation request received.' });
+      newId = result.rows[0].id;
+    } finally {
+      client.release();
+    }
+
+    console.log('New booking saved. id =', newId);
+    res.json({ ok: true, id: newId, message: 'Rezervasyon isteğin alındı.' });
   } catch (err) {
-    console.error('POST /api/bookings2 error:', err);
-    res.status(500).json({ ok: false, message: 'Server error.' });
+    console.error('POST /api/bookings2 hatası:', err);
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
   }
 });
 
-// ---------- ADMIN: LIST BOOKINGS ----------
+// Admin: tüm rezervasyonları listele
 app.get('/api/admin/bookings', async (req, res) => {
   try {
     const result = await pool.query(
@@ -219,71 +271,44 @@ app.get('/api/admin/bookings', async (req, res) => {
     );
     res.json({ ok: true, bookings: result.rows });
   } catch (err) {
-    console.error('GET /api/admin/bookings error:', err);
-    res.status(500).json({ ok: false, message: 'Server error.' });
+    console.error('GET /api/admin/bookings hatası:', err);
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
   }
 });
 
-// ---------- ADMIN: UPDATE STATUS ----------
+// Admin: rezervasyon status güncelle
 app.patch('/api/admin/bookings/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    const allowed = ['pending', 'confirmed', 'on_the_way', 'arrived', 'completed', 'cancelled'];
+    const allowed = [
+      'pending',
+      'confirmed',
+      'paid',
+      'on_the_way',
+      'arrived',
+      'completed',
+      'cancelled',
+    ];
+
     if (!allowed.includes(status)) {
-      return res.status(400).json({ ok: false, message: 'Invalid status.' });
+      return res.status(400).json({ ok: false, message: 'Geçersiz status.' });
     }
 
-    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2;', [status, id]);
+    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2;', [
+      status,
+      id,
+    ]);
+
     res.json({ ok: true });
   } catch (err) {
-    console.error('PATCH /api/admin/bookings/:id/status error:', err);
-    res.status(500).json({ ok: false, message: 'Server error.' });
+    console.error('PATCH /api/admin/bookings/:id/status hatası:', err);
+    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
   }
 });
 
-// ---------- CUSTOMER: MY BOOKINGS ----------
-app.get('/api/my-bookings', async (req, res) => {
-  try {
-    const email = req.query.email;
-    if (!email) {
-      return res.status(400).json({ ok: false, message: 'Email is required.' });
-    }
-
-    const sql = `
-      SELECT
-        id,
-        pickup,
-        stop,
-        dropoff,
-        ride_date,
-        ride_time,
-        ampm,
-        miles,
-        total,
-        status,
-        created_at
-      FROM bookings
-      WHERE customer_email = $1
-      ORDER BY ride_date DESC, ride_time DESC, created_at DESC
-      LIMIT 50;
-    `;
-    const result = await pool.query(sql, [email.trim().toLowerCase()]);
-    res.json({ ok: true, bookings: result.rows });
-  } catch (err) {
-    console.error('GET /api/my-bookings error:', err);
-    res.status(500).json({ ok: false, message: 'Server error.' });
-  }
-});
-
-// ---------- PAGES ----------
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// (index.html is served statically from /public)
-
+// ---------- START SERVER ----------
 app.listen(PORT, () => {
-  console.log(`JK2424 server running at http://localhost:${PORT}`);
+  console.log(`JK2424 server ayakta: http://localhost:${PORT}`);
 });
