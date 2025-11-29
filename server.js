@@ -1,3 +1,5 @@
+console.log("### JK2424 ACTIVE SERVER FILE LOADED ###");
+
 // server.js
 // JK2424 – Backend sunucu
 
