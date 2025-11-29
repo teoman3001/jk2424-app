@@ -506,8 +506,9 @@
     const bookingMsg = document.getElementById('bookingMsg');
     const sendBookingBtn = document.getElementById('sendBookingBtn');
 
-    let lastQuote = null; // store last calculation
-    let pricingConfig = null; // loaded from backend
+    let lastQuote = null;         // store last calculation
+    let pricingConfig = null;     // loaded from backend
+    let isSendingBooking = false; // double-click koruması
 
     calcPriceBtn.addEventListener('click', async () => {
       calcMsg.textContent = '';
@@ -563,10 +564,10 @@
         if (data.pricing) {
           pricingConfig = data.pricing;
         }
-        const baseFare       = Number(pricingConfig?.baseFare ?? 65);
-        const includedMiles  = Number(pricingConfig?.includedMiles ?? 15);
-        const extraPerMile   = Number(pricingConfig?.extraPerMile ?? 2);
-        const minimumFare    = Number(pricingConfig?.minimumFare ?? baseFare);
+        const baseFare        = Number(pricingConfig?.baseFare ?? 65);
+        const includedMiles   = Number(pricingConfig?.includedMiles ?? 15);
+        const extraPerMile    = Number(pricingConfig?.extraPerMile ?? 2);
+        const minimumFare     = Number(pricingConfig?.minimumFare ?? baseFare);
         const nightMultiplier = Number(pricingConfig?.nightMultiplier ?? 1.25);
 
         const extraMiles = Math.max(0, miles - includedMiles);
@@ -633,16 +634,23 @@
       bookingMsg.textContent = '';
       bookingMsg.className = 'msg';
 
+      // Çift tıklama / tekrar gönderme koruması
+      if (isSendingBooking) {
+        bookingMsg.textContent = 'Your reservation request is already being sent. Please wait.';
+        bookingMsg.classList.add('error');
+        return;
+      }
+
       if (!lastQuote) {
         bookingMsg.textContent = 'Please calculate price first.';
         bookingMsg.classList.add('error');
         return;
       }
 
-      const customerName = document.getElementById('fullName').value.trim();
+      const customerName  = document.getElementById('fullName').value.trim();
       const customerPhone = document.getElementById('mobilePhone').value.trim();
       const customerEmail = document.getElementById('email').value.trim();
-      const notes = document.getElementById('notes').value.trim();
+      const notes         = document.getElementById('notes').value.trim();
 
       if (!customerName || !customerPhone || !customerEmail) {
         bookingMsg.textContent = 'Name, phone and email are required.';
@@ -666,29 +674,36 @@
       };
 
       try {
+        isSendingBooking = true;
         sendBookingBtn.disabled = true;
         bookingMsg.textContent = 'Sending reservation request...';
+
         const response = await fetch('/api/bookings2', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const data = await response.json();
+
         if (!response.ok || data.ok === false) {
           console.error('Booking error:', data);
           bookingMsg.textContent = data.message || 'Server error while saving reservation.';
           bookingMsg.classList.add('error');
-          sendBookingBtn.disabled = false;
           return;
         }
+
         bookingMsg.textContent =
           'Reservation request received. I will confirm as soon as possible.';
         bookingMsg.classList.add('success');
+
+        // Aynı fiyatlandırmayla tekrar göndermesin diye
+        lastQuote = null;
       } catch (err) {
         console.error('Booking request error:', err);
         bookingMsg.textContent = 'Server error while sending reservation.';
         bookingMsg.classList.add('error');
       } finally {
+        isSendingBooking = false;
         sendBookingBtn.disabled = false;
       }
     });
