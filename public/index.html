@@ -535,6 +535,27 @@
         return;
       }
 
+
+            // --- YENİ EKLEDİĞİMİZ KISIM: 12 SAATLİK SAAT KONTROLÜ ---
+      // Sadece 01:00 - 12:59 arası saatlere izin veriyoruz
+      const timeMatch = rideTime.match(/^(\d{1,2}):(\d{2})$/);
+      if (!timeMatch) {
+        calcMsg.textContent = 'Please enter time as HH:MM.';
+        calcMsg.classList.add('error');
+        return;
+      }
+
+      const hours = parseInt(timeMatch[1], 10);
+      const minutes = parseInt(timeMatch[2], 10);
+
+      if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+        calcMsg.textContent = 'Please enter a valid time between 01:00 and 12:59.';
+        calcMsg.classList.add('error');
+        return;
+      }
+      // --- YENİ KISIM BİTTİ ---
+
+
       const url =
         '/api/calc-price?pickup=' + encodeURIComponent(pickup) +
         '&stop=' + encodeURIComponent(stop) +
