@@ -7,11 +7,14 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { Pool } = require('pg');
+const cors = require('cors');
+const { Expo } = require('expo-server-sdk');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ---------- MIDDLEWARE ----------
+app.use(cors()); // Mobil uygulamadan gelen istekler için
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -64,6 +67,42 @@ async function savePricing(settings) {
   };
 
   fs.writeFileSync(PRICING_FILE, JSON.stringify(clean, null, 2), 'utf8');
+}
+
+// ---------- EXPO PUSH (SERVER TARAFI) ----------
+
+const expo = new Expo();
+
+/**
+ * Tek bir Expo push token için test bildirimi yollar
+ */
+async function sendPushNotification(pushToken, title, body, extraData = {}) {
+  if (!Expo.isExpoPushToken(pushToken)) {
+    throw new Error(`Invalid Expo push token: ${pushToken}`);
+  }
+
+  const messages = [
+    {
+      to: pushToken,
+      sound: 'default',
+      title,
+      body,
+      data: {
+        source: 'jk2424-backend',
+        ...extraData,
+      },
+    },
+  ];
+
+  const chunks = expo.chunkPushNotifications(messages);
+  const tickets = [];
+
+  for (const chunk of chunks) {
+    const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+    tickets.push(...ticketChunk);
+  }
+
+  return tickets;
 }
 
 // ---------- ROUTES ----------
@@ -305,6 +344,32 @@ app.patch('/api/admin/bookings/:id/status', async (req, res) => {
   } catch (err) {
     console.error('PATCH /api/admin/bookings/:id/status hatası:', err);
     res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
+  }
+});
+
+// ---------- PUSH TEST API (MOBİL İÇİN) ----------
+
+app.post('/api/push/send-test', async (req, res) => {
+  try {
+    const { token } = req.body || {};
+
+    if (!token) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Expo push token (token) zorunlu.' });
+    }
+
+    const tickets = await sendPushNotification(
+      token,
+      'JK2424 · Test notification',
+      'This is a test push notification from JK2424 server.',
+      { type: 'test' }
+    );
+
+    res.json({ ok: true, tickets });
+  } catch (err) {
+    console.error('POST /api/push/send-test error:', err);
+    res.status(500).json({ ok: false, message: 'Push notification error.' });
   }
 });
 
