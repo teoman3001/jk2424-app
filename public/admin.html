@@ -2,534 +2,240 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 ADMIN</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JK2424 • Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background:#050505;
-      color:#f5f5f5;
+      background: #050505;
+      color: #f5f5f5;
     }
     .wrap {
       max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
     }
-
-    /* --------- HEADER + TOP NAV --------- */
     header {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      margin-bottom:12px;
-      gap:16px;
-    }
-    .header-left {
-      display:flex;
-      flex-direction:column;
-      gap:2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
     }
     .brand {
-      font-weight:700;
-      font-size:20px;
-      letter-spacing:2px;
-      color:#f9d25a;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 4px;
+      color: #f5d05c;
     }
     .sub {
-      font-size:11px;
-      color:#aaa;
+      font-size: 11px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
-
-    .header-right {
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:6px;
-    }
-
-    .top-nav {
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      gap:6px;
-    }
-    .top-nav a {
-      font-size:11px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid #333;
-      background:#0b0b0b;
-      color:#e5e7eb;
-      text-decoration:none;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-    }
-    .top-nav a:hover {
-      background:#111827;
-    }
-    .top-nav a.active {
-      background:#f9d25a;
-      color:#111;
-      border-color:#f9d25a;
-      font-weight:600;
-    }
-    .top-nav a.disabled {
-      opacity:0.4;
-      cursor:default;
-      pointer-events:none;
-    }
-
     .badge {
-      font-size:11px;
-      padding:2px 8px;
-      border-radius:999px;
-      background:#1b1b1b;
-      border:1px solid #333;
-      margin-left:8px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #444;
+      color: #fff;
+      background: #111;
     }
+    h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+    .card {
+      background: #111;
+      border-radius: 12px;
+      border: 1px solid #333;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 18px 36px rgba(0,0,0,0.6);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #aaa;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #050505;
+      color: #f5f5f5;
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #f5d05c;
+      box-shadow: 0 0 0 1px #f5d05c55;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      background: #f5d05c;
+      color: #000;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .status {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #aaa;
+    }
+    .status.ok { color: #6bff94; }
+    .status.err { color: #ff6b6b; }
 
-    /* --------- STATUS FILTER BUTTONS --------- */
-    .filters {
-      display:flex;
-      gap:6px;
-      margin: 8px 0 16px 0;
-      flex-wrap:wrap;
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #333;
     }
-    .filter-btn {
-      font-size:11px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid #444;
-      background:#111;
-      color:#ddd;
-      cursor:pointer;
-    }
-    .filter-btn.active {
-      background:#f9d25a;
-      color:#111;
-      border-color:#f9d25a;
-      font-weight:600;
-    }
-
-    /* --------- TABLE --------- */
     table {
-      width:100%;
-      border-collapse:collapse;
-      font-size:11px;
-      background:#0c0c0c;
-      border-radius:8px;
-      overflow:hidden;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 900px;
     }
     thead {
-      background:#151515;
-      text-transform:uppercase;
-      letter-spacing:0.05em;
+      background: #181818;
     }
     th, td {
-      padding:8px 10px;
-      border-bottom:1px solid #222;
-      vertical-align:top;
+      padding: 6px 8px;
+      border-bottom: 1px solid #222;
+      vertical-align: top;
     }
-    tbody tr:hover {
-      background:#141414;
+    th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ccc;
     }
-    th:nth-child(1),
-    td:nth-child(1) {
-      width:60px;
-      white-space:nowrap;
+    tbody tr:nth-child(even) {
+      background: #101010;
     }
-    th:nth-child(2) { width:210px; }
-    th:nth-child(3) { width:230px; }
-    th:nth-child(4) { width:150px; }
-    th:nth-child(5) { width:60px; text-align:right; }
-    th:nth-child(6) { width:80px; text-align:right; }
-    th:nth-child(7) { width:150px; }
-    th:nth-child(8) { width:210px; }
-
-    td.num { text-align:right; }
-
-    /* --------- STATUS PILL --------- */
-    .status-pill {
-      display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
-      font-size:10px;
-      text-transform:uppercase;
-      letter-spacing:0.06em;
+    .pill-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: capitalize;
+      background: #222;
+      color: #eee;
     }
-    .st-pending   { background:#33240c; color:#f9d25a; }
-    .st-confirmed { background:#123222; color:#7de3a3; }
-    .st-paid      { background:#10314a; color:#7dd3fc; }
-    .st-on_the_way{ background:#2a2340; color:#c4b5fd; }
-    .st-arrived   { background:#1f2933; color:#fbbf24; }
-    .st-completed { background:#0f2f24; color:#6ee7b7; }
-    .st-cancelled { background:#3b0f16; color:#fecaca; }
-
-    /* --------- ROW ACTION BUTTONS --------- */
-    .actions {
-      display:flex;
-      flex-wrap:wrap;
-      gap:4px;
-    }
-    .btn-sm {
-      font-size:10px;
-      padding:3px 6px;
-      border-radius:999px;
-      border:1px solid #333;
-      background:#111;
-      color:#eee;
-      cursor:pointer;
-    }
-    .btn-sm.route { border-color:#444; }
-    .btn-sm.confirm { border-color:#2563eb; color:#bfdbfe; }
-    .btn-sm.paid { border-color:#16a34a; color:#bbf7d0; }
-    .btn-sm.onway { border-color:#a855f7; color:#e9d5ff; }
-    .btn-sm.arrived { border-color:#f97316; color:#fed7aa; }
-    .btn-sm.completed { border-color:#22c55e; color:#bbf7d0; }
-    .btn-sm.cancel { border-color:#ef4444; color:#fecaca; }
-
-    .msg {
-      margin-top:10px;
-      font-size:11px;
-      color:#9ca3af;
-    }
-
-    @media (max-width:900px) {
-      header {
-        flex-direction:column;
-        align-items:flex-start;
-      }
-      .header-right {
-        align-items:flex-start;
-      }
-      table, thead, tbody, th, td, tr { display:block; }
-      thead { display:none; }
-      tr { border-bottom:1px solid #222; padding:8px 0; }
-      td { border:none; padding:3px 0; }
-      td::before {
-        content: attr(data-label);
-        display:block;
-        font-size:10px;
-        text-transform:uppercase;
-        color:#6b7280;
-        margin-bottom:1px;
-      }
+    .pill-status.pending { background:#444; }
+    .pill-status.confirmed { background:#265dff; }
+    .pill-status.paid { background:#169c5d; }
+    .pill-status.on_the_way { background:#f0a500; }
+    .pill-status.arrived { background:#c27c2c; }
+    .pill-status.completed { background:#1fb36a; }
+    .pill-status.cancelled { background:#a32d2d; }
+    .hint {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="header-left">
-        <div class="brand">JK2424 ADMIN</div>
-        <div class="sub" id="summaryText">Loading bookings…</div>
+      <div>
+        <div class="brand">JK2424</div>
+        <div class="sub">PRIVATE CHAUFFEUR · ADMIN PANEL</div>
       </div>
-      <div class="header-right">
-        <nav class="top-nav">
-          <!-- Dashboard ve Bookings şimdilik aynı sayfa -->
-          <a href="/admin" class="disabled">Dashboard</a>
-          <a href="/admin" class="active">Bookings</a>
-          <a href="/pricing.html">Pricing</a>
-          <a href="#!" class="disabled" title="Coming soon">Settings</a>
-          <a href="#!" class="disabled" title="Coming soon">Drivers</a>
-          <a href="#!" class="disabled" title="Coming soon">Messages</a>
-          <a href="#!" class="disabled" title="Coming soon">Logout</a>
-        </nav>
-        <div class="badge" id="todayInfo"></div>
-      </div>
+      <div class="badge">Internal use only</div>
     </header>
 
-    <div class="filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="pending">Pending</button>
-      <button class="filter-btn" data-filter="confirmed">Confirmed</button>
-      <button class="filter-btn" data-filter="paid">Paid</button>
-      <button class="filter-btn" data-filter="on_the_way">On the way</button>
-      <button class="filter-btn" data-filter="arrived">Arrived</button>
-      <button class="filter-btn" data-filter="completed">Completed</button>
-      <button class="filter-btn" data-filter="cancelled">Cancelled</button>
-    </div>
+    <!-- PRICING SETTINGS -->
+    <section class="card">
+      <div class="section-header">
+        <h2>Pricing settings</h2>
+        <small class="hint">These values are used by web and mobile when calculating estimates.</small>
+      </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th># / Created</th>
-          <th>Client</th>
-          <th>Trip</th>
-          <th>Date &amp; Time</th>
-          <th>Miles</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+      <div class="grid">
+        <div>
+          <label for="baseFare">Base fare ($)</label>
+          <input id="baseFare" type="number" step="0.01" />
+        </div>
+        <div>
+          <label for="includedMiles">Included miles</label>
+          <input id="includedMiles" type="number" step="0.01" />
+        </div>
+        <div>
+          <label for="extraPerMile">Extra per mile ($)</label>
+          <input id="extraPerMile" type="number" step="0.01" />
+        </div>
+        <div>
+          <label for="minimumFare">Minimum fare ($)</label>
+          <input id="minimumFare" type="number" step="0.01" />
+        </div>
+        <div>
+          <label for="nightMultiplier">Night multiplier (×)</label>
+          <input id="nightMultiplier" type="number" step="0.01" />
+        </div>
+      </div>
 
-    <div class="msg" id="msgArea"></div>
+      <button id="savePricingBtn">Save pricing</button>
+      <div id="pricingStatus" class="status"></div>
+    </section>
+
+    <!-- BOOKINGS -->
+    <section class="card">
+      <div class="section-header">
+        <h2>Bookings</h2>
+        <small class="hint">Newest first. Change status from the dropdown.</small>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Created</th>
+              <th>Trip</th>
+              <th>Customer</th>
+              <th>Miles</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody">
+            <!-- JS ile dolacak -->
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
-  <script>
-    const rowsEl = document.getElementById('rows');
-    const msgEl = document.getElementById('msgArea');
-    const summaryText = document.getElementById('summaryText');
-    const todayInfo = document.getElementById('todayInfo');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    let allBookings = [];
-    let currentFilter = 'all';
-
-    // (Mevcut ama şu an kullanılmayan yardımcı)
-    function formatDateTime(iso) {
-      if (!iso) return '-';
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return iso;
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day   = String(d.getDate()).padStart(2, '0');
-      const year  = d.getFullYear();
-      let hrs = d.getHours();
-      const mins = String(d.getMinutes()).padStart(2, '0');
-      const ampm = hrs >= 12 ? 'PM' : 'AM';
-      hrs = hrs % 12;
-      if (hrs === 0) hrs = 12;
-      return `${month}/${day}/${year} · ${String(hrs).padStart(2,'0')}:${mins} ${ampm}`;
-    }
-
-    // Sadece ride_date için (MM/DD/YYYY)
-    function formatRideDate(iso) {
-      if (!iso) return '-';
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return '-';
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day   = String(d.getDate()).padStart(2, '0');
-      const year  = d.getFullYear();
-      return `${month}/${day}/${year}`;
-    }
-
-    // Notes alanını güvenli göstermek için basit HTML escape
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function statusClass(st) {
-      return 'status-pill st-' + st;
-    }
-
-    function statusLabel(st) {
-      switch (st) {
-        case 'pending': return 'Pending';
-        case 'confirmed': return 'Confirmed';
-        case 'paid': return 'Paid';
-        case 'on_the_way': return 'On the way';
-        case 'arrived': return 'Arrived';
-        case 'completed': return 'Completed';
-        case 'cancelled': return 'Cancelled';
-        default: return st;
-      }
-    }
-
-    function render() {
-      let list = allBookings.slice();
-      if (currentFilter !== 'all') {
-        list = list.filter(b => b.status === currentFilter);
-      }
-      rowsEl.innerHTML = '';
-
-      if (!list.length) {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 8;
-        td.textContent = 'No bookings for this filter.';
-        td.style.textAlign = 'center';
-        td.style.padding = '20px 0';
-        tr.appendChild(td);
-        rowsEl.appendChild(tr);
-        return;
-      }
-
-      list.forEach((b) => {
-        const tr = document.createElement('tr');
-
-        const milesNum = Number(b.miles ?? 0);
-        const totalNum = Number(b.total ?? 0);
-
-        const created = b.created_at ? new Date(b.created_at) : null;
-        const createdStr = created && !Number.isNaN(created.getTime())
-          ? created.toLocaleString(undefined, { month:'2-digit', day:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
-          : '';
-
-        const tdIndex = document.createElement('td');
-        tdIndex.setAttribute('data-label', '# / Created');
-        tdIndex.innerHTML = `#${b.id}<br/><span style="color:#9ca3af;">${createdStr}</span>`;
-        tr.appendChild(tdIndex);
-
-        const tdClient = document.createElement('td');
-        tdClient.setAttribute('data-label', 'Client');
-        tdClient.innerHTML = `
-          <div style="font-weight:600;">${b.customer_name || '-'}</div>
-          <div style="color:#9ca3af;">${b.customer_phone || ''}</div>
-          <div style="color:#6b7280;">${b.customer_email || ''}</div>
-        `;
-        tr.appendChild(tdClient);
-
-        const tdTrip = document.createElement('td');
-        tdTrip.setAttribute('data-label', 'Trip');
-        tdTrip.innerHTML = `
-          <div><span style="color:#9ca3af;">Pickup:</span> ${b.pickup}</div>
-          <div><span style="color:#9ca3af;">Drop-off:</span> ${b.dropoff}</div>
-          ${b.stop ? `<div><span style="color:#9ca3af;">Extra stop:</span> ${b.stop}</div>` : ''}
-          ${b.notes ? `<div style="margin-top:4px;"><span style="color:#9ca3af;">Notes:</span> <span style="color:#eab308;">${escapeHtml(b.notes)}</span></div>` : ''}
-        `;
-        tr.appendChild(tdTrip);
-
-        // DATE & TIME: müşteri seçtiği tarih + saat (AM/PM)
-        const tdDateTime = document.createElement('td');
-        tdDateTime.setAttribute('data-label', 'Date & Time');
-
-        const rideDateStr = formatRideDate(b.ride_date);
-        if (rideDateStr !== '-' && b.ride_time) {
-          const timePart = b.ampm ? `${b.ride_time} ${b.ampm}` : b.ride_time;
-          tdDateTime.textContent = `${rideDateStr} · ${timePart}`;
-        } else if (rideDateStr !== '-') {
-          tdDateTime.textContent = rideDateStr;
-        } else if (b.ride_time && b.ampm) {
-          tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
-        } else if (b.ride_time) {
-          tdDateTime.textContent = b.ride_time;
-        } else {
-          tdDateTime.textContent = '-';
-        }
-
-        tr.appendChild(tdDateTime);
-
-        const tdMiles = document.createElement('td');
-        tdMiles.className = 'num';
-        tdMiles.setAttribute('data-label', 'Miles');
-        tdMiles.textContent = milesNum ? milesNum.toFixed(2) : '-';
-        tr.appendChild(tdMiles);
-
-        const tdTotal = document.createElement('td');
-        tdTotal.className = 'num';
-        tdTotal.setAttribute('data-label', 'Total');
-        tdTotal.textContent = totalNum ? '$' + totalNum.toFixed(2) : '-';
-        tr.appendChild(tdTotal);
-
-        const tdStatus = document.createElement('td');
-        tdStatus.setAttribute('data-label', 'Status');
-        const sp = document.createElement('span');
-        sp.className = statusClass(b.status);
-        sp.textContent = statusLabel(b.status);
-        tdStatus.appendChild(sp);
-        tr.appendChild(tdStatus);
-
-        const tdActions = document.createElement('td');
-        tdActions.className = 'actions';
-        tdActions.setAttribute('data-label', 'Actions');
-
-        const btnRoute = document.createElement('button');
-        btnRoute.className = 'btn-sm route';
-        btnRoute.textContent = 'Open route';
-        btnRoute.onclick = () => {
-          const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(b.pickup)}&destination=${encodeURIComponent(b.dropoff || '')}`;
-          window.open(url, '_blank');
-        };
-        tdActions.appendChild(btnRoute);
-
-        function addStatusButton(label, statusValue, cls) {
-          const bt = document.createElement('button');
-          bt.className = 'btn-sm ' + cls;
-          bt.textContent = label;
-          bt.onclick = () => updateStatus(b.id, statusValue);
-          tdActions.appendChild(bt);
-        }
-
-        if (b.status === 'pending') {
-          addStatusButton('Confirm', 'confirmed', 'confirm');
-          addStatusButton('Cancel', 'cancel', 'cancel');
-        } else if (b.status === 'confirmed') {
-          addStatusButton('Payment received', 'paid', 'paid');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        } else if (b.status === 'paid') {
-          addStatusButton('On the way', 'on_the_way', 'onway');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        } else if (b.status === 'on_the_way') {
-          addStatusButton('Arrived', 'arrived', 'arrived');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        } else if (b.status === 'arrived') {
-          addStatusButton('Completed', 'completed', 'completed');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        }
-
-        tr.appendChild(tdActions);
-        rowsEl.appendChild(tr);
-      });
-    }
-
-    async function loadBookings() {
-      msgEl.textContent = '';
-      try {
-        const res = await fetch('/api/admin/bookings');
-        const data = await res.json();
-        if (!data.ok) {
-          msgEl.textContent = 'Server error while loading.';
-          console.error('Load error:', data);
-          return;
-        }
-        allBookings = data.bookings || [];
-        const total = allBookings.length;
-        const today = new Date();
-        const todayStr = today.toLocaleDateString(undefined, { month:'short', day:'2-digit', year:'numeric' });
-        todayInfo.textContent = `${total} bookings loaded · Today: ${todayStr}`;
-        summaryText.textContent = 'Use the filters above to see ride status.';
-        render();
-      } catch (err) {
-        console.error(err);
-        msgEl.textContent = 'Server error while loading.';
-      }
-    }
-
-    async function updateStatus(id, newStatus) {
-      msgEl.textContent = 'Updating status…';
-      try {
-        const res = await fetch(`/api/admin/bookings/${id}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus })
-        });
-        const data = await res.json();
-        if (!data.ok) {
-          msgEl.textContent = 'Could not update status.';
-          console.error('Status error:', data);
-          return;
-        }
-        const idx = allBookings.findIndex(b => b.id === id);
-        if (idx !== -1) {
-          allBookings[idx].status = newStatus;
-        }
-        msgEl.textContent = 'Status updated.';
-        render();
-      } catch (err) {
-        console.error(err);
-        msgEl.textContent = 'Server error while updating status.';
-      }
-    }
-
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        render();
-      });
-    });
-
-    loadBookings();
-  </script>
+  <!-- Admin JS -->
+  <script src="/admin.js"></script>
 </body>
 </html>
