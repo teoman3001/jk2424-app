@@ -1,111 +1,101 @@
-/* -----------------------------------
-   JK2424 • Modern Premium UI (2025)
-   by Clara
-------------------------------------*/
+/* =========================================================
+   JK2424 • Premium UI Styles
+   Modern, clean, luxury chauffeur service design
+   ========================================================= */
 
-/* Reset */
+/* GLOBAL RESET */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
 }
 
-/* Body */
 body {
-  background: #0d0d0d;
-  color: #e8e8e8;
-  padding: 40px 16px 80px;
+  background: #000;
+  color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 32px 16px;
   display: flex;
   justify-content: center;
 }
 
-/* Page container */
+/* CONTAINER */
 .container {
+  max-width: 540px;
   width: 100%;
-  max-width: 520px;
 }
 
-/* Header */
+/* HEADER */
 .header {
   text-align: center;
   margin-bottom: 32px;
 }
 
 .brand {
-  letter-spacing: 0.22em;
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 700;
+  letter-spacing: 0.3em;
   color: #f5d05c;
-  margin-bottom: 4px;
 }
 
 .subtitle {
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 13px;
+  letter-spacing: 0.12em;
   color: #bbbbbb;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
-/* Card sections */
+/* CARD SECTIONS */
 .card {
-  background: rgba(255, 255, 255, 0.04);
-  padding: 24px 20px;
+  background: #0c0c0c;
+  padding: 22px;
   border-radius: 14px;
   margin-bottom: 24px;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #1a1a1a;
 }
 
 .card h2 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 17px;
   color: #f5d05c;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
-/* Labels */
+/* LABELS */
 label {
-  display: block;
   font-size: 13px;
-  color: #cfcfcf;
-  margin-bottom: 6px;
-  margin-top: 14px;
+  color: #dddddd;
+  margin-bottom: 4px;
+  display: block;
 }
 
-/* Inputs */
+/* INPUT FIELDS */
 input {
   width: 100%;
-  padding: 12px 14px;
-  background: #1b1b1b;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border-radius: 8px;
   border: 1px solid #333;
-  border-radius: 10px;
-  color: #fff;
-  margin-bottom: 6px;
+  background: #111;
+  color: #f5f5f5;
   font-size: 14px;
 }
 
-input:focus {
-  outline: none;
-  border-color: #f5d05c;
-  box-shadow: 0 0 4px #f5d05c55;
-}
-
-/* AM-PM buttons */
+/* AM/PM BUTTONS */
 .am-pm-buttons {
   display: flex;
   gap: 12px;
-  margin: 14px 0 6px;
+  margin-bottom: 16px;
 }
 
 .am-pm-buttons button {
   flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #333;
-  background: #1b1b1b;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #111;
   color: #ccc;
-  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s;
 }
 
 .am-pm-buttons button.active {
@@ -114,44 +104,104 @@ input:focus {
   border-color: #f5d05c;
 }
 
-/* Primary button */
+/* PRIMARY BUTTON */
 .btn-primary {
   width: 100%;
   background: #f5d05c;
-  color: #000;
   border: none;
-  padding: 14px;
-  border-radius: 12px;
-  margin-top: 18px;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  padding: 12px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s ease;
+  font-weight: 600;
+  color: #000;
+  transition: 0.25s;
+  margin-top: 4px;
+  margin-bottom: 8px;
 }
 
 .btn-primary:hover {
-  background: #ffdb6a;
-  box-shadow: 0 0 10px #f5d05c66;
+  background: #ffdd71;
 }
 
-/* Estimate box */
+/* ESTIMATE BOX */
 .estimate-box {
-  margin-top: 20px;
+  background: #111;
   padding: 16px;
   border-radius: 10px;
-  background: #171717;
-  border: 1px solid #333;
+  border: 1px solid #222;
+  margin-top: 14px;
 }
 
 .hidden {
   display: none;
 }
 
-/* Footer */
+.estimate-box p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+/* RESULT MESSAGE */
+.result-message {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* FOOTER */
 .footer {
   text-align: center;
-  margin-top: 40px;
   font-size: 12px;
-  color: #7a7a7a;
+  color: #aaa;
+  margin-top: 16px;
+  opacity: 0.7;
+}
+
+/* =========================================================
+   ADMIN PANEL STYLES
+   ========================================================= */
+
+.admin-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.admin-header h1 {
+  font-size: 32px;
+  letter-spacing: 0.22em;
+  color: #f5d05c;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0c0c0c;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+  padding: 12px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid #222;
+}
+
+.admin-table th {
+  background: #111;
+  color: #f5d05c;
+  font-weight: 600;
+}
+
+.status-select {
+  padding: 6px;
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 6px;
 }
