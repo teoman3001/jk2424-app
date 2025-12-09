@@ -94,7 +94,6 @@
     .pac-icon { filter: invert(80%) sepia(60%) saturate(400%) hue-rotate(10deg) brightness(1.2); }
   </style>
 </head>
-
 <body>
   <div class="logo">
     <div class="logo-title">JK2424</div>
@@ -112,22 +111,22 @@
       <div class="card-header-pill">Step 1 • Trip details</div>
 
       <label>Pickup location</label>
-      <input id="pickup" type="text" />
+      <input id="pickup" type="text" placeholder="Tysons, VA" />
 
       <label>Extra stop (optional)</label>
-      <input id="stop" type="text" />
+      <input id="stop" type="text" placeholder="Optional extra stop" />
 
       <label>Drop-off location</label>
-      <input id="dropoff" type="text" />
+      <input id="dropoff" type="text" placeholder="Dulles Airport" />
 
       <div class="row">
         <div class="col">
           <label>Date (MM/DD/YYYY)</label>
-          <input id="rideDate" type="text" maxlength="10" />
+          <input id="rideDate" type="text" maxlength="10" placeholder="12/25/2025" />
         </div>
         <div class="col">
           <label>Time</label>
-          <input id="rideTime" type="text" maxlength="5" />
+          <input id="rideTime" type="text" maxlength="5" placeholder="04:15" />
         </div>
       </div>
 
@@ -145,11 +144,21 @@
     <div class="card" id="estimateCard">
       <div class="estimate-title">Estimate</div>
       <div id="estimateEmptyText">Enter trip details.</div>
+
       <div id="estimateDetails" style="display:none;">
-        <div class="estimate-row"><span>Distance</span><span id="estDistance"></span></div>
-        <div class="estimate-row"><span id="estBaseLabel"></span><span id="estBaseFare"></span></div>
-        <div class="estimate-row"><span>Extra miles</span><span id="estExtraMiles"></span></div>
-        <div class="estimate-row"><span>Night fare</span><span id="estNightFare"></span></div>
+        <div class="estimate-row">
+          <span>Distance</span><span id="estDistance"></span>
+        </div>
+        <div class="estimate-row">
+          <span id="estBaseLabel"></span><span id="estBaseFare"></span>
+        </div>
+        <div class="estimate-row">
+          <span>Extra miles</span><span id="estExtraMiles"></span>
+        </div>
+        <div class="estimate-row">
+          <span>Night fare</span><span id="estNightFare"></span>
+        </div>
+
         <div class="estimate-total">
           <span>Estimated total</span>
           <span class="estimate-total-value" id="estTotal"></span>
@@ -167,16 +176,16 @@
       <div id="summaryTotal"></div>
 
       <label>Full name</label>
-      <input id="fullName" type="text" />
+      <input id="fullName" type="text" placeholder="John Doe" />
 
       <label>Mobile phone</label>
-      <input id="mobilePhone" type="tel" />
+      <input id="mobilePhone" type="tel" placeholder="+1 771 217 31 11" />
 
       <label>Email</label>
-      <input id="email" type="email" />
+      <input id="email" type="email" placeholder="name@example.com" />
 
       <label>Notes</label>
-      <textarea id="notes" rows="2"></textarea>
+      <textarea id="notes" rows="2" placeholder="Gate code, luggage, etc."></textarea>
 
       <button id="sendBookingBtn" class="primary-btn">SEND RESERVATION</button>
       <div id="bookingMsg" class="msg"></div>
@@ -186,111 +195,169 @@
       Need help? Call/text +1 (771) 217 31 11
     </div>
   </div>
-
 <script>
+/* ===========================
+   GLOBAL STATE
+=========================== */
 let currentAmpm = "AM";
 let lastQuote = null;
 
+/* ===========================
+   INPUT AUTO-FORMAT
+=========================== */
 function autoFormatDate(input){
   let v = input.value.replace(/[^0-9]/g, "");
   if(v.length > 2 && v.length <= 4) v = v.slice(0,2)+"/"+v.slice(2);
   else if(v.length > 4) v = v.slice(0,2)+"/"+v.slice(2,4)+"/"+v.slice(4,8);
   input.value = v.slice(0,10);
 }
+
 function autoFormatTime(input){
   let v = input.value.replace(/[^0-9]/g, "");
   if(v.length > 2) v = v.slice(0,2)+":"+v.slice(2,4);
   input.value = v.slice(0,5);
 }
-document.getElementById("rideDate").oninput = e => autoFormatDate(e.target);
-document.getElementById("rideTime").oninput = e => autoFormatTime(e.target);
 
+document.getElementById("rideDate").addEventListener("input", e => autoFormatDate(e.target));
+document.getElementById("rideTime").addEventListener("input", e => autoFormatTime(e.target));
+
+/* ===========================
+   AM / PM TOGGLE
+=========================== */
 document.getElementById("amBtn").onclick = () => {
   currentAmpm = "AM";
   amBtn.classList.add("active");
   pmBtn.classList.remove("active");
 };
+
 document.getElementById("pmBtn").onclick = () => {
   currentAmpm = "PM";
   pmBtn.classList.add("active");
   amBtn.classList.remove("active");
 };
 
+/* ===========================
+   TIME PARSE + NIGHT CHECK
+=========================== */
 function parseTimeTo24h(timeStr){
   const [h, m] = timeStr.split(":").map(Number);
   if(isNaN(h) || isNaN(m)) return null;
+
   let hour = h;
   if(currentAmpm === "PM" && h !== 12) hour += 12;
   if(currentAmpm === "AM" && h === 12) hour = 0;
+
   return {h:hour, m};
 }
 
 function getNightInfo(timeStr){
   const t = parseTimeTo24h(timeStr);
   if(!t) return {isNight:false, multiplier:1, label:"No"};
-  const mins = t.h*60 + t.m;
+
+  const mins = t.h * 60 + t.m;
   const night = (mins >= 22*60 || mins < 5*60);
+
   return night
     ? {isNight:true, multiplier:1.25, label:"Yes ×1.25"}
     : {isNight:false, multiplier:1, label:"No"};
 }
 
+/* ===========================
+   CALCULATE PRICE
+=========================== */
 document.getElementById("calcPriceBtn").onclick = async () => {
-  const pickup = pickup.value.trim();
-  const stop = stop.value.trim();
-  const dropoff = dropoff.value.trim();
-  const date = rideDate.value.trim();
-  const time = rideTime.value.trim();
-
+  const pickup = document.getElementById("pickup").value.trim();
+  const stop = document.getElementById("stop").value.trim();
+  const dropoff = document.getElementById("dropoff").value.trim();
+  const date = document.getElementById("rideDate").value.trim();
+  const time = document.getElementById("rideTime").value.trim();
   const msg = document.getElementById("calcMsg");
+
   msg.textContent = "";
+  msg.className = "msg";
 
-  if(!pickup || !dropoff){ msg.textContent="Pickup and dropoff required."; msg.classList.add("error"); return; }
-  if(!date || !time){ msg.textContent="Enter date & time."; msg.classList.add("error"); return; }
+  if(!pickup || !dropoff){
+    msg.textContent = "Pickup and dropoff required.";
+    msg.classList.add("error");
+    return;
+  }
+  if(!date || !time){
+    msg.textContent = "Enter date & time.";
+    msg.classList.add("error");
+    return;
+  }
 
-  msg.textContent="Calculating...";
+  msg.textContent = "Calculating...";
 
-  const res = await fetch(`/api/calc-price?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`);
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      `/api/calc-price?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`
+    );
+    const data = await res.json();
 
-  if(!data.miles){ msg.textContent="Distance error."; msg.classList.add("error"); return; }
+    if(!data.miles){
+      msg.textContent = "Distance calculation error.";
+      msg.classList.add("error");
+      return;
+    }
 
-  const miles = data.miles;
-  const baseFare = data.pricing.baseFare;
-  const included = data.pricing.includedMiles;
-  const extraPrice = data.pricing.extraPerMile;
-  const minFare = data.pricing.minimumFare;
+    const miles = data.miles;
+    const { baseFare, includedMiles, extraPerMile, minimumFare } = data.pricing;
 
-  const extraMiles = Math.max(0, miles - included);
-  let total = baseFare + extraMiles*extraPrice;
+    const extraMiles = Math.max(0, miles - includedMiles);
+    let total = baseFare + extraMiles * extraPerMile;
 
-  const night = getNightInfo(time);
-  total *= night.multiplier;
-  if(total < minFare) total = minFare;
+    const night = getNightInfo(time);
+    total *= night.multiplier;
+    if(total < minimumFare) total = minimumFare;
 
-  estDistance.textContent = miles.toFixed(2)+" miles";
-  estBaseLabel.textContent = `Base fare (up to ${included} miles)`;
-  estBaseFare.textContent = "$"+baseFare.toFixed(2);
-  estExtraMiles.textContent = `${extraMiles} × $${extraPrice} = $${(extraMiles*extraPrice).toFixed(2)}`;
-  estNightFare.textContent = night.label;
-  estTotal.textContent = "$"+total.toFixed(2);
+    // Update UI
+    document.getElementById("estimateEmptyText").style.display = "none";
+    document.getElementById("estimateDetails").style.display = "block";
 
-  estimateEmptyText.style.display="none";
-  estimateDetails.style.display="block";
+    estDistance.textContent = miles.toFixed(2) + " miles";
+    estBaseLabel.textContent = `Base fare (up to ${includedMiles} miles)`;
+    estBaseFare.textContent = "$" + baseFare.toFixed(2);
+    estExtraMiles.textContent =
+      `${extraMiles} × $${extraPerMile} = $${(extraMiles*extraPerMile).toFixed(2)}`;
+    estNightFare.textContent = night.label;
+    estTotal.textContent = "$" + total.toFixed(2);
 
-  summaryPickup.textContent = "Pickup: "+pickup;
-  summaryDropoff.textContent = "Dropoff: "+dropoff;
-  summaryDateTime.textContent = "Date: "+date+" "+time+" "+currentAmpm;
-  summaryTotal.textContent = "Total: $"+total.toFixed(2);
+    summaryPickup.textContent = "Pickup: " + pickup;
+    summaryDropoff.textContent = "Dropoff: " + dropoff;
+    summaryDateTime.textContent = "Date: " + date + " " + time + " " + currentAmpm;
+    summaryTotal.textContent = "Total: $" + total.toFixed(2);
 
-  step2Card.classList.add("visible");
+    document.getElementById("step2Card").classList.add("visible");
 
-  lastQuote = { pickup, stop, dropoff, date, time, ampm:currentAmpm, miles, total };
-  msg.textContent = "";
+    lastQuote = {
+      pickup, stop, dropoff, date, time,
+      ampm: currentAmpm,
+      miles,
+      total
+    };
+
+    msg.textContent = "";
+  } catch (err) {
+    console.error(err);
+    msg.textContent = "Server error.";
+    msg.classList.add("error");
+  }
 };
 
+/* ===========================
+   SEND BOOKING
+=========================== */
 document.getElementById("sendBookingBtn").onclick = async () => {
-  if(!lastQuote){ bookingMsg.textContent="Please calculate first."; bookingMsg.classList.add("error"); return; }
+  const bookingMsg = document.getElementById("bookingMsg");
+  bookingMsg.textContent = "";
+  bookingMsg.className = "msg";
+
+  if(!lastQuote){
+    bookingMsg.textContent = "Please calculate first.";
+    bookingMsg.classList.add("error");
+    return;
+  }
 
   const payload = {
     pickup: lastQuote.pickup,
@@ -307,28 +374,37 @@ document.getElementById("sendBookingBtn").onclick = async () => {
     notes: notes.value.trim()
   };
 
-  bookingMsg.textContent="Sending…";
+  bookingMsg.textContent = "Sending…";
 
-  const res = await fetch("/api/bookings2", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify(payload)
-  });
+  try {
+    const res = await fetch("/api/bookings2", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify(payload)
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if(!res.ok){
-    bookingMsg.textContent = data.message || "Server error.";
+    if(!res.ok){
+      bookingMsg.textContent = data.message || "Server error.";
+      bookingMsg.classList.add("error");
+      return;
+    }
+
+    bookingMsg.textContent = "Reservation sent successfully!";
+    bookingMsg.classList.add("success");
+
+  } catch (err) {
+    console.error(err);
+    bookingMsg.textContent = "Server error.";
     bookingMsg.classList.add("error");
-    return;
   }
-
-  bookingMsg.textContent = "Reservation sent successfully!";
-  bookingMsg.classList.add("success");
 };
 </script>
 
+<!-- GOOGLE AUTOCOMPLETE -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places" async defer></script>
+
 <script>
 window.onload = () => {
   const opts = {
@@ -340,6 +416,3 @@ window.onload = () => {
   new google.maps.places.Autocomplete(document.getElementById("dropoff"), opts);
 };
 </script>
-
-</body>
-</html>
