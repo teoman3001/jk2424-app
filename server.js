@@ -1,379 +1,238 @@
-// server.js
-// JK2424 – Backend sunucu
+// JK2424 ADMIN PANEL JS (FULLY SYNCED WITH BACKEND)
+// Pricing settings + bookings management
 
-require('dotenv').config();
+// BACKEND URL
+const API_BASE = "https://jk2424-backend.onrender.com";
 
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const { Pool } = require('pg');
-const cors = require('cors');
-const { Expo } = require('expo-server-sdk');
+// ------------------ PRICING ------------------
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+async function loadPricing() {
+  const statusEl = document.getElementById("pricingStatus");
+  statusEl.textContent = "Loading pricing...";
+  statusEl.className = "status";
 
-// ---------- MIDDLEWARE ----------
-app.use(cors()); // Mobil uygulamadan gelen istekler için
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// ---------- POSTGRES ----------
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
-
-// ---------- PRICING JSON (dosyadan okuma / yazma) ----------
-const PRICING_FILE = path.join(__dirname, 'pricing.json');
-
-function getDefaultPricing() {
-  return {
-    baseFare: 65,
-    includedMiles: 15,
-    extraPerMile: 2,
-    minimumFare: 65,
-    nightMultiplier: 1.25,
-  };
-}
-
-function loadPricing() {
   try {
-    const raw = fs.readFileSync(PRICING_FILE, 'utf8');
-    const data = JSON.parse(raw || '{}');
-    const def = getDefaultPricing();
+    const res = await fetch(`${API_BASE}/api/admin/pricing`);
+    const data = await res.json();
 
-    return {
-      baseFare: Number(data.baseFare || def.baseFare),
-      includedMiles: Number(data.includedMiles || def.includedMiles),
-      extraPerMile: Number(data.extraPerMile || def.extraPerMile),
-      minimumFare: Number(data.minimumFare || def.minimumFare),
-      nightMultiplier: Number(data.nightMultiplier || def.nightMultiplier),
-    };
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "Could not load pricing.");
+    }
+
+    const s = data.settings || {};
+
+    document.getElementById("baseFare").value = s.baseFare ?? 65;
+    document.getElementById("includedMiles").value = s.includedMiles ?? 15;
+    document.getElementById("extraPerMile").value = s.extraPerMile ?? 2;
+    document.getElementById("minimumFare").value =
+      s.minimumFare ?? s.baseFare ?? 65;
+    document.getElementById("nightMultiplier").value =
+      s.nightMultiplier ?? 1.25;
+
+    statusEl.textContent = "Pricing loaded.";
+    statusEl.className = "status ok";
   } catch (err) {
-    console.warn('Pricing file missing/invalid, using defaults:', err.message);
-    return getDefaultPricing();
+    console.error(err);
+    statusEl.textContent = "Error loading pricing.";
+    statusEl.className = "status err";
   }
 }
 
-async function savePricing(settings) {
-  const clean = {
-    baseFare: Number(settings.baseFare),
-    includedMiles: Number(settings.includedMiles),
-    extraPerMile: Number(settings.extraPerMile),
-    minimumFare: Number(settings.minimumFare),
-    nightMultiplier: Number(settings.nightMultiplier),
+async function savePricing() {
+  const btn = document.getElementById("savePricingBtn");
+  const statusEl = document.getElementById("pricingStatus");
+
+  const payload = {
+    baseFare: Number(document.getElementById("baseFare").value),
+    includedMiles: Number(document.getElementById("includedMiles").value),
+    extraPerMile: Number(document.getElementById("extraPerMile").value),
+    minimumFare: Number(document.getElementById("minimumFare").value),
+    nightMultiplier: Number(
+      document.getElementById("nightMultiplier").value
+    ),
   };
 
-  fs.writeFileSync(PRICING_FILE, JSON.stringify(clean, null, 2), 'utf8');
-}
+  btn.disabled = true;
+  statusEl.textContent = "Saving...";
+  statusEl.className = "status";
 
-// ---------- EXPO PUSH (SERVER TARAFI) ----------
-
-const expo = new Expo();
-
-/**
- * Tek bir Expo push token için test bildirimi yollar
- */
-async function sendPushNotification(pushToken, title, body, extraData = {}) {
-  if (!Expo.isExpoPushToken(pushToken)) {
-    throw new Error(`Invalid Expo push token: ${pushToken}`);
-  }
-
-  const messages = [
-    {
-      to: pushToken,
-      sound: 'default',
-      title,
-      body,
-      data: {
-        source: 'jk2424-backend',
-        ...extraData,
-      },
-    },
-  ];
-
-  const chunks = expo.chunkPushNotifications(messages);
-  const tickets = [];
-
-  for (const chunk of chunks) {
-    const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-    tickets.push(...ticketChunk);
-  }
-
-  return tickets;
-}
-
-// ---------- ROUTES ----------
-
-// Ana sayfa (müşteri tarafı)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Admin paneli (eğer ayrı html kullanıyorsan)
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// ---------- ADMIN – PRICING API ----------
-
-// Ayarları getir
-app.get('/api/admin/pricing', async (req, res) => {
   try {
-    const settings = loadPricing();
-    res.json({ ok: true, settings });
-  } catch (err) {
-    console.error('GET /api/admin/pricing error:', err);
-    res.status(500).json({ ok: false, message: 'Server error.' });
-  }
-});
-
-// Ayarları kaydet
-app.post('/api/admin/pricing', async (req, res) => {
-  try {
-    const {
-      baseFare,
-      includedMiles,
-      extraPerMile,
-      minimumFare,
-      nightMultiplier,
-    } = req.body || {};
-
-    await savePricing({
-      baseFare,
-      includedMiles,
-      extraPerMile,
-      minimumFare,
-      nightMultiplier,
+    const res = await fetch(`${API_BASE}/api/admin/pricing`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    res.json({ ok: true });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "Could not save pricing.");
+    }
+
+    statusEl.textContent = "Pricing saved.";
+    statusEl.className = "status ok";
   } catch (err) {
-    console.error('POST /api/admin/pricing error:', err);
-    res.status(500).json({ ok: false, message: 'Server error.' });
+    console.error(err);
+    statusEl.textContent = "Error saving pricing.";
+    statusEl.className = "status err";
+  } finally {
+    btn.disabled = false;
   }
-});
+}
 
-// ---------- PRICE CALCULATION API ----------
-// Mesafeyi Google Directions API ile hesaplar, paneldeki pricing ayarlarını döner.
-// Frontend (index.html) toplam ücreti kendisi hesaplıyor.
+// ------------------ BOOKINGS ------------------
 
-app.get('/api/calc-price', async (req, res) => {
+// Backend'deki yasal status listesi:
+const STATUS_OPTIONS = [
+  "pending",
+  "confirmed",
+  "paid",
+  "on_the_way",
+  "arrived",
+  "completed",
+  "cancelled",
+];
+
+function renderStatusPill(status) {
+  const span = document.createElement("span");
+  span.className = "pill-status " + status;
+  span.textContent = status.replace(/_/g, " ");
+  return span;
+}
+
+async function loadBookings() {
+  const tbody = document.getElementById("bookingsBody");
+  tbody.innerHTML = "<tr><td colspan='7'>Loading bookings...</td></tr>";
+
   try {
-    const { pickup, stop, dropoff } = req.query;
+    // BACKEND'İN DOĞRU ENDPOINT'İ
+    const res = await fetch(`${API_BASE}/api/admin/bookings`);
+    const data = await res.json();
 
-    if (!pickup || !dropoff) {
-      return res.status(400).json({ error: 'Pickup ve drop-off zorunlu.' });
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "Could not load bookings.");
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Google Maps API anahtarı eksik.' });
+    const bookings = data.bookings || [];
+    if (!bookings.length) {
+      tbody.innerHTML =
+        "<tr><td colspan='7'>No bookings found.</td></tr>";
+      return;
     }
 
-    const origin = encodeURIComponent(pickup);
-    const destination = encodeURIComponent(dropoff);
+    tbody.innerHTML = "";
 
-    let url =
-      `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}` +
-      `&destination=${destination}&key=${apiKey}`;
+    bookings.forEach((b) => {
+      const tr = document.createElement("tr");
 
-    if (stop) {
-      const waypoint = encodeURIComponent(stop);
-      url += `&waypoints=${waypoint}`;
+      // ID
+      const tdId = document.createElement("td");
+      tdId.textContent = b.id;
+      tr.appendChild(tdId);
+
+      // Created At
+      const tdCreated = document.createElement("td");
+      tdCreated.textContent = b.created_at
+        ? new Date(b.created_at).toLocaleString()
+        : "-";
+      tr.appendChild(tdCreated);
+
+      // Trip Info
+      const tdTrip = document.createElement("td");
+      tdTrip.innerHTML =
+        `<strong>${b.pickup}</strong>` +
+        `<br/><small>→ ${b.dropoff}</small>` +
+        `<br/><small>${b.ride_date} ${b.ride_time} ${b.ampm}</small>`;
+      tr.appendChild(tdTrip);
+
+      // Customer Info
+      const tdCustomer = document.createElement("td");
+      tdCustomer.innerHTML =
+        `<strong>${b.customer_name}</strong>` +
+        (b.notes ? `<br/><small>Notes: ${b.notes}</small>` : "");
+      tr.appendChild(tdCustomer);
+
+      // Miles
+      const tdMiles = document.createElement("td");
+      tdMiles.textContent =
+        (b.miles != null ? Number(b.miles).toFixed(2) : "-") + " mi";
+      tr.appendChild(tdMiles);
+
+      // Total
+      const tdTotal = document.createElement("td");
+      tdTotal.textContent =
+        b.total != null
+          ? `$${Number(b.total).toFixed(2)}`
+          : "-";
+      tr.appendChild(tdTotal);
+
+      // Status + Dropdown
+      const tdStatus = document.createElement("td");
+      const pill = renderStatusPill(b.status || "pending");
+      tdStatus.appendChild(pill);
+      tdStatus.appendChild(document.createElement("br"));
+
+      const select = document.createElement("select");
+      select.dataset.id = b.id;
+      STATUS_OPTIONS.forEach((opt) => {
+        const o = document.createElement("option");
+        o.value = opt;
+        o.textContent = opt.replace(/_/g, " ");
+        if (opt === b.status) o.selected = true;
+        select.appendChild(o);
+      });
+
+      tdStatus.appendChild(select);
+      tr.appendChild(tdStatus);
+
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML =
+      "<tr><td colspan='7'>Error loading bookings.</td></tr>";
+  }
+}
+
+async function updateBookingStatus(id, status) {
+  try {
+    // BACKEND'E UYGUN PATCH ENDPOINT
+    const res = await fetch(`${API_BASE}/api/admin/bookings/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "Could not update status.");
     }
 
-    // Node 18+ için global fetch var; yoksa hata verir.
-    const gmRes = await fetch(url);
-    const gmData = await gmRes.json();
+    await loadBookings(); // tabloyu yenile
+  } catch (err) {
+    console.error(err);
+    alert("Error updating status. Check console/logs.");
+  }
+}
 
-    if (!gmData.routes || gmData.routes.length === 0) {
-      console.error('Directions cevap:', gmData);
-      return res.status(500).json({ error: 'Rota bulunamadı.' });
-    }
+// ------------------ INIT ------------------
 
-    let meters = 0;
-    gmData.routes[0].legs.forEach((leg) => {
-      if (leg.distance && leg.distance.value) {
-        meters += leg.distance.value;
+document.addEventListener("DOMContentLoaded", () => {
+  loadPricing();
+  loadBookings();
+
+  const saveBtn = document.getElementById("savePricingBtn");
+  if (saveBtn) saveBtn.addEventListener("click", savePricing);
+
+  const tbody = document.getElementById("bookingsBody");
+  if (tbody) {
+    tbody.addEventListener("change", (e) => {
+      const target = e.target;
+      if (target.tagName === "SELECT") {
+        const id = target.dataset.id;
+        const value = target.value;
+        updateBookingStatus(id, value);
       }
     });
-
-    const miles = meters / 1609.34;
-    const pricing = loadPricing();
-
-    return res.json({
-      ok: true,
-      miles: Number(miles.toFixed(2)),
-      pricing,
-    });
-  } catch (err) {
-    console.error('GET /api/calc-price hata:', err);
-    res.status(500).json({ error: 'Mesafe hesaplanırken sunucu hatası.' });
   }
-});
-
-// ---------- BOOKINGS API ----------
-
-// Rezervasyon oluşturma (index.html'den gelen /api/bookings2 isteği)
-app.post('/api/bookings2', async (req, res) => {
-  try {
-    const {
-      pickup,
-      stop,
-      dropoff,
-      rideDate,
-      rideTime,
-      ampm,
-      miles,
-      total,
-      customerName,
-      customerPhone,
-      customerEmail,
-      notes,
-    } = req.body || {};
-
-    if (!pickup || !dropoff || !rideDate || !rideTime) {
-      return res
-        .status(400)
-        .json({ ok: false, message: 'Trip details eksik.' });
-    }
-
-    if (!customerName || !customerPhone || !customerEmail) {
-      return res
-        .status(400)
-        .json({ ok: false, message: 'Name, phone ve email zorunlu.' });
-    }
-
-    const client = await pool.connect();
-    let newId;
-
-    try {
-      const insertQuery = `
-        INSERT INTO bookings (
-          pickup,
-          stop,
-          dropoff,
-          ride_date,
-          ride_time,
-          ampm,
-          miles,
-          total,
-          customer_name,
-          customer_phone,
-          customer_email,
-          notes,
-          status
-        )
-        VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
-        )
-        RETURNING id;
-      `;
-
-      const result = await client.query(insertQuery, [
-        pickup,
-        stop || null,
-        dropoff,
-        rideDate,
-        rideTime,
-        ampm,
-        miles,
-        total,
-        customerName,
-        customerPhone,
-        customerEmail,
-        notes || null,
-        'pending',
-      ]);
-
-      newId = result.rows[0].id;
-    } finally {
-      client.release();
-    }
-
-    console.log('New booking saved. id =', newId);
-    res.json({ ok: true, id: newId, message: 'Rezervasyon isteğin alındı.' });
-  } catch (err) {
-    console.error('POST /api/bookings2 hatası:', err);
-    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
-  }
-});
-
-// Admin: tüm rezervasyonları listele
-app.get('/api/admin/bookings', async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT * FROM bookings ORDER BY created_at DESC;'
-    );
-    res.json({ ok: true, bookings: result.rows });
-  } catch (err) {
-    console.error('GET /api/admin/bookings hatası:', err);
-    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
-  }
-});
-
-// Admin: rezervasyon status güncelle
-app.patch('/api/admin/bookings/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const allowed = [
-      'pending',
-      'confirmed',
-      'paid',
-      'on_the_way',
-      'arrived',
-      'completed',
-      'cancelled',
-    ];
-
-    if (!allowed.includes(status)) {
-      return res.status(400).json({ ok: false, message: 'Geçersiz status.' });
-    }
-
-    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2;', [
-      status,
-      id,
-    ]);
-
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('PATCH /api/admin/bookings/:id/status hatası:', err);
-    res.status(500).json({ ok: false, message: 'Sunucu hatası.' });
-  }
-});
-
-// ---------- PUSH TEST API (MOBİL İÇİN) ----------
-
-app.post('/api/push/send-test', async (req, res) => {
-  try {
-    const { token } = req.body || {};
-
-    if (!token) {
-      return res
-        .status(400)
-        .json({ ok: false, message: 'Expo push token (token) zorunlu.' });
-    }
-
-    const tickets = await sendPushNotification(
-      token,
-      'JK2424 · Test notification',
-      'This is a test push notification from JK2424 server.',
-      { type: 'test' }
-    );
-
-    res.json({ ok: true, tickets });
-  } catch (err) {
-    console.error('POST /api/push/send-test error:', err);
-    res.status(500).json({ ok: false, message: 'Push notification error.' });
-  }
-});
-
-// ---------- START SERVER ----------
-app.listen(PORT, () => {
-  console.log(`JK2424 server ayakta: http://localhost:${PORT}`);
 });
