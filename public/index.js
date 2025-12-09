@@ -3,104 +3,85 @@
 // =========================
 function initAutocomplete() {
     const options = {
-        types: ["geocode"],
-        componentRestrictions: { country: "us" }
+        fields: ["formatted_address", "geometry", "name"],
+        types: ["geocode"]
     };
 
-    new google.maps.places.Autocomplete(document.getElementById("pickup"), options);
-    new google.maps.places.Autocomplete(document.getElementById("extra_stop"), options);
-    new google.maps.places.Autocomplete(document.getElementById("dropoff"), options);
+    new google.maps.places.Autocomplete(
+        document.getElementById("pickup"),
+        options
+    );
+    new google.maps.places.Autocomplete(
+        document.getElementById("extra_stop"),
+        options
+    );
+    new google.maps.places.Autocomplete(
+        document.getElementById("dropoff"),
+        options
+    );
 }
 
-google.maps.event.addDomListener(window, "load", initAutocomplete);
-
-
+window.onload = initAutocomplete;
 
 // =========================
-// AUTO FORMAT DATE (MM/DD/YYYY)
+// DATE AUTO-FORMAT
 // =========================
 document.getElementById("date").addEventListener("input", function () {
     let v = this.value.replace(/\D/g, "");
-    if (v.length >= 3 && v.length <= 4) {
-        this.value = v.slice(0, 2) + "/" + v.slice(2);
-    } else if (v.length > 4) {
+    if (v.length >= 3 && v.length <= 4) this.value = v.slice(0, 2) + "/" + v.slice(2);
+    else if (v.length > 4)
         this.value = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4, 8);
-    }
 });
 
-
-
 // =========================
-// AUTO FORMAT TIME (HH:MM)
+// TIME AUTO-FORMAT (12-hour)
 // =========================
 document.getElementById("time").addEventListener("input", function () {
     let v = this.value.replace(/\D/g, "");
-    if (v.length >= 3) {
-        this.value = v.slice(0, 2) + ":" + v.slice(2, 4);
-    }
+    if (v.length >= 3) this.value = v.slice(0, 2) + ":" + v.slice(2, 4);
 });
 
-
-
 // =========================
-// AM / PM BUTTONS
+// AM / PM LOGIC
 // =========================
 let selectedPeriod = "PM";
 
-const amBtn = document.getElementById("amBtn");
-const pmBtn = document.getElementById("pmBtn");
-
-amBtn.addEventListener("click", () => {
+document.getElementById("amBtn").addEventListener("click", () => {
     selectedPeriod = "AM";
-    amBtn.classList.add("active");
-    pmBtn.classList.remove("active");
+    document.getElementById("amBtn").classList.add("active");
+    document.getElementById("pmBtn").classList.remove("active");
 });
-
-pmBtn.addEventListener("click", () => {
+document.getElementById("pmBtn").addEventListener("click", () => {
     selectedPeriod = "PM";
-    pmBtn.classList.add("active");
-    amBtn.classList.remove("active");
+    document.getElementById("pmBtn").classList.add("active");
+    document.getElementById("amBtn").classList.remove("active");
 });
-
-
 
 // =========================
 // CALCULATE PRICE
 // =========================
 document.getElementById("calculateBtn").addEventListener("click", async () => {
     const pickup = document.getElementById("pickup").value.trim();
-    const extra = document.getElementById("extra_stop").value.trim();
     const dropoff = document.getElementById("dropoff").value.trim();
-    const date = document.getElementById("date").value.trim();
-    const time = document.getElementById("time").value.trim();
+    const extra = document.getElementById("extra_stop").value.trim();
 
     if (!pickup || !dropoff) {
-        alert("Pickup and drop-off locations are required.");
-        return;
-    }
-
-    if (!date || !time) {
-        alert("Please enter date and time.");
+        alert("Please enter both pickup and drop-off locations.");
         return;
     }
 
     const query = new URLSearchParams({
         pickup,
-        extra,
         dropoff,
-        date,
-        time,
+        extra,
+        date: document.getElementById("date").value.trim(),
+        time: document.getElementById("time").value.trim(),
         period: selectedPeriod
     });
 
     try {
         const res = await fetch(`/api/calc?${query.toString()}`);
         const data = await res.json();
-
-        if (!data || !data.total) {
-            alert("Price calculation error.");
-            return;
-        }
 
         document.getElementById("distanceText").textContent = data.distance;
         document.getElementById("totalText").textContent = "$" + data.total;
@@ -109,17 +90,15 @@ document.getElementById("calculateBtn").addEventListener("click", async () => {
         document.getElementById("step2").classList.remove("hidden");
     } catch (err) {
         console.error(err);
-        alert("Server error during price calculation.");
+        alert("Price calculation failed. Please try again.");
     }
 });
-
-
 
 // =========================
 // SEND RESERVATION REQUEST
 // =========================
 document.getElementById("sendBtn").addEventListener("click", async () => {
-    const payload = {
+    const details = {
         pickup: document.getElementById("pickup").value.trim(),
         extra_stop: document.getElementById("extra_stop").value.trim(),
         dropoff: document.getElementById("dropoff").value.trim(),
@@ -133,14 +112,14 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     };
 
     try {
-        const res = await fetch("/api/reserve", {
+        const res = await fetch("/save-reservation", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(details)
         });
 
         const data = await res.json();
-        document.getElementById("resultMessage").textContent = data.message || "Request sent.";
+        document.getElementById("resultMessage").textContent = data.message;
         document.getElementById("resultMessage").style.color = "#f9d25a";
     } catch (err) {
         console.error(err);
