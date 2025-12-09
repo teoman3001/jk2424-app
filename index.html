@@ -416,8 +416,6 @@
 
   <script>
     // --- Helpers ---
-    const API_BASE = "http://localhost:3000/api";
-
     function formatMoney(value) {
       return '$' + value.toFixed(2);
     }
@@ -508,9 +506,8 @@
     const bookingMsg = document.getElementById('bookingMsg');
     const sendBookingBtn = document.getElementById('sendBookingBtn');
 
-    let lastQuote = null;         // store last calculation
-    let pricingConfig = null;     // loaded from backend
-    let isSendingBooking = false; // double-click koruması
+    let lastQuote = null; // store last calculation
+    let pricingConfig = null; // loaded from backend
 
     calcPriceBtn.addEventListener('click', async () => {
       calcMsg.textContent = '';
@@ -533,23 +530,6 @@
 
       if (!rideDate || rideDate.length < 8 || !rideTime || rideTime.length < 4) {
         calcMsg.textContent = 'Please enter date and time.';
-        calcMsg.classList.add('error');
-        return;
-      }
-
-      // 12 saatlik saat kontrolü
-      const timeMatch = rideTime.match(/^(\d{1,2}):(\d{2})$/);
-      if (!timeMatch) {
-        calcMsg.textContent = 'Please enter time as HH:MM.';
-        calcMsg.classList.add('error');
-        return;
-      }
-
-      const hours = parseInt(timeMatch[1], 10);
-      const minutes = parseInt(timeMatch[2], 10);
-
-      if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
-        calcMsg.textContent = 'Please enter a valid time between 01:00 and 12:59.';
         calcMsg.classList.add('error');
         return;
       }
@@ -583,10 +563,10 @@
         if (data.pricing) {
           pricingConfig = data.pricing;
         }
-        const baseFare        = Number(pricingConfig?.baseFare ?? 65);
-        const includedMiles   = Number(pricingConfig?.includedMiles ?? 15);
-        const extraPerMile    = Number(pricingConfig?.extraPerMile ?? 2);
-        const minimumFare     = Number(pricingConfig?.minimumFare ?? baseFare);
+        const baseFare       = Number(pricingConfig?.baseFare ?? 65);
+        const includedMiles  = Number(pricingConfig?.includedMiles ?? 15);
+        const extraPerMile   = Number(pricingConfig?.extraPerMile ?? 2);
+        const minimumFare    = Number(pricingConfig?.minimumFare ?? baseFare);
         const nightMultiplier = Number(pricingConfig?.nightMultiplier ?? 1.25);
 
         const extraMiles = Math.max(0, miles - includedMiles);
@@ -648,16 +628,10 @@
       }
     });
 
-    // Send reservation → yeni backend /api/bookings ile entegre
+    // Send reservation
     sendBookingBtn.addEventListener('click', async () => {
       bookingMsg.textContent = '';
       bookingMsg.className = 'msg';
-
-      if (isSendingBooking) {
-        bookingMsg.textContent = 'Your reservation request is already being sent. Please wait.';
-        bookingMsg.classList.add('error');
-        return;
-      }
 
       if (!lastQuote) {
         bookingMsg.textContent = 'Please calculate price first.';
@@ -665,10 +639,10 @@
         return;
       }
 
-      const customerName  = document.getElementById('fullName').value.trim();
+      const customerName = document.getElementById('fullName').value.trim();
       const customerPhone = document.getElementById('mobilePhone').value.trim();
       const customerEmail = document.getElementById('email').value.trim();
-      const notes         = document.getElementById('notes').value.trim();
+      const notes = document.getElementById('notes').value.trim();
 
       if (!customerName || !customerPhone || !customerEmail) {
         bookingMsg.textContent = 'Name, phone and email are required.';
@@ -676,77 +650,45 @@
         return;
       }
 
-      // Tarih + saat → ISO datetime (PostgreSQL için)
-      const dateParts = lastQuote.rideDate.split('/');
-      if (dateParts.length !== 3) {
-        bookingMsg.textContent = 'Date format is invalid.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const month = parseInt(dateParts[0], 10);
-      const day   = parseInt(dateParts[1], 10);
-      const year  = parseInt(dateParts[2], 10);
-
-      const time24 = parseTimeTo24h(lastQuote.rideTime, lastQuote.ampm);
-      if (!time24) {
-        bookingMsg.textContent = 'Time format is invalid.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const pickupDateObj = new Date(year, month - 1, day, time24.h, time24.m, 0);
-      const pickupDateTimeISO = pickupDateObj.toISOString();
-
-      const combinedNotes =
-        'Phone: ' + customerPhone +
-        (customerEmail ? ' | Email: ' + customerEmail : '') +
-        (notes ? ' | Notes: ' + notes : '');
-
       const payload = {
-        passenger_name: customerName,
-        pickup_address: lastQuote.pickup,
-        dropoff_address: lastQuote.dropoff,
-        pickup_datetime: pickupDateTimeISO,
-        passengers: 1,
-        vehicle_type: 'Mercedes EQS',
-        estimated_price: lastQuote.total,
-        notes: combinedNotes
+        pickup: lastQuote.pickup,
+        stop: lastQuote.stop,
+        dropoff: lastQuote.dropoff,
+        rideDate: lastQuote.rideDate,
+        rideTime: lastQuote.rideTime,
+        ampm: lastQuote.ampm,
+        miles: lastQuote.miles,
+        total: lastQuote.total,
+        customerName,
+        customerPhone,
+        customerEmail,
+        notes
       };
 
       try {
-        isSendingBooking = true;
         sendBookingBtn.disabled = true;
         bookingMsg.textContent = 'Sending reservation request...';
-
-        const response = await fetch(API_BASE + '/bookings', {
+        const response = await fetch('/api/bookings2', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
+        const data = await response.json();
+        if (!response.ok || data.ok === false) {
           console.error('Booking error:', data);
-          bookingMsg.textContent = data.error || 'Server error while saving reservation.';
+          bookingMsg.textContent = data.message || 'Server error while saving reservation.';
           bookingMsg.classList.add('error');
+          sendBookingBtn.disabled = false;
           return;
         }
-
-        console.log('Booking created:', data);
         bookingMsg.textContent =
           'Reservation request received. I will confirm as soon as possible.';
         bookingMsg.classList.add('success');
-
-        // Aynı fiyatlandırmayla tekrar göndermesin diye
-        lastQuote = null;
       } catch (err) {
         console.error('Booking request error:', err);
         bookingMsg.textContent = 'Server error while sending reservation.';
         bookingMsg.classList.add('error');
       } finally {
-        isSendingBooking = false;
         sendBookingBtn.disabled = false;
       }
     });
