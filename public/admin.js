@@ -37,48 +37,6 @@ async function loadPricing() {
   }
 }
 
-async function savePricing() {
-  const btn = document.getElementById("savePricingBtn");
-  const statusEl = document.getElementById("pricingStatus");
-
-  const payload = {
-    baseFare: Number(document.getElementById("baseFare").value),
-    includedMiles: Number(document.getElementById("includedMiles").value),
-    extraPerMile: Number(document.getElementById("extraPerMile").value),
-    minimumFare: Number(document.getElementById("minimumFare").value),
-    nightMultiplier: Number(
-      document.getElementById("nightMultiplier").value
-    ),
-  };
-
-  btn.disabled = true;
-  statusEl.textContent = "Saving...";
-  statusEl.className = "status";
-
-  try {
-    const res = await fetch(`${API_BASE}/api/admin/pricing`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || "Could not save pricing.");
-    }
-
-    statusEl.textContent = "Pricing saved.";
-    statusEl.className = "status ok";
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Error saving pricing.";
-    statusEl.className = "status err";
-  } finally {
-    btn.disabled = false;
-  }
-}
-
 // ------------------ BOOKINGS ------------------
 
 const STATUS_OPTIONS = [
@@ -103,7 +61,7 @@ async function loadBookings() {
   tbody.innerHTML = "<tr><td colspan='7'>Loading bookings...</td></tr>";
 
   try {
-    const res = await fetch(`${API_BASE}/api/bookings`);
+    const res = await fetch(`${API_BASE}/api/admin/bookings`);
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
@@ -127,25 +85,28 @@ async function loadBookings() {
       tdId.textContent = b.id;
       tr.appendChild(tdId);
 
-      // Created At
+      // Created
       const tdCreated = document.createElement("td");
       tdCreated.textContent = b.created_at
         ? new Date(b.created_at).toLocaleString()
         : "-";
       tr.appendChild(tdCreated);
 
-      // Trip Info
+      // Trip
       const tdTrip = document.createElement("td");
       tdTrip.innerHTML =
         `<strong>${b.pickup_address}</strong>` +
+        (b.stop_address ? `<br/><small>Stop: ${b.stop_address}</small>` : "") +
         `<br/><small>→ ${b.dropoff_address}</small>` +
         `<br/><small>${b.pickup_datetime}</small>`;
       tr.appendChild(tdTrip);
 
-      // Customer Info
+      // Customer
       const tdCustomer = document.createElement("td");
       tdCustomer.innerHTML =
         `<strong>${b.passenger_name}</strong>` +
+        (b.passenger_phone ? `<br/><small>${b.passenger_phone}</small>` : "") +
+        (b.passenger_email ? `<br/><small>${b.passenger_email}</small>` : "") +
         (b.notes ? `<br/><small>Notes: ${b.notes}</small>` : "");
       tr.appendChild(tdCustomer);
 
@@ -193,8 +154,8 @@ async function loadBookings() {
 
 async function updateBookingStatus(id, status) {
   try {
-    const res = await fetch(`${API_BASE}/api/bookings/${id}/status`, {
-      method: "POST",
+    const res = await fetch(`${API_BASE}/api/admin/bookings/${id}/status`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
