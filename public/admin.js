@@ -1,13 +1,16 @@
 // JK2424 ADMIN PANEL JS
 // Pricing ayarları + rezervasyon listesi
 
+// TÜM API istekleri için backend base URL
+const API_BASE = 'https://jk2424-backend.onrender.com';
+
 async function loadPricing() {
   const statusEl = document.getElementById('pricingStatus');
   statusEl.textContent = 'Loading pricing...';
   statusEl.className = 'status';
 
   try {
-    const res = await fetch('/api/admin/pricing');
+    const res = await fetch(`${API_BASE}/api/admin/pricing`);
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
@@ -19,8 +22,10 @@ async function loadPricing() {
     document.getElementById('baseFare').value = s.baseFare ?? 65;
     document.getElementById('includedMiles').value = s.includedMiles ?? 15;
     document.getElementById('extraPerMile').value = s.extraPerMile ?? 2;
-    document.getElementById('minimumFare').value = s.minimumFare ?? s.baseFare ?? 65;
-    document.getElementById('nightMultiplier').value = s.nightMultiplier ?? 1.25;
+    document.getElementById('minimumFare').value =
+      s.minimumFare ?? s.baseFare ?? 65;
+    document.getElementById('nightMultiplier').value =
+      s.nightMultiplier ?? 1.25;
 
     statusEl.textContent = 'Pricing loaded.';
     statusEl.className = 'status ok';
@@ -40,7 +45,9 @@ async function savePricing() {
     includedMiles: Number(document.getElementById('includedMiles').value),
     extraPerMile: Number(document.getElementById('extraPerMile').value),
     minimumFare: Number(document.getElementById('minimumFare').value),
-    nightMultiplier: Number(document.getElementById('nightMultiplier').value),
+    nightMultiplier: Number(
+      document.getElementById('nightMultiplier').value
+    ),
   };
 
   btn.disabled = true;
@@ -48,7 +55,7 @@ async function savePricing() {
   statusEl.className = 'status';
 
   try {
-    const res = await fetch('/api/admin/pricing', {
+    const res = await fetch(`${API_BASE}/api/admin/pricing`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -93,7 +100,7 @@ async function loadBookings() {
   tbody.innerHTML = '<tr><td colspan="7">Loading bookings...</td></tr>';
 
   try {
-    const res = await fetch('/api/admin/bookings');
+    const res = await fetch(`${API_BASE}/api/admin/bookings`);
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
@@ -102,7 +109,8 @@ async function loadBookings() {
 
     const bookings = data.bookings || [];
     if (!bookings.length) {
-      tbody.innerHTML = '<tr><td colspan="7">No bookings found.</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="7">No bookings found.</td></tr>';
       return;
     }
 
@@ -183,16 +191,19 @@ async function loadBookings() {
 
 async function updateBookingStatus(id, status) {
   try {
-    const res = await fetch(`/api/admin/bookings/${id}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
+    const res = await fetch(
+      `${API_BASE}/api/admin/bookings/${id}/status`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      }
+    );
     const data = await res.json();
     if (!res.ok || !data.ok) {
       throw new Error(data.message || 'Could not update status.');
     }
-    // Listeyi yenilemek istersen:
+    // Listeyi yenile
     await loadBookings();
   } catch (err) {
     console.error(err);
@@ -203,14 +214,15 @@ async function updateBookingStatus(id, status) {
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
   // Pricing
-  document
-    .getElementById('savePricingBtn')
-    .addEventListener('click', savePricing);
+  const btn = document.getElementById('savePricingBtn');
+  if (btn) {
+    btn.addEventListener('click', savePricing);
+  }
 
   // Status dropdown dinleyicisi
-  document
-    .getElementById('bookingsBody')
-    .addEventListener('change', (e) => {
+  const tbody = document.getElementById('bookingsBody');
+  if (tbody) {
+    tbody.addEventListener('change', (e) => {
       const target = e.target;
       if (target.tagName === 'SELECT') {
         const id = target.dataset.id;
@@ -220,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+  }
 
   // İlk yükleme
   loadPricing();
