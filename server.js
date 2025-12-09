@@ -1,77 +1,65 @@
+// server.js — JK2424 FINAL STABLE VERSION
+
 const express = require("express");
 const path = require("path");
-const cors = require("cors");
-
+const fs = require("fs");
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-// PUBLIC KLASÖRÜNÜ SERVE ET
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// PUBLIC klasörünü statik servis et
 app.use(express.static(path.join(__dirname, "public")));
 
-// ANA SAYFA
+// ---------------------------
+// ROUTES (User Pages)
+// ---------------------------
+
+// Ana sayfa → index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ADMIN SAYFASI
+// Admin paneli → admin.html
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// PRICING SAYFASI
+// Pricing → pricing.html
 app.get("/pricing", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "pricing.html"));
 });
 
-// BACKEND URL -> SENİN BACKEND'İN
-const BACKEND_URL = "https://jk2424-backend.onrender.com";
+// ---------------------------
+// RESERVATION SAVE
+// ---------------------------
 
-// Rezervasyon gönderme (frontend → backend)
-app.post("/api/reservations", async (req, res) => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/reservations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
-    });
+app.post("/save-reservation", (req, res) => {
+  const reservation = req.body;
 
-    const data = await response.json();
-    res.json(data);
+  // Kaydı JSON dosyasına ekle
+  const filePath = path.join(__dirname, "reservations.json");
 
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
+  let existing = [];
+  if (fs.existsSync(filePath)) {
+    existing = JSON.parse(fs.readFileSync(filePath, "utf-8"));
   }
+
+  existing.push({
+    ...reservation,
+    created_at: new Date().toISOString(),
+  });
+
+  fs.writeFileSync(filePath, JSON.stringify(existing, null, 2));
+
+  res.json({ success: true, message: "Reservation saved successfully" });
 });
 
-// Admin → Rezervasyon listesi
-app.get("/api/admin/reservations", async (req, res) => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/reservations`);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
+// ---------------------------
+// SERVER START
+// ---------------------------
 
-// Admin → Status değiştirme
-app.post("/api/admin/update-status", async (req, res) => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/update-status`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
-    });
-
-    const data = await response.json();
-    res.json(data);
-
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// PORT AYARI
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Frontend running on ${PORT}`));
+app.listen(PORT, () => {
+  console.log("JK2424 Server running on port " + PORT);
+});
