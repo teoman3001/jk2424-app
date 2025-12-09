@@ -783,5 +783,129 @@
       }
     });
   </script>
+<script>
+  // JK2424 – API ayarı (şu an lokal backend)
+  const API_BASE = "http://localhost:3000/api";
+
+  /**
+   * Yardımcı: formdaki alanları okuyup backend'e gönderecek payload'u hazırlar.
+   */
+  function buildBookingPayload() {
+    const pickup = document.getElementById("pickup")?.value?.trim() || "";
+    const dropoff = document.getElementById("dropoff")?.value?.trim() || "";
+    const pickupDate = document.getElementById("pickup_date")?.value || "";
+    const pickupTime = document.getElementById("pickup_time")?.value || "";
+    const passengers = document.getElementById("passengers")?.value || "1";
+    const vehicleType = document.getElementById("vehicle_type")?.value || "Mercedes EQS";
+    const estimateRaw = document.getElementById("estimate_value")?.value ||
+                        document.getElementById("estimate_value")?.textContent || "0";
+
+    const passengerName = document.getElementById("passenger_name")?.value?.trim() || "";
+    const contactPhone = document.getElementById("contact_phone")?.value?.trim() || "";
+    const contactEmail = document.getElementById("contact_email")?.value?.trim() || "";
+    const notesText = document.getElementById("notes")?.value?.trim() || "";
+
+    // Zorunlu alan kontrolü (frontend tarafında basit kontrol)
+    if (!pickup || !dropoff || !pickupDate || !pickupTime || !passengerName) {
+      throw new Error("Lütfen isim, kalkış, varış, tarih ve saat alanlarını doldurun.");
+    }
+
+    // Tarih + saat → ISO format (Postgres anlar)
+    const pickupDateTimeLocal = pickupDate + "T" + pickupTime + ":00"; // örn: 2025-12-20T10:30:00
+    const pickupDateTime = new Date(pickupDateTimeLocal).toISOString();
+
+    // Tahmini fiyatı sayıya çevir (içinde $ vb. varsa temizle)
+    const estimateClean = String(estimateRaw).replace(/[^0-9.,]/g, "").replace(",", ".");
+    const estimatedPrice = estimateClean ? Number(estimateClean) : 0;
+
+    const combinedNotes =
+      "Phone: " + contactPhone +
+      (contactEmail ? " | Email: " + contactEmail : "") +
+      (notesText ? " | Notes: " + notesText : "");
+
+    return {
+      passenger_name: passengerName,
+      pickup_address: pickup,
+      dropoff_address: dropoff,
+      pickup_datetime: pickupDateTime,
+      passengers: Number(passengers) || 1,
+      vehicle_type: vehicleType,
+      estimated_price: estimatedPrice,
+      notes: combinedNotes
+    };
+  }
+
+  /**
+   * Rezervasyon gönder butonuna tıklanınca çalışacak handler.
+   */
+  async function sendBookingToBackend(event) {
+    // Eğer form submit butonu ise sayfanın refresh olmasını engelle
+    if (event) {
+      event.preventDefault();
+    }
+
+    const statusBox = document.getElementById("reservation_status");
+
+    try {
+      const payload = buildBookingPayload();
+
+      if (statusBox) {
+        statusBox.textContent = "Sending your reservation...";
+        statusBox.style.color = "#ccc";
+      }
+
+      const response = await fetch(API_BASE + "/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || "Reservation failed");
+      }
+
+      const data = await response.json();
+      console.log("Booking created:", data);
+
+      if (statusBox) {
+        statusBox.textContent = "Your reservation has been received. We will confirm it shortly.";
+        statusBox.style.color = "#4caf50";
+      }
+
+      // İstersen burada formu sıfırlayabilirsin
+      // document.getElementById("booking_form")?.reset();
+    } catch (err) {
+      console.error("Error while sending booking:", err);
+      if (statusBox) {
+        statusBox.textContent = "There was a problem sending your reservation. Please try again.";
+        statusBox.style.color = "#ff5252";
+      } else {
+        alert(err.message || "Reservation failed");
+      }
+    }
+  }
+
+  /**
+   * Sayfa yüklendiğinde, "Rezervasyonu Gönder" butonuna click handler ekle.
+   * Buton ID'si: submit_booking_btn
+   * Form ID'si varsa: booking_form
+   */
+  window.addEventListener("DOMContentLoaded", function () {
+    const submitBtn = document.getElementById("submit_booking_btn");
+    const bookingForm = document.getElementById("booking_form");
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", sendBookingToBackend);
+    }
+
+    // Eğer form submit oluyorsa (Enter'a basınca vs.) yine aynı fonksiyonu kullan
+    if (bookingForm) {
+      bookingForm.addEventListener("submit", sendBookingToBackend);
+    }
+  });
+</script>
 </body>
 </html>
