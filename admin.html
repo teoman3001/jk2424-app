@@ -252,6 +252,7 @@
 
   <!-- ANA ADMIN JS -->
   <script>
+    // Backend base URL – local backend
     const API_BASE = "http://localhost:3000/api";
 
     const bookingListEl = document.getElementById("bookingList");
@@ -308,7 +309,7 @@
         const createdAt =
           b.created_at || b.createdAt || "";
 
-        const status = b.status || "confirmed";
+        const status = b.status || "pending";
 
         card.innerHTML = `
           <div>
@@ -316,7 +317,7 @@
               <span class="badge-id">#${b.id || "—"}</span>
               <strong>${passengerName}</strong>
             </div>
-            <div class="booking-field"><span>Pickup</span>${pickupTime || "—"}</div>
+            <div class="booking-field"><span>Pickup time</span>${pickupTime || "—"}</div>
             <div class="booking-field"><span>Created</span>${createdAt || "—"}</div>
             <div class="booking-field"><span>From</span>${b.pickup_address || "—"}</div>
             <div class="booking-field"><span>To</span>${b.dropoff_address || "—"}</div>
@@ -336,17 +337,17 @@
             </div>
 
             <div class="status-buttons-row">
-              <button class="status-btn" data-status="confirmed" onclick="updateStatus('${b.id}','confirmed', this)">Confirm</button>
-              <button class="status-btn" data-status="paid" onclick="updateStatus('${b.id}','paid', this)">Paid</button>
-              <button class="status-btn" data-status="on_the_way" onclick="updateStatus('${b.id}','on_the_way', this)">On the way</button>
-              <button class="status-btn" data-status="arrived" onclick="updateStatus('${b.id}','arrived', this)">Arrived</button>
+              <button class="status-btn" data-status="confirmed"   onclick="updateStatus('${b.id}','confirmed', this)">Confirm</button>
+              <button class="status-btn" data-status="paid"        onclick="updateStatus('${b.id}','paid', this)">Paid</button>
+              <button class="status-btn" data-status="on_the_way"  onclick="updateStatus('${b.id}','on_the_way', this)">On the way</button>
+              <button class="status-btn" data-status="arrived"     onclick="updateStatus('${b.id}','arrived', this)">Arrived</button>
               <button class="status-btn" data-status="in_progress" onclick="updateStatus('${b.id}','in_progress', this)">In progress</button>
-              <button class="status-btn" data-status="completed" onclick="updateStatus('${b.id}','completed', this)">Completed</button>
+              <button class="status-btn" data-status="completed"   onclick="updateStatus('${b.id}','completed', this)">Completed</button>
             </div>
 
-            <div class="status-hint">Status değiştirildiğinde ilgili push bildirimi tetiklenecek.</div>
+            <div class="status-hint">When status changes, related push notification will be sent.</div>
           </div>
-        `;
+        ";
 
         const currentStatus = status;
         const btns = card.querySelectorAll(".status-btn");
@@ -360,7 +361,8 @@
 
     async function fetchBookings() {
       try {
-        const res = await fetch(`${API_BASE}/admin/bookings`);
+        // BACKEND: GET /api/bookings  → { ok:true, bookings:[...] }
+        const res = await fetch(`${API_BASE}/bookings`);
         const data = await res.json();
         const bookings = Array.isArray(data) ? data : (data.bookings || []);
         cachedBookings = bookings;
@@ -405,32 +407,35 @@
       statusLabel.className = "status-pill " + statusClass(newStatus);
 
       try {
-        const res = await fetch(`${API_BASE}/admin/bookings/${bookingId}/status`, {
-          method: "PATCH",
+        // BACKEND: POST /api/bookings/:id/status  → { ok:true, booking:{...} }
+        const res = await fetch(`${API_BASE}/bookings/${bookingId}/status`, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus })
         });
 
-        const updated = await res.json();
-        const updatedStatus = updated.status || newStatus;
+        const data = await res.json();
 
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || "Status update failed");
+        }
+
+        const updated = data.booking || {};
         cachedBookings = cachedBookings.map((b) =>
-          b.id === bookingId ? { ...b, status: updatedStatus } : b
+          b.id === updated.id ? updated : b
         );
-
       } catch (err) {
         console.error(err);
         alert("Status update failed.");
       }
     }
 
-    // İlk açılışta rezervasyonları yükle
+    // İlk açılışta listeyi yükle
     fetchBookings();
   </script>
 
-  <!-- SSE: REAL-TIME GÜNCELLEMELER -->
+  <!-- REAL-TIME GÜNCELLEMELER (SSE) -->
   <script>
-    // JK2424 – Real-time admin updates (SSE)
     (function () {
       const EVENTS_URL = "http://localhost:3000/api/events";
 
@@ -445,23 +450,18 @@
           console.log("SSE error:", err);
         };
 
-        // Yeni rezervasyon geldiğinde
         es.addEventListener("booking_created", function (event) {
           console.log("SSE booking_created:", event.data);
-          if (typeof fetchBookings === "function") {
-            fetchBookings();
-          }
+          // Yeni rezervasyon geldiğinde listeyi tekrar çek
+          fetchBookings();
         });
 
-        // Status değiştiğinde
         es.addEventListener("status_updated", function (event) {
           console.log("SSE status_updated:", event.data);
-          if (typeof fetchBookings === "function") {
-            fetchBookings();
-          }
+          // Status değiştiğinde listeyi yenile
+          fetchBookings();
         });
 
-        // Genel bilgilendirme
         es.addEventListener("notification", function (event) {
           console.log("SSE notification:", event.data);
         });
