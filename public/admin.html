@@ -2,240 +2,427 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JK2424 ADMIN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #050505;
-      color: #f5f5f5;
+      background:#050505;
+      color:#f5f5f5;
     }
+
     .wrap {
       max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
     }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .brand {
-      font-weight: 700;
-      font-size: 22px;
-      letter-spacing: 4px;
-      color: #f5d05c;
-    }
-    .sub {
-      font-size: 11px;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-    .badge {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #444;
-      color: #fff;
-      background: #111;
-    }
-    h2 {
-      font-size: 16px;
-      margin-bottom: 8px;
-      margin-top: 4px;
-    }
-    .card {
-      background: #111;
-      border-radius: 12px;
-      border: 1px solid #333;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 18px 36px rgba(0,0,0,0.6);
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: #aaa;
-      margin-bottom: 4px;
-      display: block;
-    }
-    input, select {
-      width: 100%;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background: #050505;
-      color: #f5f5f5;
-      padding: 6px 8px;
-      font-size: 13px;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #f5d05c;
-      box-shadow: 0 0 0 1px #f5d05c55;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    button {
-      border-radius: 999px;
-      border: none;
-      background: #f5d05c;
-      color: #000;
-      font-weight: 600;
-      font-size: 13px;
-      padding: 8px 16px;
-      cursor: pointer;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-    .status {
-      margin-top: 6px;
-      font-size: 12px;
-      color: #aaa;
-    }
-    .status.ok { color: #6bff94; }
-    .status.err { color: #ff6b6b; }
 
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 8px;
-      border: 1px solid #333;
+    header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      min-width: 900px;
+
+    .brand {
+      font-weight:700;
+      font-size:20px;
+      letter-spacing:2px;
+      color:#f9d25a;
     }
-    thead {
-      background: #181818;
+
+    .sub {
+      font-size:11px;
+      color:#888;
     }
-    th, td {
-      padding: 6px 8px;
-      border-bottom: 1px solid #222;
-      vertical-align: top;
+
+    .pill {
+      display:inline-flex;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:11px;
+      letter-spacing:0.5px;
+      text-transform:uppercase;
+      border:1px solid #333;
+      background:#111;
+      color:#ccc;
     }
-    th {
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #ccc;
+
+    .status-pill {
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      text-transform:uppercase;
+      letter-spacing:0.6px;
+      border:1px solid #333;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
     }
-    tbody tr:nth-child(even) {
-      background: #101010;
+
+    .status-confirmed   { background:#122b16; border-color:#1f8b3f; color:#b5f3c0; }
+    .status-paid        { background:#122338; border-color:#3c7ce8; color:#c7ddff; }
+    .status-on_the_way  { background:#281a08; border-color:#e39b33; color:#ffd89a; }
+    .status-arrived     { background:#2c1b2f; border-color:#e26ad8; color:#ffd6fb; }
+    .status-in_progress { background:#22202a; border-color:#a86be8; color:#e2d6ff; }
+    .status-completed   { background:#122428; border-color:#35a3a3; color:#c4f8f8; }
+
+    .status-legend {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
+      font-size:11px;
     }
-    .pill-status {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      text-transform: capitalize;
-      background: #222;
-      color: #eee;
+
+    .status-legend-item {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
     }
-    .pill-status.pending { background:#444; }
-    .pill-status.confirmed { background:#265dff; }
-    .pill-status.paid { background:#169c5d; }
-    .pill-status.on_the_way { background:#f0a500; }
-    .pill-status.arrived { background:#c27c2c; }
-    .pill-status.completed { background:#1fb36a; }
-    .pill-status.cancelled { background:#a32d2d; }
-    .hint {
-      font-size: 11px;
-      color: #888;
-      margin-bottom: 8px;
+
+    .card-list {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .booking-card {
+      border-radius:10px;
+      border:1px solid #222;
+      background:radial-gradient(circle at top left, #171717, #050505 48%);
+      padding:12px 14px;
+      display:grid;
+      grid-template-columns:minmax(0,2fr) minmax(0,2fr) minmax(0,2.5fr);
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .booking-main-line {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+
+    .badge-id {
+      font-size:11px;
+      border-radius:6px;
+      padding:2px 6px;
+      border:1px solid #333;
+      color:#aaa;
+    }
+
+    .booking-field {
+      font-size:12px;
+      margin-bottom:4px;
+      color:#ccc;
+    }
+
+    .booking-field span {
+      color:#777;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.7px;
+      margin-right:4px;
+    }
+
+    .status-controls {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .status-buttons-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+
+    .status-btn {
+      font-size:11px;
+      border-radius:999px;
+      padding:4px 10px;
+      border:1px solid #333;
+      background:#131313;
+      color:#e1e1e1;
+      cursor:pointer;
+      transition:background 0.12s ease, border-color 0.12s ease, transform 0.05s ease;
+    }
+
+    .status-btn:hover {
+      background:#1f1f1f;
+      border-color:#555;
+      transform:translateY(-0.5px);
+    }
+
+    .status-btn:active {
+      transform:translateY(0.5px);
+    }
+
+    .status-btn.active {
+      border-color:#f9d25a;
+      color:#f9d25a;
+    }
+
+    .status-hint {
+      font-size:11px;
+      color:#777;
+    }
+
+    .top-controls {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      gap:8px;
+    }
+
+    .refresh-btn {
+      font-size:11px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #333;
+      background:#111;
+      color:#eee;
+      cursor:pointer;
+    }
+
+    .refresh-btn:hover {
+      background:#181818;
+    }
+
+    .small-input {
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid #333;
+      background:#050505;
+      color:#eee;
+      min-width:80px;
+    }
+
+    .empty-state {
+      margin-top:12px;
+      font-size:12px;
+      color:#777;
+    }
+
+    @media(max-width:800px) {
+      .booking-card {
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <header>
       <div>
-        <div class="brand">JK2424</div>
-        <div class="sub">PRIVATE CHAUFFEUR · ADMIN PANEL</div>
+        <div class="brand">JK2424 ADMIN</div>
+        <div class="sub">Private Chauffeur • Reservation Console</div>
       </div>
-      <div class="badge">Internal use only</div>
+      <span class="pill">LIVE DASHBOARD</span>
     </header>
 
-    <!-- PRICING SETTINGS -->
-    <section class="card">
-      <div class="section-header">
-        <h2>Pricing settings</h2>
-        <small class="hint">These values are used by web and mobile when calculating estimates.</small>
+    <div class="top-controls">
+      <div class="status-legend">
+        <div class="status-legend-item"><span class="status-pill status-confirmed">confirmed</span></div>
+        <div class="status-legend-item"><span class="status-pill status-paid">paid</span></div>
+        <div class="status-legend-item"><span class="status-pill status-on_the_way">on the way</span></div>
+        <div class="status-legend-item"><span class="status-pill status-arrived">arrived</span></div>
+        <div class="status-legend-item"><span class="status-pill status-in_progress">in progress</span></div>
+        <div class="status-legend-item"><span class="status-pill status-completed">completed</span></div>
       </div>
 
-      <div class="grid">
-        <div>
-          <label for="baseFare">Base fare ($)</label>
-          <input id="baseFare" type="number" step="0.01" />
-        </div>
-        <div>
-          <label for="includedMiles">Included miles</label>
-          <input id="includedMiles" type="number" step="0.01" />
-        </div>
-        <div>
-          <label for="extraPerMile">Extra per mile ($)</label>
-          <input id="extraPerMile" type="number" step="0.01" />
-        </div>
-        <div>
-          <label for="minimumFare">Minimum fare ($)</label>
-          <input id="minimumFare" type="number" step="0.01" />
-        </div>
-        <div>
-          <label for="nightMultiplier">Night multiplier (×)</label>
-          <input id="nightMultiplier" type="number" step="0.01" />
-        </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <input id="searchInput" class="small-input" placeholder="Search by name / ID" />
+        <button class="refresh-btn" onclick="fetchBookings()">Refresh</button>
       </div>
+    </div>
 
-      <button id="savePricingBtn">Save pricing</button>
-      <div id="pricingStatus" class="status"></div>
-    </section>
-
-    <!-- BOOKINGS -->
-    <section class="card">
-      <div class="section-header">
-        <h2>Bookings</h2>
-        <small class="hint">Newest first. Change status from the dropdown.</small>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Created</th>
-              <th>Trip</th>
-              <th>Customer</th>
-              <th>Miles</th>
-              <th>Total</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="bookingsBody">
-            <!-- Filled by admin.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <div id="bookingList" class="card-list"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">No reservations found.</div>
   </div>
 
-  <!-- Admin JS -->
-  <script src="./admin.js"></script>
+  <script>
+    const API_BASE = "http://localhost:3000/api";
+
+    const bookingListEl = document.getElementById("bookingList");
+    const emptyStateEl = document.getElementById("emptyState");
+    const searchInput = document.getElementById("searchInput");
+
+    const STATUS_ORDER = [
+      "confirmed",
+      "paid",
+      "on_the_way",
+      "arrived",
+      "in_progress",
+      "completed"
+    ];
+
+    let cachedBookings = [];
+
+    function statusClass(status) {
+      switch (status) {
+        case "confirmed": return "status-confirmed";
+        case "paid": return "status-paid";
+        case "on_the_way": return "status-on_the_way";
+        case "arrived": return "status-arrived";
+        case "in_progress": return "status-in_progress";
+        case "completed": return "status-completed";
+        default: return "";
+      }
+    }
+
+    function renderBookings(bookings) {
+      bookingListEl.innerHTML = "";
+
+      if (!bookings || bookings.length === 0) {
+        emptyStateEl.style.display = "block";
+        return;
+      } else {
+        emptyStateEl.style.display = "none";
+      }
+
+      bookings.forEach((b) => {
+        const card = document.createElement("div");
+        card.className = "booking-card";
+        card.dataset.id = b.id;
+
+        const pickupTime =
+          b.pickup_datetime ||
+          b.pickupDateTime ||
+          b.pickup_time ||
+          "";
+
+        const passengerName =
+          b.passenger_name || b.name || b.customer_name || "N/A";
+
+        const createdAt =
+          b.created_at || b.createdAt || "";
+
+        const status = b.status || "confirmed";
+
+        card.innerHTML = `
+          <div>
+            <div class="booking-main-line">
+              <span class="badge-id">#${b.id || "—"}</span>
+              <strong>${passengerName}</strong>
+            </div>
+            <div class="booking-field"><span>Pickup</span>${pickupTime || "—"}</div>
+            <div class="booking-field"><span>Created</span>${createdAt || "—"}</div>
+            <div class="booking-field"><span>From</span>${b.pickup_address || "—"}</div>
+            <div class="booking-field"><span>To</span>${b.dropoff_address || "—"}</div>
+          </div>
+
+          <div>
+            <div class="booking-field"><span>Passengers</span>${b.passengers || b.passenger_count || "1"}</div>
+            <div class="booking-field"><span>Vehicle</span>${b.vehicle_type || "Mercedes EQS"}</div>
+            <div class="booking-field"><span>Price</span>${b.estimated_price ? "$" + b.estimated_price : (b.price ? "$" + b.price : "—")}</div>
+            <div class="booking-field"><span>Notes</span>${b.notes || "—"}</div>
+          </div>
+
+          <div class="status-controls">
+            <div class="booking-field">
+              <span>Status</span>
+              <span class="status-pill ${statusClass(status)}" data-status-label>${status}</span>
+            </div>
+
+            <div class="status-buttons-row">
+              <button class="status-btn" data-status="confirmed" onclick="updateStatus('${b.id}','confirmed', this)">Confirm</button>
+              <button class="status-btn" data-status="paid" onclick="updateStatus('${b.id}','paid', this)">Paid</button>
+              <button class="status-btn" data-status="on_the_way" onclick="updateStatus('${b.id}','on_the_way', this)">On the way</button>
+              <button class="status-btn" data-status="arrived" onclick="updateStatus('${b.id}','arrived', this)">Arrived</button>
+              <button class="status-btn" data-status="in_progress" onclick="updateStatus('${b.id}','in_progress', this)">In progress</button>
+              <button class="status-btn" data-status="completed" onclick="updateStatus('${b.id}','completed', this)">Completed</button>
+            </div>
+
+            <div class="status-hint">Status değiştirildiğinde ilgili push bildirimi tetiklenecek.</div>
+          </div>
+        `;
+
+        const currentStatus = status;
+        const btns = card.querySelectorAll(".status-btn");
+        btns.forEach((btn) => {
+          if (btn.dataset.status === currentStatus) btn.classList.add("active");
+        });
+
+        bookingListEl.appendChild(card);
+      });
+    }
+
+    async function fetchBookings() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/bookings`);
+        const data = await res.json();
+        const bookings = Array.isArray(data) ? data : (data.bookings || []);
+        cachedBookings = bookings;
+        applyFilter();
+      } catch (err) {
+        console.error(err);
+        bookingListEl.innerHTML = "";
+        emptyStateEl.style.display = "block";
+        emptyStateEl.textContent = "Error while loading reservations.";
+      }
+    }
+
+    function applyFilter() {
+      const q = (searchInput.value || "").toLowerCase().trim();
+      if (!q) {
+        renderBookings(cachedBookings);
+        return;
+      }
+
+      const filtered = cachedBookings.filter((b) => {
+        const id = (b.id || "").toString().toLowerCase();
+        const name = (b.passenger_name || b.name || b.customer_name || "").toLowerCase();
+        return id.includes(q) || name.includes(q);
+      });
+
+      renderBookings(filtered);
+    }
+
+    searchInput.addEventListener("input", applyFilter);
+
+    async function updateStatus(bookingId, newStatus, buttonEl) {
+      if (!bookingId) return;
+
+      const card = buttonEl.closest(".booking-card");
+      const statusLabel = card.querySelector("[data-status-label]");
+      const allBtns = card.querySelectorAll(".status-btn");
+
+      allBtns.forEach((b) => b.classList.remove("active"));
+      buttonEl.classList.add("active");
+
+      statusLabel.textContent = newStatus;
+      statusLabel.className = "status-pill " + statusClass(newStatus);
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/bookings/${bookingId}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        const updated = await res.json();
+
+        cachedBookings = cachedBookings.map((b) =>
+          b.id === bookingId ? { ...b, status: updated.status } : b
+        );
+
+      } catch (err) {
+        console.error(err);
+        alert("Status update failed.");
+      }
+    }
+
+    fetchBookings();
+  </script>
 </body>
 </html>
