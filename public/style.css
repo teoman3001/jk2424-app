@@ -1,0 +1,157 @@
+/* -----------------------------------
+   JK2424 • Modern Premium UI (2025)
+   by Clara
+------------------------------------*/
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Body */
+body {
+  background: #0d0d0d;
+  color: #e8e8e8;
+  padding: 40px 16px 80px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Page container */
+.container {
+  width: 100%;
+  max-width: 520px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.brand {
+  letter-spacing: 0.22em;
+  font-size: 32px;
+  font-weight: 700;
+  color: #f5d05c;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #bbbbbb;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Card sections */
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 24px 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f5d05c;
+  margin-bottom: 20px;
+}
+
+/* Labels */
+label {
+  display: block;
+  font-size: 13px;
+  color: #cfcfcf;
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #1b1b1b;
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: #fff;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #f5d05c;
+  box-shadow: 0 0 4px #f5d05c55;
+}
+
+/* AM-PM buttons */
+.am-pm-buttons {
+  display: flex;
+  gap: 12px;
+  margin: 14px 0 6px;
+}
+
+.am-pm-buttons button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: #1b1b1b;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.am-pm-buttons button.active {
+  background: #f5d05c;
+  color: #000;
+  border-color: #f5d05c;
+}
+
+/* Primary button */
+.btn-primary {
+  width: 100%;
+  background: #f5d05c;
+  color: #000;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 18px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #ffdb6a;
+  box-shadow: 0 0 10px #f5d05c66;
+}
+
+/* Estimate box */
+.estimate-box {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #171717;
+  border: 1px solid #333;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 12px;
+  color: #7a7a7a;
+}
