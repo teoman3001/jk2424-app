@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JK2424 • Private Chauffeur Service</title>
 
+  <!-- CUSTOM STYLES -->
   <link rel="stylesheet" href="style.css" />
 
   <!-- GOOGLE PLACES AUTOCOMPLETE -->
@@ -13,69 +14,70 @@
 
 <body>
 
+  <!-- HEADER -->
   <header class="main-header">
-    <h1 class="logo">JK2424</h1>
-    <p class="sub">Private Chauffeur Service</p>
+      <h1 class="logo">JK2424</h1>
+      <p class="sub">Private Chauffeur Service</p>
   </header>
 
   <div class="container">
 
-    <!-- STEP 1 -->
-    <section class="card">
-      <h2>Step 1 • Trip Details</h2>
+      <!-- STEP 1 -->
+      <section class="card">
+          <h2>Step 1 • Trip Details</h2>
 
-      <label>Pickup Location</label>
-      <input id="pickup" type="text" placeholder="Enter pickup location" />
+          <label>Pickup Location</label>
+          <input id="pickup" type="text" placeholder="Enter pickup location" />
 
-      <label>Extra Stop (optional)</label>
-      <input id="extra_stop" type="text" placeholder="Enter stop location" />
+          <label>Extra Stop (optional)</label>
+          <input id="extra_stop" type="text" placeholder="Enter stop location" />
 
-      <label>Drop-off Location</label>
-      <input id="dropoff" type="text" placeholder="Enter drop-off location" />
+          <label>Drop-off Location</label>
+          <input id="dropoff" type="text" placeholder="Enter drop-off location" />
 
-      <label>Date (MM/DD/YYYY)</label>
-      <input id="date" type="text" placeholder="MM/DD/YYYY" />
+          <label>Date (MM/DD/YYYY)</label>
+          <input id="date" type="text" placeholder="MM/DD/YYYY" />
 
-      <label>Time (HH:MM)</label>
-      <input id="time" type="text" placeholder="HH:MM" />
+          <label>Time (HH:MM)</label>
+          <input id="time" type="text" placeholder="HH:MM" />
 
-      <div class="am-pm-buttons">
-        <button id="amBtn" class="btn-am">AM</button>
-        <button id="pmBtn" class="btn-pm active">PM</button>
-      </div>
+          <div class="am-pm-buttons">
+              <button id="amBtn" class="btn-am">AM</button>
+              <button id="pmBtn" class="btn-pm active">PM</button>
+          </div>
 
-      <button id="calculateBtn" class="btn-primary">CALCULATE PRICE</button>
+          <button id="calculateBtn" class="btn-primary">CALCULATE PRICE</button>
 
-      <div id="estimateBox" class="estimate-box hidden">
-        <p><strong>Distance:</strong> <span id="distanceText"></span></p>
-        <p><strong>Total Price:</strong> <span id="totalText"></span></p>
-      </div>
-    </section>
+          <div id="estimateBox" class="estimate-box hidden">
+              <p><strong>Distance:</strong> <span id="distanceText"></span></p>
+              <p><strong>Estimated total:</strong> <span id="totalText"></span></p>
+          </div>
+      </section>
 
-    <!-- STEP 2 -->
-    <section id="step2" class="card hidden">
-      <h2>Step 2 • Passenger Details</h2>
+      <!-- STEP 2 (initially hidden) -->
+      <section id="step2" class="card hidden">
+          <h2>Step 2 • Passenger Details</h2>
 
-      <label>Full Name</label>
-      <input id="fullname" type="text" placeholder="Your full name" />
+          <label>Full Name</label>
+          <input id="fullname" type="text" placeholder="Your full name" />
 
-      <label>Mobile Phone</label>
-      <input id="phone" type="text" placeholder="Phone number" />
+          <label>Mobile Phone</label>
+          <input id="phone" type="text" placeholder="Phone number" />
 
-      <label>Email for Confirmation</label>
-      <input id="email" type="text" placeholder="Email address" />
+          <label>Email for Confirmation</label>
+          <input id="email" type="text" placeholder="Email address" />
 
-      <label>Notes</label>
-      <input id="notes" type="text" placeholder="Optional notes" />
+          <label>Notes</label>
+          <input id="notes" type="text" placeholder="Optional notes" />
 
-      <button id="sendBtn" class="btn-primary">SEND RESERVATION REQUEST</button>
+          <button id="sendBtn" class="btn-primary">SEND RESERVATION REQUEST</button>
 
-      <p id="resultMessage" class="result-message"></p>
-    </section>
+          <p id="resultMessage" class="result-message"></p>
+      </section>
 
-    <footer class="footer">
-      <p>Need help or a special request?<br>Call / text: +1 (771) 217 31 11</p>
-    </footer>
+      <footer class="footer">
+          <p>Need help or a special request?<br/>Call / text: +1 (771) 217 31 11</p>
+      </footer>
 
   </div>
 
