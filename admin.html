@@ -6,530 +6,467 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background:#050505;
       color:#f5f5f5;
     }
+
     .wrap {
       max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
     }
 
-    /* --------- HEADER + TOP NAV --------- */
     header {
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
+      align-items:center;
       margin-bottom:12px;
-      gap:16px;
     }
-    .header-left {
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
+
     .brand {
       font-weight:700;
       font-size:20px;
       letter-spacing:2px;
       color:#f9d25a;
     }
+
     .sub {
       font-size:11px;
+      color:#888;
+    }
+
+    .pill {
+      display:inline-flex;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:11px;
+      letter-spacing:0.5px;
+      text-transform:uppercase;
+      border:1px solid #333;
+      background:#111;
+      color:#ccc;
+    }
+
+    .status-pill {
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      text-transform:uppercase;
+      letter-spacing:0.6px;
+      border:1px solid #333;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+
+    .status-confirmed   { background:#122b16; border-color:#1f8b3f; color:#b5f3c0; }
+    .status-paid        { background:#122338; border-color:#3c7ce8; color:#c7ddff; }
+    .status-on_the_way  { background:#281a08; border-color:#e39b33; color:#ffd89a; }
+    .status-arrived     { background:#2c1b2f; border-color:#e26ad8; color:#ffd6fb; }
+    .status-in_progress { background:#22202a; border-color:#a86be8; color:#e2d6ff; }
+    .status-completed   { background:#122428; border-color:#35a3a3; color:#c4f8f8; }
+
+    .status-legend {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
+      font-size:11px;
+    }
+
+    .status-legend-item {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .card-list {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .booking-card {
+      border-radius:10px;
+      border:1px solid #222;
+      background:radial-gradient(circle at top left, #171717, #050505 48%);
+      padding:12px 14px;
+      display:grid;
+      grid-template-columns:minmax(0,2fr) minmax(0,2fr) minmax(0,2.5fr);
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .booking-main-line {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+
+    .badge-id {
+      font-size:11px;
+      border-radius:6px;
+      padding:2px 6px;
+      border:1px solid #333;
       color:#aaa;
     }
 
-    .header-right {
+    .booking-field {
+      font-size:12px;
+      margin-bottom:4px;
+      color:#ccc;
+    }
+
+    .booking-field span {
+      color:#777;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.7px;
+      margin-right:4px;
+    }
+
+    .status-controls {
       display:flex;
       flex-direction:column;
-      align-items:flex-end;
       gap:6px;
     }
 
-    .top-nav {
+    .status-buttons-row {
       display:flex;
       flex-wrap:wrap;
-      justify-content:flex-end;
       gap:6px;
     }
-    .top-nav a {
-      font-size:11px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid #333;
-      background:#0b0b0b;
-      color:#e5e7eb;
-      text-decoration:none;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-    }
-    .top-nav a:hover {
-      background:#111827;
-    }
-    .top-nav a.active {
-      background:#f9d25a;
-      color:#111;
-      border-color:#f9d25a;
-      font-weight:600;
-    }
-    .top-nav a.disabled {
-      opacity:0.4;
-      cursor:default;
-      pointer-events:none;
-    }
 
-    .badge {
+    .status-btn {
       font-size:11px;
-      padding:2px 8px;
       border-radius:999px;
-      background:#1b1b1b;
-      border:1px solid #333;
-      margin-left:8px;
-    }
-
-    /* --------- STATUS FILTER BUTTONS --------- */
-    .filters {
-      display:flex;
-      gap:6px;
-      margin: 8px 0 16px 0;
-      flex-wrap:wrap;
-    }
-    .filter-btn {
-      font-size:11px;
       padding:4px 10px;
-      border-radius:999px;
-      border:1px solid #444;
-      background:#111;
-      color:#ddd;
+      border:1px solid #333;
+      background:#131313;
+      color:#e1e1e1;
       cursor:pointer;
+      transition:background 0.12s ease, border-color 0.12s ease, transform 0.05s ease;
     }
-    .filter-btn.active {
-      background:#f9d25a;
-      color:#111;
+
+    .status-btn:hover {
+      background:#1f1f1f;
+      border-color:#555;
+      transform:translateY(-0.5px);
+    }
+
+    .status-btn:active {
+      transform:translateY(0.5px);
+    }
+
+    .status-btn.active {
       border-color:#f9d25a;
-      font-weight:600;
+      color:#f9d25a;
     }
 
-    /* --------- TABLE --------- */
-    table {
-      width:100%;
-      border-collapse:collapse;
+    .status-hint {
       font-size:11px;
-      background:#0c0c0c;
-      border-radius:8px;
-      overflow:hidden;
+      color:#777;
     }
-    thead {
-      background:#151515;
-      text-transform:uppercase;
-      letter-spacing:0.05em;
-    }
-    th, td {
-      padding:8px 10px;
-      border-bottom:1px solid #222;
-      vertical-align:top;
-    }
-    tbody tr:hover {
-      background:#141414;
-    }
-    th:nth-child(1),
-    td:nth-child(1) {
-      width:60px;
-      white-space:nowrap;
-    }
-    th:nth-child(2) { width:210px; }
-    th:nth-child(3) { width:230px; }
-    th:nth-child(4) { width:150px; }
-    th:nth-child(5) { width:60px; text-align:right; }
-    th:nth-child(6) { width:80px; text-align:right; }
-    th:nth-child(7) { width:150px; }
-    th:nth-child(8) { width:210px; }
 
-    td.num { text-align:right; }
-
-    /* --------- STATUS PILL --------- */
-    .status-pill {
-      display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
-      font-size:10px;
-      text-transform:uppercase;
-      letter-spacing:0.06em;
-    }
-    .st-pending   { background:#33240c; color:#f9d25a; }
-    .st-confirmed { background:#123222; color:#7de3a3; }
-    .st-paid      { background:#10314a; color:#7dd3fc; }
-    .st-on_the_way{ background:#2a2340; color:#c4b5fd; }
-    .st-arrived   { background:#1f2933; color:#fbbf24; }
-    .st-completed { background:#0f2f24; color:#6ee7b7; }
-    .st-cancelled { background:#3b0f16; color:#fecaca; }
-
-    /* --------- ROW ACTION BUTTONS --------- */
-    .actions {
+    .top-controls {
       display:flex;
-      flex-wrap:wrap;
-      gap:4px;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      gap:8px;
     }
-    .btn-sm {
-      font-size:10px;
-      padding:3px 6px;
+
+    .refresh-btn {
+      font-size:11px;
+      padding:6px 10px;
       border-radius:999px;
       border:1px solid #333;
       background:#111;
       color:#eee;
       cursor:pointer;
     }
-    .btn-sm.route { border-color:#444; }
-    .btn-sm.confirm { border-color:#2563eb; color:#bfdbfe; }
-    .btn-sm.paid { border-color:#16a34a; color:#bbf7d0; }
-    .btn-sm.onway { border-color:#a855f7; color:#e9d5ff; }
-    .btn-sm.arrived { border-color:#f97316; color:#fed7aa; }
-    .btn-sm.completed { border-color:#22c55e; color:#bbf7d0; }
-    .btn-sm.cancel { border-color:#ef4444; color:#fecaca; }
 
-    .msg {
-      margin-top:10px;
-      font-size:11px;
-      color:#9ca3af;
+    .refresh-btn:hover {
+      background:#181818;
     }
 
-    @media (max-width:900px) {
-      header {
-        flex-direction:column;
-        align-items:flex-start;
-      }
-      .header-right {
-        align-items:flex-start;
-      }
-      table, thead, tbody, th, td, tr { display:block; }
-      thead { display:none; }
-      tr { border-bottom:1px solid #222; padding:8px 0; }
-      td { border:none; padding:3px 0; }
-      td::before {
-        content: attr(data-label);
-        display:block;
-        font-size:10px;
-        text-transform:uppercase;
-        color:#6b7280;
-        margin-bottom:1px;
+    .small-input {
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid #333;
+      background:#050505;
+      color:#eee;
+      min-width:80px;
+    }
+
+    .empty-state {
+      margin-top:12px;
+      font-size:12px;
+      color:#777;
+    }
+
+    @media(max-width:800px) {
+      .booking-card {
+        grid-template-columns:1fr;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <header>
-      <div class="header-left">
+      <div>
         <div class="brand">JK2424 ADMIN</div>
-        <div class="sub" id="summaryText">Loading bookings…</div>
+        <div class="sub">Private Chauffeur • Reservation Console</div>
       </div>
-      <div class="header-right">
-        <nav class="top-nav">
-          <!-- Dashboard ve Bookings şimdilik aynı sayfa -->
-          <a href="/admin" class="disabled">Dashboard</a>
-          <a href="/admin" class="active">Bookings</a>
-          <a href="/pricing.html">Pricing</a>
-          <a href="#!" class="disabled" title="Coming soon">Settings</a>
-          <a href="#!" class="disabled" title="Coming soon">Drivers</a>
-          <a href="#!" class="disabled" title="Coming soon">Messages</a>
-          <a href="#!" class="disabled" title="Coming soon">Logout</a>
-        </nav>
-        <div class="badge" id="todayInfo"></div>
-      </div>
+      <span class="pill">LIVE DASHBOARD</span>
     </header>
 
-    <div class="filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="pending">Pending</button>
-      <button class="filter-btn" data-filter="confirmed">Confirmed</button>
-      <button class="filter-btn" data-filter="paid">Paid</button>
-      <button class="filter-btn" data-filter="on_the_way">On the way</button>
-      <button class="filter-btn" data-filter="arrived">Arrived</button>
-      <button class="filter-btn" data-filter="completed">Completed</button>
-      <button class="filter-btn" data-filter="cancelled">Cancelled</button>
+    <div class="top-controls">
+      <div class="status-legend">
+        <div class="status-legend-item"><span class="status-pill status-confirmed">confirmed</span></div>
+        <div class="status-legend-item"><span class="status-pill status-paid">paid</span></div>
+        <div class="status-legend-item"><span class="status-pill status-on_the_way">on the way</span></div>
+        <div class="status-legend-item"><span class="status-pill status-arrived">arrived</span></div>
+        <div class="status-legend-item"><span class="status-pill status-in_progress">in progress</span></div>
+        <div class="status-legend-item"><span class="status-pill status-completed">completed</span></div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:6px;">
+        <input id="searchInput" class="small-input" placeholder="Search by name / ID" />
+        <button class="refresh-btn" onclick="fetchBookings()">Refresh</button>
+      </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th># / Created</th>
-          <th>Client</th>
-          <th>Trip</th>
-          <th>Date &amp; Time</th>
-          <th>Miles</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-
-    <div class="msg" id="msgArea"></div>
+    <div id="bookingList" class="card-list"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">No reservations found.</div>
   </div>
 
+  <!-- ANA ADMIN JS -->
   <script>
-    const rowsEl = document.getElementById('rows');
-    const msgEl = document.getElementById('msgArea');
-    const summaryText = document.getElementById('summaryText');
-    const todayInfo = document.getElementById('todayInfo');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    let allBookings = [];
-    let currentFilter = 'all';
+    // Şimdilik lokal backend
+    const API_BASE = "http://localhost:3000/api";
 
-    // (Mevcut ama şu an kullanılmayan yardımcı)
-    function formatDateTime(iso) {
-      if (!iso) return '-';
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return iso;
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day   = String(d.getDate()).padStart(2, '0');
-      const year  = d.getFullYear();
-      let hrs = d.getHours();
-      const mins = String(d.getMinutes()).padStart(2, '0');
-      const ampm = hrs >= 12 ? 'PM' : 'AM';
-      hrs = hrs % 12;
-      if (hrs === 0) hrs = 12;
-      return `${month}/${day}/${year} · ${String(hrs).padStart(2,'0')}:${mins} ${ampm}`;
-    }
+    const bookingListEl = document.getElementById("bookingList");
+    const emptyStateEl = document.getElementById("emptyState");
+    const searchInput = document.getElementById("searchInput");
 
-    // Sadece ride_date için (MM/DD/YYYY)
-    function formatRideDate(iso) {
-      if (!iso) return '-';
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return '-';
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day   = String(d.getDate()).padStart(2, '0');
-      const year  = d.getFullYear();
-      return `${month}/${day}/${year}`;
-    }
+    const STATUS_ORDER = [
+      "confirmed",
+      "paid",
+      "on_the_way",
+      "arrived",
+      "in_progress",
+      "completed"
+    ];
 
-    // Notes alanını güvenli göstermek için basit HTML escape
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+    let cachedBookings = [];
 
-    function statusClass(st) {
-      return 'status-pill st-' + st;
-    }
-
-    function statusLabel(st) {
-      switch (st) {
-        case 'pending': return 'Pending';
-        case 'confirmed': return 'Confirmed';
-        case 'paid': return 'Paid';
-        case 'on_the_way': return 'On the way';
-        case 'arrived': return 'Arrived';
-        case 'completed': return 'Completed';
-        case 'cancelled': return 'Cancelled';
-        default: return st;
+    function statusClass(status) {
+      switch (status) {
+        case "confirmed": return "status-confirmed";
+        case "paid": return "status-paid";
+        case "on_the_way": return "status-on_the_way";
+        case "arrived": return "status-arrived";
+        case "in_progress": return "status-in_progress";
+        case "completed": return "status-completed";
+        default: return "";
       }
     }
 
-    function render() {
-      let list = allBookings.slice();
-      if (currentFilter !== 'all') {
-        list = list.filter(b => b.status === currentFilter);
-      }
-      rowsEl.innerHTML = '';
+    function renderBookings(bookings) {
+      bookingListEl.innerHTML = "";
 
-      if (!list.length) {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 8;
-        td.textContent = 'No bookings for this filter.';
-        td.style.textAlign = 'center';
-        td.style.padding = '20px 0';
-        tr.appendChild(td);
-        rowsEl.appendChild(tr);
+      if (!bookings || bookings.length === 0) {
+        emptyStateEl.style.display = "block";
+        emptyStateEl.textContent = "No reservations found.";
+        return;
+      } else {
+        emptyStateEl.style.display = "none";
+      }
+
+      bookings.forEach((b) => {
+        const card = document.createElement("div");
+        card.className = "booking-card";
+        card.dataset.id = b.id;
+
+        const pickupTime =
+          b.pickup_datetime ||
+          b.pickupDateTime ||
+          b.pickup_time ||
+          "";
+
+        const passengerName =
+          b.passenger_name || b.name || b.customer_name || "N/A";
+
+        const createdAt =
+          b.created_at || b.createdAt || "";
+
+        const status = b.status || "confirmed";
+
+        card.innerHTML = `
+          <div>
+            <div class="booking-main-line">
+              <span class="badge-id">#${b.id || "—"}</span>
+              <strong>${passengerName}</strong>
+            </div>
+            <div class="booking-field"><span>Pickup</span>${pickupTime || "—"}</div>
+            <div class="booking-field"><span>Created</span>${createdAt || "—"}</div>
+            <div class="booking-field"><span>From</span>${b.pickup_address || "—"}</div>
+            <div class="booking-field"><span>To</span>${b.dropoff_address || "—"}</div>
+          </div>
+
+          <div>
+            <div class="booking-field"><span>Passengers</span>${b.passengers || b.passenger_count || "1"}</div>
+            <div class="booking-field"><span>Vehicle</span>${b.vehicle_type || "Mercedes EQS"}</div>
+            <div class="booking-field"><span>Price</span>${
+              b.estimated_price ? "$" + b.estimated_price :
+              (b.price ? "$" + b.price : "—")
+            }</div>
+            <div class="booking-field"><span>Notes</span>${b.notes || "—"}</div>
+          </div>
+
+          <div class="status-controls">
+            <div class="booking-field">
+              <span>Status</span>
+              <span class="status-pill ${statusClass(status)}" data-status-label>${status}</span>
+            </div>
+
+            <div class="status-buttons-row">
+              <button class="status-btn" data-status="confirmed"   onclick="updateStatus('${b.id}','confirmed', this)">Confirm</button>
+              <button class="status-btn" data-status="paid"        onclick="updateStatus('${b.id}','paid', this)">Paid</button>
+              <button class="status-btn" data-status="on_the_way"  onclick="updateStatus('${b.id}','on_the_way', this)">On the way</button>
+              <button class="status-btn" data-status="arrived"     onclick="updateStatus('${b.id}','arrived', this)">Arrived</button>
+              <button class="status-btn" data-status="in_progress" onclick="updateStatus('${b.id}','in_progress', this)">In progress</button>
+              <button class="status-btn" data-status="completed"   onclick="updateStatus('${b.id}','completed', this)">Completed</button>
+            </div>
+
+            <div class="status-hint">Status değiştirildiğinde ilgili push bildirimi tetiklenecek.</div>
+          </div>
+        `;
+
+        const currentStatus = status;
+        const btns = card.querySelectorAll(".status-btn");
+        btns.forEach((btn) => {
+          if (btn.dataset.status === currentStatus) btn.classList.add("active");
+        });
+
+        bookingListEl.appendChild(card);
+      });
+    }
+
+    async function fetchBookings() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/bookings`);
+        const data = await res.json();
+        const bookings = Array.isArray(data) ? data : (data.bookings || []);
+        cachedBookings = bookings;
+        applyFilter();
+      } catch (err) {
+        console.error(err);
+        bookingListEl.innerHTML = "";
+        emptyStateEl.style.display = "block";
+        emptyStateEl.textContent = "Error while loading reservations.";
+      }
+    }
+
+    function applyFilter() {
+      const q = (searchInput.value || "").toLowerCase().trim();
+      if (!q) {
+        renderBookings(cachedBookings);
         return;
       }
 
-      list.forEach((b) => {
-        const tr = document.createElement('tr');
-
-        const milesNum = Number(b.miles ?? 0);
-        const totalNum = Number(b.total ?? 0);
-
-        const created = b.created_at ? new Date(b.created_at) : null;
-        const createdStr = created && !Number.isNaN(created.getTime())
-          ? created.toLocaleString(undefined, { month:'2-digit', day:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
-          : '';
-
-        const tdIndex = document.createElement('td');
-        tdIndex.setAttribute('data-label', '# / Created');
-        tdIndex.innerHTML = `#${b.id}<br/><span style="color:#9ca3af;">${createdStr}</span>`;
-        tr.appendChild(tdIndex);
-
-        const tdClient = document.createElement('td');
-        tdClient.setAttribute('data-label', 'Client');
-        tdClient.innerHTML = `
-          <div style="font-weight:600;">${b.customer_name || '-'}</div>
-          <div style="color:#9ca3af;">${b.customer_phone || ''}</div>
-          <div style="color:#6b7280;">${b.customer_email || ''}</div>
-        `;
-        tr.appendChild(tdClient);
-
-        const tdTrip = document.createElement('td');
-        tdTrip.setAttribute('data-label', 'Trip');
-        tdTrip.innerHTML = `
-          <div><span style="color:#9ca3af;">Pickup:</span> ${b.pickup}</div>
-          <div><span style="color:#9ca3af;">Drop-off:</span> ${b.dropoff}</div>
-          ${b.stop ? `<div><span style="color:#9ca3af;">Extra stop:</span> ${b.stop}</div>` : ''}
-          ${b.notes ? `<div style="margin-top:4px;"><span style="color:#9ca3af;">Notes:</span> <span style="color:#eab308;">${escapeHtml(b.notes)}</span></div>` : ''}
-        `;
-        tr.appendChild(tdTrip);
-
-        // DATE & TIME: müşteri seçtiği tarih + saat (AM/PM)
-        const tdDateTime = document.createElement('td');
-        tdDateTime.setAttribute('data-label', 'Date & Time');
-
-        const rideDateStr = formatRideDate(b.ride_date);
-        if (rideDateStr !== '-' && b.ride_time) {
-          const timePart = b.ampm ? `${b.ride_time} ${b.ampm}` : b.ride_time;
-          tdDateTime.textContent = `${rideDateStr} · ${timePart}`;
-        } else if (rideDateStr !== '-') {
-          tdDateTime.textContent = rideDateStr;
-        } else if (b.ride_time && b.ampm) {
-          tdDateTime.textContent = `${b.ride_time} ${b.ampm}`;
-        } else if (b.ride_time) {
-          tdDateTime.textContent = b.ride_time;
-        } else {
-          tdDateTime.textContent = '-';
-        }
-
-        tr.appendChild(tdDateTime);
-
-        const tdMiles = document.createElement('td');
-        tdMiles.className = 'num';
-        tdMiles.setAttribute('data-label', 'Miles');
-        tdMiles.textContent = milesNum ? milesNum.toFixed(2) : '-';
-        tr.appendChild(tdMiles);
-
-        const tdTotal = document.createElement('td');
-        tdTotal.className = 'num';
-        tdTotal.setAttribute('data-label', 'Total');
-        tdTotal.textContent = totalNum ? '$' + totalNum.toFixed(2) : '-';
-        tr.appendChild(tdTotal);
-
-        const tdStatus = document.createElement('td');
-        tdStatus.setAttribute('data-label', 'Status');
-        const sp = document.createElement('span');
-        sp.className = statusClass(b.status);
-        sp.textContent = statusLabel(b.status);
-        tdStatus.appendChild(sp);
-        tr.appendChild(tdStatus);
-
-        const tdActions = document.createElement('td');
-        tdActions.className = 'actions';
-        tdActions.setAttribute('data-label', 'Actions');
-
-        const btnRoute = document.createElement('button');
-        btnRoute.className = 'btn-sm route';
-        btnRoute.textContent = 'Open route';
-        btnRoute.onclick = () => {
-          const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(b.pickup)}&destination=${encodeURIComponent(b.dropoff || '')}`;
-          window.open(url, '_blank');
-        };
-        tdActions.appendChild(btnRoute);
-
-        function addStatusButton(label, statusValue, cls) {
-          const bt = document.createElement('button');
-          bt.className = 'btn-sm ' + cls;
-          bt.textContent = label;
-          bt.onclick = () => updateStatus(b.id, statusValue);
-          tdActions.appendChild(bt);
-        }
-
-        if (b.status === 'pending') {
-          addStatusButton('Confirm', 'confirmed', 'confirm');
-          addStatusButton('Cancel', 'cancel', 'cancel');
-        } else if (b.status === 'confirmed') {
-          addStatusButton('Payment received', 'paid', 'paid');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        } else if (b.status === 'paid') {
-          addStatusButton('On the way', 'on_the_way', 'onway');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        } else if (b.status === 'on_the_way') {
-          addStatusButton('Arrived', 'arrived', 'arrived');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        } else if (b.status === 'arrived') {
-          addStatusButton('Completed', 'completed', 'completed');
-          addStatusButton('Cancel', 'cancelled', 'cancel');
-        }
-
-        tr.appendChild(tdActions);
-        rowsEl.appendChild(tr);
+      const filtered = cachedBookings.filter((b) => {
+        const id = (b.id || "").toString().toLowerCase();
+        const name = (b.passenger_name || b.name || b.customer_name || "").toLowerCase();
+        return id.includes(q) || name.includes(q);
       });
+
+      renderBookings(filtered);
     }
 
-    async function loadBookings() {
-      msgEl.textContent = '';
-      try {
-        const res = await fetch('/api/admin/bookings');
-        const data = await res.json();
-        if (!data.ok) {
-          msgEl.textContent = 'Server error while loading.';
-          console.error('Load error:', data);
-          return;
-        }
-        allBookings = data.bookings || [];
-        const total = allBookings.length;
-        const today = new Date();
-        const todayStr = today.toLocaleDateString(undefined, { month:'short', day:'2-digit', year:'numeric' });
-        todayInfo.textContent = `${total} bookings loaded · Today: ${todayStr}`;
-        summaryText.textContent = 'Use the filters above to see ride status.';
-        render();
-      } catch (err) {
-        console.error(err);
-        msgEl.textContent = 'Server error while loading.';
-      }
-    }
+    searchInput.addEventListener("input", applyFilter);
 
-    async function updateStatus(id, newStatus) {
-      msgEl.textContent = 'Updating status…';
+    async function updateStatus(bookingId, newStatus, buttonEl) {
+      if (!bookingId) return;
+
+      const card = buttonEl.closest(".booking-card");
+      const statusLabel = card.querySelector("[data-status-label]");
+      const allBtns = card.querySelectorAll(".status-btn");
+
+      allBtns.forEach((b) => b.classList.remove("active"));
+      buttonEl.classList.add("active");
+
+      statusLabel.textContent = newStatus;
+      statusLabel.className = "status-pill " + statusClass(newStatus);
+
       try {
-        const res = await fetch(`/api/admin/bookings/${id}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch(`${API_BASE}/admin/bookings/${bookingId}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus })
         });
-        const data = await res.json();
-        if (!data.ok) {
-          msgEl.textContent = 'Could not update status.';
-          console.error('Status error:', data);
-          return;
-        }
-        const idx = allBookings.findIndex(b => b.id === id);
-        if (idx !== -1) {
-          allBookings[idx].status = newStatus;
-        }
-        msgEl.textContent = 'Status updated.';
-        render();
+
+        const updated = await res.json();
+
+        cachedBookings = cachedBookings.map((b) =>
+          b.id === bookingId ? { ...b, status: updated.status } : b
+        );
       } catch (err) {
         console.error(err);
-        msgEl.textContent = 'Server error while updating status.';
+        alert("Status update failed.");
       }
     }
 
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        render();
-      });
-    });
+    // İlk yüklemede rezervasyonları çek
+    fetchBookings();
+  </script>
 
-    loadBookings();
+  <!-- REAL-TIME GÜNCELLEMELER (SSE) -->
+  <script>
+    (function () {
+      const EVENTS_URL = "http://localhost:3000/api/events";
+
+      try {
+        const es = new EventSource(EVENTS_URL);
+
+        es.onopen = function () {
+          console.log("SSE connected to", EVENTS_URL);
+        };
+
+        es.onerror = function (err) {
+          console.log("SSE error:", err);
+        };
+
+        // Yeni rezervasyon
+        es.addEventListener("booking_created", function (event) {
+          console.log("SSE booking_created:", event.data);
+          fetchBookings();
+        });
+
+        // Status güncellemesi
+        es.addEventListener("status_updated", function (event) {
+          console.log("SSE status_updated:", event.data);
+          fetchBookings();
+        });
+
+        // Bilgi amaçlı event
+        es.addEventListener("notification", function (event) {
+          console.log("SSE notification:", event.data);
+        });
+      } catch (err) {
+        console.error("Failed to init SSE:", err);
+      }
+    })();
   </script>
 </body>
 </html>
