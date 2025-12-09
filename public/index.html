@@ -2,139 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JK2424 • Private Chauffeur Service</title>
 
+  <!-- STYLES -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Google Places API (Frontend Key) -->
+  <!-- GOOGLE PLACES AUTOCOMPLETE -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
 </head>
 
 <body>
-  <div class="logo">
-    <div class="logo-title">JK2424</div>
-    <div class="logo-sub">Private Chauffeur Service</div>
-  </div>
 
-  <div class="wrapper">
-    <h1>Book Your Ride</h1>
-    <p class="lead">
-      Fast, simple and premium. Enter your trip details to see an instant estimate and
-      submit your reservation request.
-    </p>
+  <!-- HEADER -->
+  <header class="main-header">
+      <h1 class="logo">JK2424</h1>
+      <p class="sub">Private Chauffeur Service</p>
+  </header>
 
-    <!-- STEP 1 -->
-    <div class="card">
-      <div class="card-header-pill">Step 1 · Trip details</div>
+  <div class="container">
 
-      <label for="pickup">Pickup location</label>
-      <input id="pickup" type="text" placeholder="Tysons, VA" />
+      <!-- STEP 1 -->
+      <section class="card">
+          <h2>Step 1 • Trip Details</h2>
 
-      <label for="stop">Extra stop (optional)</label>
-      <input id="stop" type="text" placeholder="Optional stop" />
+          <label>Pickup Location</label>
+          <input id="pickup" type="text" placeholder="Enter pickup location" />
 
-      <label for="dropoff">Drop-off location</label>
-      <input id="dropoff" type="text" placeholder="Dulles Airport" />
+          <label>Extra Stop (optional)</label>
+          <input id="extra_stop" type="text" placeholder="Enter stop location" />
 
-      <div class="row">
-        <div class="col">
-          <label for="rideDate">Date (MM/DD/YYYY)</label>
-          <input id="rideDate" type="text" maxlength="10" placeholder="MM/DD/YYYY" />
-        </div>
-        <div class="col">
-          <label for="rideTime">Time</label>
-          <input id="rideTime" type="text" maxlength="5" placeholder="HH:MM" />
-        </div>
-      </div>
+          <label>Drop-off Location</label>
+          <input id="dropoff" type="text" placeholder="Enter drop-off location" />
 
-      <label>AM / PM</label>
-      <div class="ampm-toggle">
-        <button id="amBtn" class="ampm-btn active" type="button">AM</button>
-        <button id="pmBtn" class="ampm-btn" type="button">PM</button>
-      </div>
+          <label>Date (MM/DD/YYYY)</label>
+          <input id="date" type="text" placeholder="MM/DD/YYYY" />
 
-      <button id="calcPriceBtn" class="primary-btn" type="button">Calculate Price</button>
-      <div id="calcMsg" class="msg"></div>
-    </div>
+          <label>Time (HH:MM)</label>
+          <input id="time" type="text" placeholder="HH:MM" />
 
-    <!-- ESTIMATE -->
-    <div class="card" id="estimateCard">
-      <div class="estimate-title">Estimate</div>
+          <div class="am-pm-buttons">
+              <button id="amBtn" class="btn-am">AM</button>
+              <button id="pmBtn" class="btn-pm active">PM</button>
+          </div>
 
-      <div id="estimateEmptyText" class="muted">
-        Enter trip details and tap “CALCULATE PRICE”.
-      </div>
+          <button id="calculateBtn" class="btn-primary">CALCULATE PRICE</button>
 
-      <div id="estimateDetails" style="display:none;">
-        <div class="estimate-row">
-          <span>Distance:</span>
-          <span><strong id="estDistance">–</strong></span>
-        </div>
-        <div class="estimate-row">
-          <span id="estBaseLabel">Base fare:</span>
-          <span><strong id="estBaseFare">$0.00</strong></span>
-        </div>
-        <div class="estimate-row">
-          <span>Extra miles:</span>
-          <span><strong id="estExtraMiles">–</strong></span>
-        </div>
-        <div class="estimate-row">
-          <span>Night fare:</span>
-          <span><strong id="estNightFare">–</strong></span>
-        </div>
+          <div id="estimateBox" class="estimate-box hidden">
+              <p><strong>Distance:</strong> <span id="distanceText"></span></p>
+              <p><strong>Estimated total:</strong> <span id="totalText"></span></p>
+          </div>
+      </section>
 
-        <div class="estimate-total">
-          <span>Estimated total</span>
-          <span class="estimate-total-value" id="estTotal">$0.00</span>
-        </div>
+      <!-- STEP 2 (HIDDEN INITIALLY) -->
+      <section id="step2" class="card hidden">
+          <h2>Step 2 • Passenger Details</h2>
 
-        <p class="note">
-          Final price may vary slightly due to real route and waiting times.
-        </p>
+          <label>Full Name</label>
+          <input id="fullname" type="text" placeholder="Your full name" />
 
-        <p class="maps-link">
-          <a id="mapsLink" href="#" target="_blank">Open this route in Google Maps</a>
-        </p>
-      </div>
-    </div>
+          <label>Mobile Phone</label>
+          <input id="phone" type="text" placeholder="Phone number" />
 
-    <!-- STEP 2 (başlangıçta gizli) -->
-    <div class="card step2" id="step2Card">
-      <div class="card-header-pill">Step 2 · Passenger details</div>
+          <label>Email for Confirmation</label>
+          <input id="email" type="text" placeholder="Email address" />
 
-      <div class="trip-summary-line" id="summaryPickup"></div>
-      <div class="trip-summary-line" id="summaryDropoff"></div>
-      <div class="trip-summary-line" id="summaryDateTime"></div>
-      <div class="trip-summary-line" id="summaryTotal"></div>
+          <label>Notes</label>
+          <input id="notes" type="text" placeholder="Optional notes" />
 
-      <div class="field-group">
-        <label for="fullName">Full name</label>
-        <input id="fullName" type="text" placeholder="John Doe" />
-      </div>
+          <button id="sendBtn" class="btn-primary">SEND RESERVATION REQUEST</button>
 
-      <div class="field-group">
-        <label for="mobilePhone">Mobile phone</label>
-        <input id="mobilePhone" type="tel" placeholder="+1 771 217 3111" />
-      </div>
+          <p id="resultMessage" class="result-message"></p>
+      </section>
 
-      <div class="field-group">
-        <label for="email">Email</label>
-        <input id="email" type="email" placeholder="name@example.com" />
-      </div>
+      <footer class="footer">
+          <p>Need help or a special request?<br/>Call / text: +1 (771) 217 31 11</p>
+      </footer>
 
-      <div class="field-group">
-        <label for="notes">Notes</label>
-        <textarea id="notes" rows="3" placeholder="Gate code, luggage, etc."></textarea>
-      </div>
-
-      <button id="sendBookingBtn" class="primary-btn">Send reservation request</button>
-      <div id="bookingMsg" class="msg"></div>
-    </div>
-
-    <div class="footer">
-      Need help? Call/text +1 (771) 217 31 11
-    </div>
   </div>
 
   <script src="index.js"></script>
