@@ -252,7 +252,7 @@
 
   <!-- ANA ADMIN JS -->
   <script>
-    // Şimdilik lokal backend
+    // Şimdilik local backend; sonra Render URL'si ile değiştireceğiz.
     const API_BASE = "http://localhost:3000/api";
 
     const bookingListEl = document.getElementById("bookingList");
@@ -287,7 +287,6 @@
 
       if (!bookings || bookings.length === 0) {
         emptyStateEl.style.display = "block";
-        emptyStateEl.textContent = "No reservations found.";
         return;
       } else {
         emptyStateEl.style.display = "none";
@@ -310,7 +309,7 @@
         const createdAt =
           b.created_at || b.createdAt || "";
 
-        const status = b.status || "confirmed";
+        const status = b.status || "pending";
 
         card.innerHTML = `
           <div>
@@ -318,7 +317,7 @@
               <span class="badge-id">#${b.id || "—"}</span>
               <strong>${passengerName}</strong>
             </div>
-            <div class="booking-field"><span>Pickup</span>${pickupTime || "—"}</div>
+            <div class="booking-field"><span>Pickup time</span>${pickupTime || "—"}</div>
             <div class="booking-field"><span>Created</span>${createdAt || "—"}</div>
             <div class="booking-field"><span>From</span>${b.pickup_address || "—"}</div>
             <div class="booking-field"><span>To</span>${b.dropoff_address || "—"}</div>
@@ -327,10 +326,7 @@
           <div>
             <div class="booking-field"><span>Passengers</span>${b.passengers || b.passenger_count || "1"}</div>
             <div class="booking-field"><span>Vehicle</span>${b.vehicle_type || "Mercedes EQS"}</div>
-            <div class="booking-field"><span>Price</span>${
-              b.estimated_price ? "$" + b.estimated_price :
-              (b.price ? "$" + b.price : "—")
-            }</div>
+            <div class="booking-field"><span>Price</span>${b.estimated_price ? "$" + b.estimated_price : (b.price ? "$" + b.price : "—")}</div>
             <div class="booking-field"><span>Notes</span>${b.notes || "—"}</div>
           </div>
 
@@ -349,7 +345,7 @@
               <button class="status-btn" data-status="completed"   onclick="updateStatus('${b.id}','completed', this)">Completed</button>
             </div>
 
-            <div class="status-hint">Status değiştirildiğinde ilgili push bildirimi tetiklenecek.</div>
+            <div class="status-hint">Status değişince ilgili push bildirimi tetiklenecek.</div>
           </div>
         `;
 
@@ -365,7 +361,7 @@
 
     async function fetchBookings() {
       try {
-        const res = await fetch(`${API_BASE}/admin/bookings`);
+        const res = await fetch(`${API_BASE}/bookings`);
         const data = await res.json();
         const bookings = Array.isArray(data) ? data : (data.bookings || []);
         cachedBookings = bookings;
@@ -410,16 +406,21 @@
       statusLabel.className = "status-pill " + statusClass(newStatus);
 
       try {
-        const res = await fetch(`${API_BASE}/admin/bookings/${bookingId}/status`, {
-          method: "PATCH",
+        const res = await fetch(`${API_BASE}/bookings/${bookingId}/status`, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus })
         });
 
-        const updated = await res.json();
+        const data = await res.json();
+        if (!data.ok) {
+          throw new Error(data.error || "Status update failed");
+        }
+
+        const updated = data.booking;
 
         cachedBookings = cachedBookings.map((b) =>
-          b.id === bookingId ? { ...b, status: updated.status } : b
+          b.id === updated.id ? updated : b
         );
       } catch (err) {
         console.error(err);
@@ -427,7 +428,7 @@
       }
     }
 
-    // İlk yüklemede rezervasyonları çek
+    // Sayfa açılır açılmaz yükle
     fetchBookings();
   </script>
 
@@ -447,19 +448,16 @@
           console.log("SSE error:", err);
         };
 
-        // Yeni rezervasyon
         es.addEventListener("booking_created", function (event) {
           console.log("SSE booking_created:", event.data);
           fetchBookings();
         });
 
-        // Status güncellemesi
         es.addEventListener("status_updated", function (event) {
           console.log("SSE status_updated:", event.data);
           fetchBookings();
         });
 
-        // Bilgi amaçlı event
         es.addEventListener("notification", function (event) {
           console.log("SSE notification:", event.data);
         });
