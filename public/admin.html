@@ -423,6 +423,48 @@
     }
 
     fetchBookings();
-  </script>
+ <script>
+  // JK2424 – Real-time admin updates (SSE)
+  (function () {
+    // Şimdilik local backend kullanıyoruz.
+    // Render backend'e geçtiğimizde burayı değiştireceğiz.
+    const EVENTS_URL = "http://localhost:3000/api/events";
+
+    try {
+      const es = new EventSource(EVENTS_URL);
+
+      es.onopen = function () {
+        console.log("SSE connected to", EVENTS_URL);
+      };
+
+      es.onerror = function (err) {
+        console.log("SSE error:", err);
+      };
+
+      // Yeni rezervasyon oluşturulduğunda
+      es.addEventListener("booking_created", function (event) {
+        console.log("SSE booking_created:", event.data);
+        if (typeof loadBookings === "function") {
+          loadBookings(); // Admin kartlarını yeniden yükle
+        }
+      });
+
+      // Status değiştiğinde
+      es.addEventListener("status_updated", function (event) {
+        console.log("SSE status_updated:", event.data);
+        if (typeof loadBookings === "function") {
+          loadBookings();
+        }
+      });
+
+      // Bilgi amaçlı, şu an sadece console'a yazıyoruz
+      es.addEventListener("notification", function (event) {
+        console.log("SSE notification:", event.data);
+      });
+    } catch (err) {
+      console.error("Failed to init SSE:", err);
+    }
+  })();
+</script>
 </body>
 </html>
