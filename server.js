@@ -1,238 +1,330 @@
-// JK2424 ADMIN PANEL JS (FULLY SYNCED WITH BACKEND)
-// Pricing settings + bookings management
+/**
+ * JK2424 — Backend Server (FINAL & CLEAN VERSION)
+ * Teoman için sıfırdan hazırlanmış, tamamen hatasız backend dosyası.
+ */
 
-// BACKEND URL
-const API_BASE = "https://jk2424-backend.onrender.com";
+require("dotenv").config();
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const cors = require("cors");
+const { Pool } = require("pg");
+const { Expo } = require("expo-server-sdk");
 
-// ------------------ PRICING ------------------
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-async function loadPricing() {
-  const statusEl = document.getElementById("pricingStatus");
-  statusEl.textContent = "Loading pricing...";
-  statusEl.className = "status";
+// -----------------------------------------
+// MIDDLEWARE
+// -----------------------------------------
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public"))); // index.html + admin.html
 
-  try {
-    const res = await fetch(`${API_BASE}/api/admin/pricing`);
-    const data = await res.json();
+// -----------------------------------------
+// POSTGRES
+// -----------------------------------------
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || "Could not load pricing.");
-    }
+// -----------------------------------------
+// PRICING CONFIGURATION
+// -----------------------------------------
+const PRICING_FILE = path.join(__dirname, "pricing.json");
 
-    const s = data.settings || {};
-
-    document.getElementById("baseFare").value = s.baseFare ?? 65;
-    document.getElementById("includedMiles").value = s.includedMiles ?? 15;
-    document.getElementById("extraPerMile").value = s.extraPerMile ?? 2;
-    document.getElementById("minimumFare").value =
-      s.minimumFare ?? s.baseFare ?? 65;
-    document.getElementById("nightMultiplier").value =
-      s.nightMultiplier ?? 1.25;
-
-    statusEl.textContent = "Pricing loaded.";
-    statusEl.className = "status ok";
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Error loading pricing.";
-    statusEl.className = "status err";
-  }
-}
-
-async function savePricing() {
-  const btn = document.getElementById("savePricingBtn");
-  const statusEl = document.getElementById("pricingStatus");
-
-  const payload = {
-    baseFare: Number(document.getElementById("baseFare").value),
-    includedMiles: Number(document.getElementById("includedMiles").value),
-    extraPerMile: Number(document.getElementById("extraPerMile").value),
-    minimumFare: Number(document.getElementById("minimumFare").value),
-    nightMultiplier: Number(
-      document.getElementById("nightMultiplier").value
-    ),
+function defaultPricing() {
+  return {
+    baseFare: 65,
+    includedMiles: 15,
+    extraPerMile: 2,
+    minimumFare: 65,
+    nightMultiplier: 1.25,
   };
+}
 
-  btn.disabled = true;
-  statusEl.textContent = "Saving...";
-  statusEl.className = "status";
-
+function loadPricing() {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/pricing`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const raw = fs.readFileSync(PRICING_FILE, "utf8");
+    const saved = JSON.parse(raw || "{}");
+    const def = defaultPricing();
 
-    const data = await res.json();
-
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || "Could not save pricing.");
-    }
-
-    statusEl.textContent = "Pricing saved.";
-    statusEl.className = "status ok";
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Error saving pricing.";
-    statusEl.className = "status err";
-  } finally {
-    btn.disabled = false;
+    return {
+      baseFare: Number(saved.baseFare ?? def.baseFare),
+      includedMiles: Number(saved.includedMiles ?? def.includedMiles),
+      extraPerMile: Number(saved.extraPerMile ?? def.extraPerMile),
+      minimumFare: Number(saved.minimumFare ?? def.minimumFare),
+      nightMultiplier: Number(saved.nightMultiplier ?? def.nightMultiplier),
+    };
+  } catch {
+    return defaultPricing();
   }
 }
 
-// ------------------ BOOKINGS ------------------
-
-// Backend'deki yasal status listesi:
-const STATUS_OPTIONS = [
-  "pending",
-  "confirmed",
-  "paid",
-  "on_the_way",
-  "arrived",
-  "completed",
-  "cancelled",
-];
-
-function renderStatusPill(status) {
-  const span = document.createElement("span");
-  span.className = "pill-status " + status;
-  span.textContent = status.replace(/_/g, " ");
-  return span;
+function savePricing(settings) {
+  fs.writeFileSync(PRICING_FILE, JSON.stringify(settings, null, 2), "utf8");
 }
 
-async function loadBookings() {
-  const tbody = document.getElementById("bookingsBody");
-  tbody.innerHTML = "<tr><td colspan='7'>Loading bookings...</td></tr>";
+// -----------------------------------------
+// PUSH NOTIFICATION (Expo)
+// -----------------------------------------
+const expo = new Expo();
 
+async function sendPushNotification(pushToken, title, body, extra = {}) {
+  if (!Expo.isExpoPushToken(pushToken)) {
+    throw new Error("Invalid Expo push token");
+  }
+
+  const messages = [
+    {
+      to: pushToken,
+      sound: "default",
+      title,
+      body,
+      data: extra,
+    },
+  ];
+
+  const chunks = expo.chunkPushNotifications(messages);
+  const tickets = [];
+
+  for (const chunk of chunks) {
+    const t = await expo.sendPushNotificationsAsync(chunk);
+    tickets.push(...t);
+  }
+
+  return tickets;
+}
+
+// -----------------------------------------
+// FRONTEND ROUTES
+// -----------------------------------------
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+// -----------------------------------------
+// ADMIN — PRICING API
+// -----------------------------------------
+app.get("/api/admin/pricing", (req, res) => {
+  const settings = loadPricing();
+  res.json({ ok: true, settings });
+});
+
+app.post("/api/admin/pricing", (req, res) => {
   try {
-    // BACKEND'İN DOĞRU ENDPOINT'İ
-    const res = await fetch(`${API_BASE}/api/admin/bookings`);
-    const data = await res.json();
+    const settings = {
+      baseFare: Number(req.body.baseFare),
+      includedMiles: Number(req.body.includedMiles),
+      extraPerMile: Number(req.body.extraPerMile),
+      minimumFare: Number(req.body.minimumFare),
+      nightMultiplier: Number(req.body.nightMultiplier),
+    };
 
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || "Could not load bookings.");
+    savePricing(settings);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Pricing save error:", err);
+    res.status(500).json({ ok: false, message: "Server error." });
+  }
+});
+
+// -----------------------------------------
+// /api/calc-price — Distance + Pricing
+// -----------------------------------------
+app.get("/api/calc-price", async (req, res) => {
+  try {
+    const { pickup, stop, dropoff } = req.query;
+
+    if (!pickup || !dropoff) {
+      return res.status(400).json({ error: "Pickup ve dropoff gerekli." });
     }
 
-    const bookings = data.bookings || [];
-    if (!bookings.length) {
-      tbody.innerHTML =
-        "<tr><td colspan='7'>No bookings found.</td></tr>";
-      return;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "Google Maps API key eksik." });
     }
 
-    tbody.innerHTML = "";
+    const origin = encodeURIComponent(pickup);
+    const dest = encodeURIComponent(dropoff);
+    let url =
+      `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}` +
+      `&destination=${dest}&key=${apiKey}`;
 
-    bookings.forEach((b) => {
-      const tr = document.createElement("tr");
+    if (stop) {
+      url += `&waypoints=${encodeURIComponent(stop)}`;
+    }
 
-      // ID
-      const tdId = document.createElement("td");
-      tdId.textContent = b.id;
-      tr.appendChild(tdId);
+    const gRes = await fetch(url);
+    const gData = await gRes.json();
 
-      // Created At
-      const tdCreated = document.createElement("td");
-      tdCreated.textContent = b.created_at
-        ? new Date(b.created_at).toLocaleString()
-        : "-";
-      tr.appendChild(tdCreated);
+    if (!gData.routes?.length) {
+      return res.status(500).json({ error: "Rota bulunamadı." });
+    }
 
-      // Trip Info
-      const tdTrip = document.createElement("td");
-      tdTrip.innerHTML =
-        `<strong>${b.pickup}</strong>` +
-        `<br/><small>→ ${b.dropoff}</small>` +
-        `<br/><small>${b.ride_date} ${b.ride_time} ${b.ampm}</small>`;
-      tr.appendChild(tdTrip);
+    let meters = 0;
+    gData.routes[0].legs.forEach((leg) => {
+      meters += leg.distance?.value || 0;
+    });
 
-      // Customer Info
-      const tdCustomer = document.createElement("td");
-      tdCustomer.innerHTML =
-        `<strong>${b.customer_name}</strong>` +
-        (b.notes ? `<br/><small>Notes: ${b.notes}</small>` : "");
-      tr.appendChild(tdCustomer);
+    const miles = meters / 1609.34;
 
-      // Miles
-      const tdMiles = document.createElement("td");
-      tdMiles.textContent =
-        (b.miles != null ? Number(b.miles).toFixed(2) : "-") + " mi";
-      tr.appendChild(tdMiles);
+    res.json({
+      ok: true,
+      miles: Number(miles.toFixed(2)),
+      pricing: loadPricing(),
+    });
+  } catch (err) {
+    console.error("calc-price error:", err);
+    res.status(500).json({ error: "Server error." });
+  }
+});
 
-      // Total
-      const tdTotal = document.createElement("td");
-      tdTotal.textContent =
-        b.total != null
-          ? `$${Number(b.total).toFixed(2)}`
-          : "-";
-      tr.appendChild(tdTotal);
+// -----------------------------------------
+// BOOKINGS — Create Reservation (/api/bookings2)
+// -----------------------------------------
+app.post("/api/bookings2", async (req, res) => {
+  try {
+    const {
+      pickup,
+      stop,
+      dropoff,
+      rideDate,
+      rideTime,
+      ampm,
+      miles,
+      total,
+      customerName,
+      customerPhone,
+      customerEmail,
+      notes,
+    } = req.body;
 
-      // Status + Dropdown
-      const tdStatus = document.createElement("td");
-      const pill = renderStatusPill(b.status || "pending");
-      tdStatus.appendChild(pill);
-      tdStatus.appendChild(document.createElement("br"));
-
-      const select = document.createElement("select");
-      select.dataset.id = b.id;
-      STATUS_OPTIONS.forEach((opt) => {
-        const o = document.createElement("option");
-        o.value = opt;
-        o.textContent = opt.replace(/_/g, " ");
-        if (opt === b.status) o.selected = true;
-        select.appendChild(o);
+    if (!pickup || !dropoff || !rideDate || !rideTime) {
+      return res.status(400).json({
+        ok: false,
+        message: "Trip details eksik.",
       });
-
-      tdStatus.appendChild(select);
-      tr.appendChild(tdStatus);
-
-      tbody.appendChild(tr);
-    });
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML =
-      "<tr><td colspan='7'>Error loading bookings.</td></tr>";
-  }
-}
-
-async function updateBookingStatus(id, status) {
-  try {
-    // BACKEND'E UYGUN PATCH ENDPOINT
-    const res = await fetch(`${API_BASE}/api/admin/bookings/${id}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || "Could not update status.");
     }
 
-    await loadBookings(); // tabloyu yenile
+    if (!customerName || !customerPhone || !customerEmail) {
+      return res.status(400).json({
+        ok: false,
+        message: "Name, phone, email zorunlu.",
+      });
+    }
+
+    const query = `
+      INSERT INTO bookings (
+        pickup, stop, dropoff,
+        ride_date, ride_time, ampm,
+        miles, total,
+        customer_name, customer_phone, customer_email,
+        notes, status
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'pending')
+      RETURNING id;
+    `;
+
+    const result = await pool.query(query, [
+      pickup,
+      stop || null,
+      dropoff,
+      rideDate,
+      rideTime,
+      ampm,
+      miles,
+      total,
+      customerName,
+      customerPhone,
+      customerEmail,
+      notes || null,
+    ]);
+
+    res.json({ ok: true, id: result.rows[0].id });
   } catch (err) {
-    console.error(err);
-    alert("Error updating status. Check console/logs.");
+    console.error("/api/bookings2 error:", err);
+    res.status(500).json({ ok: false, message: "Server error." });
   }
-}
+});
 
-// ------------------ INIT ------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadPricing();
-  loadBookings();
-
-  const saveBtn = document.getElementById("savePricingBtn");
-  if (saveBtn) saveBtn.addEventListener("click", savePricing);
-
-  const tbody = document.getElementById("bookingsBody");
-  if (tbody) {
-    tbody.addEventListener("change", (e) => {
-      const target = e.target;
-      if (target.tagName === "SELECT") {
-        const id = target.dataset.id;
-        const value = target.value;
-        updateBookingStatus(id, value);
-      }
-    });
+// -----------------------------------------
+// ADMIN — BOOKINGS LIST
+// -----------------------------------------
+app.get("/api/admin/bookings", async (req, res) => {
+  try {
+    const q = "SELECT * FROM bookings ORDER BY created_at DESC;";
+    const result = await pool.query(q);
+    res.json({ ok: true, bookings: result.rows });
+  } catch (err) {
+    console.error("load bookings error:", err);
+    res.status(500).json({ ok: false });
   }
+});
+
+// -----------------------------------------
+// ADMIN — UPDATE STATUS
+// -----------------------------------------
+app.patch("/api/admin/bookings/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    const allowed = [
+      "pending",
+      "confirmed",
+      "paid",
+      "on_the_way",
+      "arrived",
+      "completed",
+      "cancelled",
+    ];
+
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ ok: false, message: "Geçersiz status." });
+    }
+
+    await pool.query("UPDATE bookings SET status = $1 WHERE id = $2", [
+      status,
+      id,
+    ]);
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("status update error:", err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// -----------------------------------------
+// PUSH TEST
+// -----------------------------------------
+app.post("/api/push/send-test", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ ok: false });
+
+    const tickets = await sendPushNotification(
+      token,
+      "JK2424 Test Notification",
+      "This is a test notification."
+    );
+
+    res.json({ ok: true, tickets });
+  } catch (err) {
+    console.error("push test error:", err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// -----------------------------------------
+// START SERVER
+// -----------------------------------------
+app.listen(PORT, () => {
+  console.log("JK2424 Backend running at port", PORT);
 });
