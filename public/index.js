@@ -1,106 +1,93 @@
-// =========================
-// GOOGLE AUTOCOMPLETE
-// =========================
-function initAutocomplete() {
-    const opts = { types: ["geocode"] };
+// ===============================
+// JK2424 – FRONTEND PRICE LOGIC
+// ===============================
 
-    new google.maps.places.Autocomplete(document.getElementById("pickup"), opts);
-    new google.maps.places.Autocomplete(document.getElementById("extra_stop"), opts);
-    new google.maps.places.Autocomplete(document.getElementById("dropoff"), opts);
+// Elements
+const step1Card = document.getElementById("step1-card");
+const step2Card = document.getElementById("step2-card");
+const resultBox = document.getElementById("estimate-box");
+
+resultBox.classList.add("hidden");
+step2Card.classList.add("hidden");
+
+// Google Autocomplete
+let pickupAutocomplete, stopAutocomplete, dropoffAutocomplete;
+
+function initAutocomplete() {
+    pickupAutocomplete = new google.maps.places.Autocomplete(
+        document.getElementById("pickup"),
+        { types: ["geocode"] }
+    );
+
+    stopAutocomplete = new google.maps.places.Autocomplete(
+        document.getElementById("extra_stop"),
+        { types: ["geocode"] }
+    );
+
+    dropoffAutocomplete = new google.maps.places.Autocomplete(
+        document.getElementById("dropoff"),
+        { types: ["geocode"] }
+    );
 }
 
-google.maps.event.addDomListener(window, "load", initAutocomplete);
+// ===============================
+// PRICE CALCULATION
+// ===============================
 
-// =========================
-// AUTO DATE FORMAT
-// =========================
-document.getElementById("date").addEventListener("input", function () {
-    let v = this.value.replace(/\D/g, "");
-    if (v.length >= 3 && v.length <= 4) this.value = v.slice(0,2) + "/" + v.slice(2);
-    else if (v.length > 4) this.value = v.slice(0,2) + "/" + v.slice(2,4) + "/" + v.slice(4,8);
-});
-
-// =========================
-// AUTO TIME FORMAT (12-HOUR)
-// =========================
-document.getElementById("time").addEventListener("input", function () {
-    let v = this.value.replace(/\D/g, "");
-    if (v.length >= 3) this.value = v.slice(0,2) + ":" + v.slice(2,4);
-});
-
-// AM/PM
-let selectedPeriod = "PM";
-document.getElementById("amBtn").onclick = () => {
-    selectedPeriod = "AM";
-    amBtn.classList.add("active");
-    pmBtn.classList.remove("active");
-};
-document.getElementById("pmBtn").onclick = () => {
-    selectedPeriod = "PM";
-    pmBtn.classList.add("active");
-    amBtn.classList.remove("active");
-};
-
-// =========================
-// CALCULATE PRICE
-// =========================
-document.getElementById("calculateBtn").onclick = async () => {
-    const pickup = pickup.value.trim();
-    const dropoff = dropoff.value.trim();
+document.getElementById("calculateBtn").addEventListener("click", async () => {
+    const pickup = document.getElementById("pickup").value.trim();
+    const stop = document.getElementById("extra_stop").value.trim();
+    const dropoff = document.getElementById("dropoff").value.trim();
 
     if (!pickup || !dropoff) {
-        alert("Please enter pickup and dropoff.");
+        alert("Please enter pickup and drop-off locations.");
         return;
     }
 
-    const params = new URLSearchParams({
-        pickup,
-        dropoff,
-        extra: extra_stop.value.trim(),
-        date: date.value.trim(),
-        time: time.value.trim(),
-        period: selectedPeriod
-    });
+    // Build Google Distance Matrix URL
+    let waypoints = stop ? `&waypoints=${encodeURIComponent(stop)}` : "";
 
-    const res = await fetch(`https://jk2424-backend.onrender.com/api/calc?${params}`);
-    const data = await res.json();
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${encodeURIComponent(
+        pickup
+    )}&destinations=${encodeURIComponent(dropoff)}${waypoints}&key=YOUR_GOOGLE_MAPS_API_KEY`;
 
-    if (!data.ok) {
-        alert("Could not calculate price.");
-        return;
+    try {
+        const response = await fetch(`https://jk2424-backend.onrender.com/calc?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`);
+
+        const data = await response.json();
+
+        if (!data.success) {
+            alert("Unable to calculate distance.");
+            return;
+        }
+
+        // Display STEP 2
+        step2Card.classList.remove("hidden");
+        resultBox.classList.remove("hidden");
+
+        // Show results
+        document.getElementById("miles").innerText = data.miles + " mi";
+        document.getElementById("price").innerText = "$" + data.price;
+
+    } catch (error) {
+        console.error("Error calculating:", error);
+        alert("A calculation error occurred.");
     }
+});
 
-    distanceText.textContent = data.distance;
-    totalText.textContent = "$" + data.total;
+// ===============================
+// AM/PM Buttons
+// ===============================
 
-    estimateBox.classList.remove("hidden");
-    step2.classList.remove("hidden");
-};
+function selectAMPM(value) {
+    const amBtn = document.getElementById("amBtn");
+    const pmBtn = document.getElementById("pmBtn");
 
-// =========================
-// SEND RESERVATION
-// =========================
-document.getElementById("sendBtn").onclick = async () => {
-    const body = {
-        pickup: pickup.value.trim(),
-        extra_stop: extra_stop.value.trim(),
-        dropoff: dropoff.value.trim(),
-        date: date.value.trim(),
-        time: time.value.trim(),
-        period: selectedPeriod,
-        fullname: fullname.value.trim(),
-        phone: phone.value.trim(),
-        email: email.value.trim(),
-        notes: notes.value.trim(),
-    };
-
-    const res = await fetch("https://jk2424-backend.onrender.com/api/reserve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-    });
-
-    const data = await res.json();
-    resultMessage.textContent = data.message;
-    resultMessage.style.color = "#f9d25a";
-};
+    if (value === "AM") {
+        amBtn.classList.add("active");
+        pmBtn.classList.remove("active");
+    } else {
+        pmBtn.classList.add("active");
+        amBtn.classList.remove("active");
+    }
+}
