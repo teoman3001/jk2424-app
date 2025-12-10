@@ -1,128 +1,147 @@
-// =========================
-// GOOGLE AUTOCOMPLETE
-// =========================
-function initAutocomplete() {
-    new google.maps.places.Autocomplete(
-        document.getElementById("pickup"),
-        { types: ["geocode"] }
-    );
-    new google.maps.places.Autocomplete(
-        document.getElementById("extra_stop"),
-        { types: ["geocode"] }
-    );
-    new google.maps.places.Autocomplete(
-        document.getElementById("dropoff"),
-        { types: ["geocode"] }
-    );
-}
-window.onload = initAutocomplete;
+// ================================
+// JK2424 FRONTEND - FINAL VERSION
+// ================================
 
-// =========================
-// DATE AUTO-FORMAT
-// =========================
-document.getElementById("date").addEventListener("input", function () {
-    let v = this.value.replace(/\D/g, "");
-    if (v.length >= 3 && v.length <= 4)
-        this.value = v.slice(0, 2) + "/" + v.slice(2);
-    else if (v.length > 4)
-        this.value = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4, 8);
-});
+// Backend URL (Render)
+const BACKEND_URL = "https://jk2424-backend.onrender.com";
 
-// =========================
-// TIME AUTO-FORMAT
-// =========================
-document.getElementById("time").addEventListener("input", function () {
-    let v = this.value.replace(/\D/g, "");
-    if (v.length >= 3)
-        this.value = v.slice(0, 2) + ":" + v.slice(2, 4);
-});
+// -------------------------------
+// STEP 1: CALCULATE PRICE
+// -------------------------------
+async function calculatePrice() {
+  const pickup = document.getElementById("pickup").value.trim();
+  const extra_stop = document.getElementById("extra_stop").value.trim();
+  const dropoff = document.getElementById("dropoff").value.trim();
+  const date = document.getElementById("date").value.trim();
+  const time = document.getElementById("time").value.trim();
+  const ampm = document.querySelector(".ampm-btn.active")?.textContent || "AM";
 
-// =========================
-// AM / PM SWITCH
-// =========================
-let selectedPeriod = "PM";
+  if (!pickup || !dropoff || !date || !time) {
+    alert("Please fill all required fields.");
+    return;
+  }
 
-document.getElementById("amBtn").addEventListener("click", () => {
-    selectedPeriod = "AM";
-    document.getElementById("amBtn").classList.add("active");
-    document.getElementById("pmBtn").classList.remove("active");
-});
+  const payload = {
+    pickup,
+    extra_stop,
+    dropoff,
+    date,
+    time,
+    ampm
+  };
 
-document.getElementById("pmBtn").addEventListener("click", () => {
-    selectedPeriod = "PM";
-    document.getElementById("pmBtn").classList.add("active");
-    document.getElementById("amBtn").classList.remove("active");
-});
-
-// =========================
-// CALCULATE PRICE
-// =========================
-document.getElementById("calculateBtn").addEventListener("click", async () => {
-    const pickup = document.getElementById("pickup").value.trim();
-    const dropoff = document.getElementById("dropoff").value.trim();
-
-    if (!pickup || !dropoff) {
-        alert("Please enter both pickup and dropoff locations.");
-        return;
-    }
-
-    const query = new URLSearchParams({
-        pickup,
-        dropoff,
-        stop: document.getElementById("extra_stop").value.trim(),
+  try {
+    const res = await fetch(`${BACKEND_URL}/calc`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
 
-    try {
-        const res = await fetch(`/api/calc-price?${query.toString()}`);
-        const data = await res.json();
+    const data = await res.json();
 
-        if (!data || !data.distance || !data.total) {
-            alert("Invalid calculation response.");
-            return;
-        }
-
-        document.getElementById("distanceText").textContent = data.distance + " miles";
-        document.getElementById("totalText").textContent = "$" + data.total;
-
-        document.getElementById("estimateBox").classList.remove("hidden");
-        document.getElementById("step2").classList.remove("hidden");
-
-    } catch (err) {
-        console.error(err);
-        alert("Price calculation failed.");
+    if (!res.ok) {
+      console.error("CALC ERROR:", data);
+      alert("Price calculation failed.");
+      return;
     }
-});
 
-// =========================
-// SEND RESERVATION
-// =========================
-document.getElementById("sendBtn").addEventListener("click", async () => {
-    const reservation = {
-        pickup: document.getElementById("pickup").value.trim(),
-        extra_stop: document.getElementById("extra_stop").value.trim(),
-        dropoff: document.getElementById("dropoff").value.trim(),
-        date: document.getElementById("date").value.trim(),
-        time: document.getElementById("time").value.trim(),
-        period: selectedPeriod,
-        fullname: document.getElementById("fullname").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        notes: document.getElementById("notes").value.trim(),
-    };
+    // Show results
+    document.getElementById("result_price").innerText = `$${data.price}`;
+    document.getElementById("result_distance").innerText = `${data.miles} miles`;
+    document.getElementById("result_duration").innerText = data.duration;
 
-    try {
-        const res = await fetch("/save-reservation", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(reservation),
-        });
+    // Make Step 2 visible
+    document.getElementById("step2").style.display = "block";
 
-        const data = await res.json();
-        document.getElementById("resultMessage").textContent = data.message;
-        document.getElementById("resultMessage").style.color = "#f5d05c";
+  } catch (error) {
+    console.error("SERVER ERROR:", error);
+    alert("Server connection error.");
+  }
+}
 
-    } catch (err) {
-        console.error(err);
-        alert("Failed to send reservation.");
+// -------------------------------
+// STEP 2: SEND RESERVATION
+// -------------------------------
+async function sendReservation() {
+  const fullName = document.getElementById("fullname").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+
+  const pickup = document.getElementById("pickup").value.trim();
+  const extra_stop = document.getElementById("extra_stop").value.trim();
+  const dropoff = document.getElementById("dropoff").value.trim();
+  const date = document.getElementById("date").value.trim();
+  const time = document.getElementById("time").value.trim();
+  const ampm = document.querySelector(".ampm-btn.active")?.textContent || "AM";
+
+  if (!fullName || !phone || !email) {
+    alert("Please complete passenger details.");
+    return;
+  }
+
+  const payload = {
+    fullName,
+    phone,
+    email,
+    notes,
+    pickup,
+    extra_stop,
+    dropoff,
+    date,
+    time,
+    ampm
+  };
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/reservation`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(data);
+      alert("Reservation failed.");
+      return;
     }
-});
+
+    alert("Reservation request sent successfully.");
+
+  } catch (error) {
+    console.error("SERVER ERROR:", error);
+    alert("Server error while sending reservation.");
+  }
+}
+
+// -------------------------------
+// MAP AUTOCOMPLETE (Google Places)
+// -------------------------------
+function initAutocomplete() {
+  const options = {
+    fields: ["formatted_address", "geometry"],
+    types: ["geocode"]
+  };
+
+  new google.maps.places.Autocomplete(document.getElementById("pickup"), options);
+  new google.maps.places.Autocomplete(document.getElementById("extra_stop"), options);
+  new google.maps.places.Autocomplete(document.getElementById("dropoff"), options);
+}
+
+// -------------------------------
+// AM/PM BUTTON SELECTION
+// -------------------------------
+function selectAMPM(type) {
+  document.getElementById("btnAM").classList.remove("active");
+  document.getElementById("btnPM").classList.remove("active");
+
+  if (type === "AM") {
+    document.getElementById("btnAM").classList.add("active");
+  } else {
+    document.getElementById("btnPM").classList.add("active");
+  }
+}
+
+window.initAutocomplete = initAutocomplete;
