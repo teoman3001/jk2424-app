@@ -416,8 +416,6 @@
 
   <script>
     // --- Helpers ---
-    const API_BASE = "http://localhost:3000/api";
-
     function formatMoney(value) {
       return '$' + value.toFixed(2);
     }
@@ -537,7 +535,9 @@
         return;
       }
 
-      // 12 saatlik saat kontrolü
+
+            // --- YENİ EKLEDİĞİMİZ KISIM: 12 SAATLİK SAAT KONTROLÜ ---
+      // Sadece 01:00 - 12:59 arası saatlere izin veriyoruz
       const timeMatch = rideTime.match(/^(\d{1,2}):(\d{2})$/);
       if (!timeMatch) {
         calcMsg.textContent = 'Please enter time as HH:MM.';
@@ -553,6 +553,8 @@
         calcMsg.classList.add('error');
         return;
       }
+      // --- YENİ KISIM BİTTİ ---
+
 
       const url =
         '/api/calc-price?pickup=' + encodeURIComponent(pickup) +
@@ -648,11 +650,12 @@
       }
     });
 
-    // Send reservation → yeni backend /api/bookings ile entegre
+    // Send reservation
     sendBookingBtn.addEventListener('click', async () => {
       bookingMsg.textContent = '';
       bookingMsg.className = 'msg';
 
+      // Çift tıklama / tekrar gönderme koruması
       if (isSendingBooking) {
         bookingMsg.textContent = 'Your reservation request is already being sent. Please wait.';
         bookingMsg.classList.add('error');
@@ -676,42 +679,19 @@
         return;
       }
 
-      // Tarih + saat → ISO datetime (PostgreSQL için)
-      const dateParts = lastQuote.rideDate.split('/');
-      if (dateParts.length !== 3) {
-        bookingMsg.textContent = 'Date format is invalid.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const month = parseInt(dateParts[0], 10);
-      const day   = parseInt(dateParts[1], 10);
-      const year  = parseInt(dateParts[2], 10);
-
-      const time24 = parseTimeTo24h(lastQuote.rideTime, lastQuote.ampm);
-      if (!time24) {
-        bookingMsg.textContent = 'Time format is invalid.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const pickupDateObj = new Date(year, month - 1, day, time24.h, time24.m, 0);
-      const pickupDateTimeISO = pickupDateObj.toISOString();
-
-      const combinedNotes =
-        'Phone: ' + customerPhone +
-        (customerEmail ? ' | Email: ' + customerEmail : '') +
-        (notes ? ' | Notes: ' + notes : '');
-
       const payload = {
-        passenger_name: customerName,
-        pickup_address: lastQuote.pickup,
-        dropoff_address: lastQuote.dropoff,
-        pickup_datetime: pickupDateTimeISO,
-        passengers: 1,
-        vehicle_type: 'Mercedes EQS',
-        estimated_price: lastQuote.total,
-        notes: combinedNotes
+        pickup: lastQuote.pickup,
+        stop: lastQuote.stop,
+        dropoff: lastQuote.dropoff,
+        rideDate: lastQuote.rideDate,
+        rideTime: lastQuote.rideTime,
+        ampm: lastQuote.ampm,
+        miles: lastQuote.miles,
+        total: lastQuote.total,
+        customerName,
+        customerPhone,
+        customerEmail,
+        notes
       };
 
       try {
@@ -719,22 +699,20 @@
         sendBookingBtn.disabled = true;
         bookingMsg.textContent = 'Sending reservation request...';
 
-        const response = await fetch(API_BASE + '/bookings', {
+        const response = await fetch('/api/bookings2', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        const data = await response.json();
 
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
+        if (!response.ok || data.ok === false) {
           console.error('Booking error:', data);
-          bookingMsg.textContent = data.error || 'Server error while saving reservation.';
+          bookingMsg.textContent = data.message || 'Server error while saving reservation.';
           bookingMsg.classList.add('error');
           return;
         }
 
-        console.log('Booking created:', data);
         bookingMsg.textContent =
           'Reservation request received. I will confirm as soon as possible.';
         bookingMsg.classList.add('success');
