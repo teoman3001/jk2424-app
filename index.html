@@ -50,10 +50,7 @@
       color:#aaaaaa;
       margin-bottom:4px;
     }
-    input[type="text"],
-    input[type="tel"],
-    input[type="email"],
-    textarea {
+    input, textarea {
       width:100%;
       border-radius:8px;
       border:1px solid #444;
@@ -62,17 +59,10 @@
       padding:8px 10px;
       font-size:13px;
       outline:none;
-      transition:border-color 0.15s, box-shadow 0.15s, background 0.15s;
-    }
-    input::placeholder, textarea::placeholder { color:#555; }
-    input:focus, textarea:focus {
-      border-color:#f5d05c;
-      box-shadow:0 0 0 1px rgba(245,208,92,0.3);
-      background:#080808;
     }
     .row { display:flex; gap:10px; }
     .row > .col { flex:1; }
-    .ampm-toggle { display:flex; gap:10px; margin-top:4px; margin-bottom:10px; }
+    .ampm-toggle { display:flex; gap:10px; margin:10px 0; }
     .ampm-btn {
       flex:1;
       border-radius:999px;
@@ -80,16 +70,12 @@
       background:#050505;
       color:#f5f5f5;
       padding:7px 0;
-      font-size:13px;
       cursor:pointer;
-      transition:all 0.15s;
     }
     .ampm-btn.active {
       background:#f5d05c;
-      border-color:#f5d05c;
       color:#000;
       font-weight:600;
-      box-shadow:0 8px 18px rgba(245,208,92,0.35);
     }
     .primary-btn {
       width:100%;
@@ -98,69 +84,19 @@
       background:#f5d05c;
       color:#000;
       font-weight:600;
-      letter-spacing:0.08em;
       text-transform:uppercase;
-      font-size:13px;
       padding:11px 0;
       cursor:pointer;
       margin-top:6px;
-      transition:transform 0.1s, box-shadow 0.1s, background 0.15s;
-      box-shadow:0 14px 30px rgba(245,208,92,0.35);
     }
-    .primary-btn[disabled] { opacity:0.6; cursor:default; box-shadow:none; transform:none; }
-    .primary-btn:hover:not([disabled]) { transform:translateY(-1px); box-shadow:0 18px 36px rgba(245,208,92,0.45); }
-    .primary-btn:active:not([disabled]) { transform:translateY(0); box-shadow:0 10px 22px rgba(245,208,92,0.3); }
-
-    .estimate-title { font-weight:700; color:#f5d05c; margin-bottom:8px; font-size:14px; }
-    .estimate-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
-    .estimate-row strong { font-weight:600; }
-    .estimate-total {
-      margin-top:8px;
-      padding-top:8px;
-      border-top:1px solid #333;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:15px;
-      font-weight:600;
-    }
-    .estimate-total-value { color:#f5d05c; font-size:20px; font-weight:700; }
-    .note { margin-top:6px; font-size:11px; color:#888; line-height:1.4; }
-    .maps-link { margin-top:6px; font-size:12px; }
-    .maps-link a { color:#7fb4ff; text-decoration:none; }
-    .maps-link a:hover { text-decoration:underline; }
-    .muted { color:#aaa; font-size:11px; margin-top:4px; }
     .msg { margin-top:8px; font-size:12px; min-height:16px; }
     .msg.error { color:#ff6b6b; }
     .msg.success { color:#4cd964; }
     .step2 { display:none; }
     .step2.visible { display:block; }
-    .trip-summary-line { font-size:12px; margin-bottom:2px; }
-    .footer { margin-top:14px; text-align:center; font-size:11px; color:#777; }
-    @media (max-width:600px) { body { padding:18px 8px 32px; } .card { padding:16px 14px 18px; } }
-
-    /* Google Places autocomplete dropdown styling */
-    .pac-container {
-      background:#000 !important;
-      border:1px solid #444 !important;
-      color:#f5d05c !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-      border-radius:8px !important;
-      box-shadow:0 10px 25px rgba(0,0,0,0.7) !important;
-      z-index:9999 !important;
-    }
-    .pac-item {
-      background:#000 !important;
-      color:#f5d05c !important;
-      padding:6px 10px !important;
-      border-top:1px solid #222 !important;
-    }
-    .pac-item:hover { background:#222 !important; }
-    .pac-matched { color:#ffffff !important; font-weight:600; }
-    .pac-item-query { color:#ffffff !important; }
-    .pac-icon { filter: invert(80%) sepia(60%) saturate(400%) hue-rotate(10deg) brightness(1.2); }
   </style>
 </head>
+
 <body>
   <div class="logo">
     <div class="logo-title">JK2424</div>
@@ -168,471 +104,120 @@
   </div>
 
   <div class="wrapper">
+
     <h1>Book Your Ride</h1>
     <p class="lead">
-      Fast, simple and premium. Enter your trip details to see an instant estimate and
-      submit your reservation request. Your driver will confirm availability and then
-      send you Zelle payment details.
+      Enter trip details to get an instant estimate and send your reservation request.
     </p>
 
-    <!-- STEP 1: Trip details -->
     <div class="card">
       <div class="card-header-pill">Step 1 · Trip details</div>
 
       <div class="field-group">
-        <label for="pickup">Pickup location</label>
-        <input id="pickup" type="text" placeholder="Tysons, VA" />
+        <label>Pickup</label>
+        <input id="pickup" />
       </div>
 
       <div class="field-group">
-        <label for="stop">Extra stop (optional)</label>
-        <input id="stop" type="text" placeholder="Optional extra stop address" />
+        <label>Extra stop</label>
+        <input id="stop" />
       </div>
 
       <div class="field-group">
-        <label for="dropoff">Drop-off location</label>
-        <input id="dropoff" type="text" placeholder="Dulles Airport" />
+        <label>Drop-off</label>
+        <input id="dropoff" />
       </div>
 
       <div class="row">
         <div class="col field-group">
-          <label for="rideDate">Date (MM/DD/YYYY)</label>
-          <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" />
+          <label>Date</label>
+          <input id="rideDate" />
         </div>
         <div class="col field-group">
-          <label for="rideTime">Time</label>
-          <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" />
+          <label>Time</label>
+          <input id="rideTime" />
         </div>
       </div>
 
-      <label>AM / PM</label>
       <div class="ampm-toggle">
-        <button id="amBtn" class="ampm-btn active" type="button">AM</button>
-        <button id="pmBtn" class="ampm-btn" type="button">PM</button>
+        <button id="amBtn" class="ampm-btn active">AM</button>
+        <button id="pmBtn" class="ampm-btn">PM</button>
       </div>
 
-      <button id="calcPriceBtn" class="primary-btn" type="button">Calculate Price</button>
+      <button id="calcPriceBtn" class="primary-btn">Calculate Price</button>
       <div id="calcMsg" class="msg"></div>
     </div>
 
-    <!-- Estimate -->
-    <div class="card" id="estimateCard">
-      <div class="estimate-title">Estimate</div>
-      <div id="estimateEmptyText" class="muted">
-        Enter trip details and tap “CALCULATE PRICE”.
-      </div>
-      <div id="estimateDetails" style="display:none;">
-        <div class="estimate-row">
-          <span>Distance:</span>
-          <span><strong id="estDistance">–</strong></span>
-        </div>
-        <div class="estimate-row">
-          <span id="estBaseLabel">Base fare:</span>
-          <span><strong id="estBaseFare">$0.00</strong></span>
-        </div>
-        <div class="estimate-row">
-          <span>Extra miles:</span>
-          <span><strong id="estExtraMiles">–</strong></span>
-        </div>
-        <div class="estimate-row">
-          <span>Night fare:</span>
-          <span><strong id="estNightFare">–</strong></span>
-        </div>
-        <div class="estimate-total">
-          <span>Estimated total</span>
-          <span class="estimate-total-value" id="estTotal">$0.00</span>
-        </div>
-        <p class="note">
-          Final price may vary slightly due to real route and waiting times. Driver will confirm
-          before the trip.
-        </p>
-        <p class="maps-link">
-          <a id="mapsLink" href="#" target="_blank" rel="noopener noreferrer">
-            Open this route in Google Maps (driver view)
-          </a>
-        </p>
-      </div>
-    </div>
-
-    <!-- STEP 2: Passenger details -->
     <div class="card step2" id="step2Card">
-      <div class="card-header-pill">Step 2 · Passenger details</div>
+      <div class="card-header-pill">Step 2 · Passenger</div>
 
-      <div class="trip-summary-line" id="summaryPickup"></div>
-      <div class="trip-summary-line" id="summaryDropoff"></div>
-      <div class="trip-summary-line" id="summaryDateTime"></div>
-      <div class="trip-summary-line" id="summaryTotal"></div>
+      <input id="fullName" placeholder="Full name" />
+      <input id="mobilePhone" placeholder="Phone" />
+      <input id="email" placeholder="Email" />
+      <textarea id="notes" placeholder="Notes"></textarea>
 
-      <div style="height:8px;"></div>
-
-      <div class="field-group">
-        <label for="fullName">Full name</label>
-        <input id="fullName" type="text" placeholder="John Doe" />
-      </div>
-
-      <div class="field-group">
-        <label for="mobilePhone">Mobile phone</label>
-        <input id="mobilePhone" type="tel" placeholder="+1 771 217 3111" />
-      </div>
-
-      <div class="field-group">
-        <label for="email">Email (for confirmation)</label>
-        <input id="email" type="email" placeholder="name@example.com" />
-      </div>
-
-      <div class="field-group">
-        <label for="notes">Notes</label>
-        <textarea id="notes" rows="3" placeholder="Gate code, luggage, etc."></textarea>
-      </div>
-
-      <button id="sendBookingBtn" class="primary-btn" type="button">
+      <button id="sendBookingBtn" class="primary-btn">
         Send reservation request
       </button>
       <div id="bookingMsg" class="msg"></div>
-      <p class="muted">
-        After you submit, I will review your request and confirm availability. You will
-        receive a message with Zelle payment details. Your trip is only confirmed after
-        payment is received.
-      </p>
     </div>
 
-    <div class="footer">
-      Need help or a special request?<br />
-      Call / text: +1 (771) 217 31 11
-    </div>
   </div>
 
   <script>
-    // IMPORTANT: GitHub Pages + Render backend base URL
     const BACKEND_BASE = 'https://jk2424-backend.onrender.com';
 
-    // --- Helpers ---
-    function formatMoney(value) { return '$' + value.toFixed(2); }
-
-    function autoFormatDate(input) {
-      let v = input.value.replace(/[^0-9]/g, '');
-      if (v.length > 2 && v.length <= 4) v = v.slice(0, 2) + '/' + v.slice(2);
-      else if (v.length > 4) v = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4, 8);
-      input.value = v.slice(0, 10);
-    }
-
-    function autoFormatTime(input) {
-      let v = input.value.replace(/[^0-9]/g, '');
-      if (v.length > 2) v = v.slice(0, 2) + ':' + v.slice(2, 4);
-      input.value = v.slice(0, 5);
-    }
-
-    function parseTimeTo24h(timeStr, ampm) {
-      if (!timeStr || timeStr.length < 4) return null;
-      const [hhStr, mmStr] = timeStr.split(':');
-      let h = parseInt(hhStr, 10);
-      const m = parseInt(mmStr, 10);
-      if (isNaN(h) || isNaN(m)) return null;
-      if (ampm === 'PM' && h !== 12) h += 12;
-      if (ampm === 'AM' && h === 12) h = 0;
-      return { h, m };
-    }
-
-    function getNightInfo(timeStr, ampm, nightMultiplier) {
-      const t = parseTimeTo24h(timeStr, ampm);
-      if (!t) return { isNight:false, multiplier:1, label:'No (×1.00)' };
-      const totalMinutes = t.h * 60 + t.m;
-      const isNight = (totalMinutes >= 22 * 60) || (totalMinutes < 5 * 60);
-      if (isNight) {
-        const mult = nightMultiplier && nightMultiplier > 1 ? nightMultiplier : 1.25;
-        return { isNight:true, multiplier:mult, label:'Yes (×' + mult.toFixed(2) + ')' };
-      }
-      return { isNight:false, multiplier:1, label:'No (×1.00)' };
-    }
-
-    document.getElementById('rideDate').addEventListener('input', function () { autoFormatDate(this); });
-    document.getElementById('rideTime').addEventListener('input', function () { autoFormatTime(this); });
-
-    // AM / PM toggle
     let currentAmpm = 'AM';
-    const amBtn = document.getElementById('amBtn');
-    const pmBtn = document.getElementById('pmBtn');
-
-    amBtn.addEventListener('click', () => {
-      currentAmpm = 'AM';
-      amBtn.classList.add('active');
-      pmBtn.classList.remove('active');
-    });
-    pmBtn.addEventListener('click', () => {
-      currentAmpm = 'PM';
-      pmBtn.classList.add('active');
-      amBtn.classList.remove('active');
-    });
-
-    const calcPriceBtn = document.getElementById('calcPriceBtn');
-    const calcMsg = document.getElementById('calcMsg');
-    const estimateEmptyText = document.getElementById('estimateEmptyText');
-    const estimateDetails = document.getElementById('estimateDetails');
-    const estDistance = document.getElementById('estDistance');
-    const estBaseLabel = document.getElementById('estBaseLabel');
-    const estBaseFare = document.getElementById('estBaseFare');
-    const estExtraMiles = document.getElementById('estExtraMiles');
-    const estNightFare = document.getElementById('estNightFare');
-    const estTotal = document.getElementById('estTotal');
-    const mapsLink = document.getElementById('mapsLink');
-    const step2Card = document.getElementById('step2Card');
-    const summaryPickup = document.getElementById('summaryPickup');
-    const summaryDropoff = document.getElementById('summaryDropoff');
-    const summaryDateTime = document.getElementById('summaryDateTime');
-    const summaryTotal = document.getElementById('summaryTotal');
-    const bookingMsg = document.getElementById('bookingMsg');
-    const sendBookingBtn = document.getElementById('sendBookingBtn');
+    amBtn.onclick = () => { currentAmpm = 'AM'; amBtn.classList.add('active'); pmBtn.classList.remove('active'); };
+    pmBtn.onclick = () => { currentAmpm = 'PM'; pmBtn.classList.add('active'); amBtn.classList.remove('active'); };
 
     let lastQuote = null;
-    let pricingConfig = null;
-    let isSendingBooking = false;
 
-    calcPriceBtn.addEventListener('click', async () => {
-      calcMsg.textContent = '';
-      calcMsg.className = 'msg';
-      bookingMsg.textContent = '';
-      bookingMsg.className = 'msg';
-      step2Card.classList.remove('visible');
-
-      const pickup = document.getElementById('pickup').value.trim();
-      const stop = document.getElementById('stop').value.trim();
-      const dropoff = document.getElementById('dropoff').value.trim();
-      const rideDate = document.getElementById('rideDate').value.trim();
-      const rideTime = document.getElementById('rideTime').value.trim();
-
+    calcPriceBtn.onclick = async () => {
+      const pickup = pickup.value.trim();
+      const dropoff = dropoff.value.trim();
       if (!pickup || !dropoff) {
-        calcMsg.textContent = 'Pickup and drop-off are required.';
-        calcMsg.classList.add('error');
+        calcMsg.textContent = 'Pickup and drop-off required';
+        calcMsg.className = 'msg error';
         return;
       }
 
-      if (!rideDate || rideDate.length < 8 || !rideTime || rideTime.length < 4) {
-        calcMsg.textContent = 'Please enter date and time.';
-        calcMsg.classList.add('error');
-        return;
-      }
-
-      calcMsg.textContent = 'Calculating route and distance...';
-
-      try {
-        // FIX: GitHub Pages must call Render backend directly
-        const url =
-          BACKEND_BASE + '/calc?pickup=' + encodeURIComponent(pickup) +
-          '&stop=' + encodeURIComponent(stop) +
-          '&dropoff=' + encodeURIComponent(dropoff);
-
-        const response = await fetch(url);
-
-        // FIX: avoid "Unexpected token <" if server returns HTML
-        if (!response.ok) {
-          calcMsg.textContent = 'Server error (HTTP ' + response.status + ').';
-          calcMsg.classList.add('error');
-          return;
-        }
-
-        const data = await response.json();
-
-        if (data.error || data.success === false) {
-          console.error(data);
-          calcMsg.textContent = 'Error: ' + (data.error || 'Price calculation failed.');
-          calcMsg.classList.add('error');
-          return;
-        }
-
-        const miles = Number(data.miles || 0);
-        if (!miles || miles <= 0) {
-          calcMsg.textContent = 'Could not calculate distance. Try adjusting the addresses.';
-          calcMsg.classList.add('error');
-          return;
-        }
-
-        // Optional pricing from backend, fallback if missing
-        if (data.pricing) pricingConfig = data.pricing;
-
-        const baseFare        = Number(pricingConfig?.baseFare ?? 65);
-        const includedMiles   = Number(pricingConfig?.includedMiles ?? 15);
-        const extraPerMile    = Number(pricingConfig?.extraPerMile ?? 2);
-        const minimumFare     = Number(pricingConfig?.minimumFare ?? baseFare);
-        const nightMultiplier = Number(pricingConfig?.nightMultiplier ?? 1.25);
-
-        const extraMiles = Math.max(0, miles - includedMiles);
-        const daytimeSubtotal = baseFare + extraMiles * extraPerMile;
-
-        const nightInfo = getNightInfo(rideTime, currentAmpm, nightMultiplier);
-        let total = daytimeSubtotal * nightInfo.multiplier;
-
-        if (total < minimumFare) total = minimumFare;
-
-        estimateEmptyText.style.display = 'none';
-        estimateDetails.style.display = 'block';
-
-        estDistance.textContent = miles.toFixed(2) + ' miles';
-        estBaseLabel.textContent = 'Base fare (up to ' + includedMiles.toFixed(2) + ' miles):';
-        estBaseFare.textContent = formatMoney(baseFare);
-        estExtraMiles.textContent =
-          extraMiles.toFixed(2) + ' × ' + formatMoney(extraPerMile) + ' = ' +
-          formatMoney(extraMiles * extraPerMile);
-        estNightFare.textContent = nightInfo.label;
-        estTotal.textContent = formatMoney(Number(total.toFixed(2)));
-
-        // Google Maps link
-        let gmapsUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
-        gmapsUrl += '&origin=' + encodeURIComponent(pickup);
-        if (stop) gmapsUrl += '&waypoints=' + encodeURIComponent(stop);
-        gmapsUrl += '&destination=' + encodeURIComponent(dropoff);
-        mapsLink.href = gmapsUrl;
-
-        // Step 2 summary
-        summaryPickup.textContent = 'Pickup: ' + pickup;
-        summaryDropoff.textContent = 'Drop-off: ' + dropoff;
-        summaryDateTime.textContent =
-          'Date & time: ' + rideDate + ' · ' + rideTime + ' ' + currentAmpm;
-        summaryTotal.textContent = 'Estimated total: ' + formatMoney(Number(total.toFixed(2)));
-
-        step2Card.classList.add('visible');
-
-        calcMsg.textContent = '';
-        lastQuote = {
-          pickup, stop, dropoff,
-          rideDate, rideTime, ampm: currentAmpm,
-          miles: Number(miles.toFixed(2)),
-          total: Number(total.toFixed(2))
-        };
-      } catch (err) {
-        console.error('Request error', err);
-        calcMsg.textContent = 'Server error while calculating price.';
-        calcMsg.classList.add('error');
-      }
-    });
-
-    // Send reservation
-    sendBookingBtn.addEventListener('click', async () => {
-      bookingMsg.textContent = '';
-      bookingMsg.className = 'msg';
-
-      if (isSendingBooking) {
-        bookingMsg.textContent = 'Your reservation request is already being sent. Please wait.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      if (!lastQuote) {
-        bookingMsg.textContent = 'Please calculate price first.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const customerName  = document.getElementById('fullName').value.trim();
-      const customerPhone = document.getElementById('mobilePhone').value.trim();
-      const customerEmail = document.getElementById('email').value.trim();
-      const notes         = document.getElementById('notes').value.trim();
-
-      if (!customerName || !customerPhone || !customerEmail) {
-        bookingMsg.textContent = 'Name, phone and email are required.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const payload = {
-        pickup: lastQuote.pickup,
-        stop: lastQuote.stop,
-        dropoff: lastQuote.dropoff,
-        rideDate: lastQuote.rideDate,
-        rideTime: lastQuote.rideTime,
-        ampm: lastQuote.ampm,
-        miles: lastQuote.miles,
-        total: lastQuote.total,
-        customerName,
-        customerPhone,
-        customerEmail,
-        notes
-      };
-
-      try {
-        isSendingBooking = true;
-        sendBookingBtn.disabled = true;
-        bookingMsg.textContent = 'Sending reservation request...';
-
-        // FIX: call Render backend directly (GitHub Pages has no /api)
-        const response = await fetch(BACKEND_BASE + '/bookings2', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          bookingMsg.textContent = 'Server error (HTTP ' + response.status + ').';
-          bookingMsg.classList.add('error');
-          return;
-        }
-
-        const data = await response.json().catch(() => ({}));
-
-        if (data.ok === false) {
-          console.error('Booking error:', data);
-          bookingMsg.textContent = data.message || 'Server error while saving reservation.';
-          bookingMsg.classList.add('error');
-          return;
-        }
-
-        bookingMsg.textContent =
-          'Reservation request received. I will confirm as soon as possible.';
-        bookingMsg.classList.add('success');
-
-        lastQuote = null;
-      } catch (err) {
-        console.error('Booking request error:', err);
-        bookingMsg.textContent = 'Server error while sending reservation.';
-        bookingMsg.classList.add('error');
-      } finally {
-        isSendingBooking = false;
-        sendBookingBtn.disabled = false;
-      }
-    });
-  </script>
-
-  <!-- Google Maps JavaScript + Places (FRONTEND KEY) -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"
-    async
-    defer
-  ></script>
-
-  <script>
-    function initAutocomplete() {
-      const pickupInput  = document.getElementById('pickup');
-      const stopInput    = document.getElementById('stop');
-      const dropoffInput = document.getElementById('dropoff');
-
-      const dcMetroBounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(38.3, -78.8),
-        new google.maps.LatLng(39.9, -76.0)
+      const res = await fetch(
+        BACKEND_BASE + '/calc?pickup=' + encodeURIComponent(pickup) +
+        '&dropoff=' + encodeURIComponent(dropoff)
       );
 
-      const options = {
-        componentRestrictions: { country: 'us' },
-        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
-        bounds: dcMetroBounds,
-        strictBounds: false
+      const data = await res.json();
+      lastQuote = { pickup, dropoff, total: data.total || 0 };
+      step2Card.classList.add('visible');
+      calcMsg.textContent = '';
+    };
+
+    sendBookingBtn.onclick = async () => {
+      if (!lastQuote) return;
+
+      const payload = {
+        ...lastQuote,
+        customerName: fullName.value,
+        customerPhone: mobilePhone.value,
+        customerEmail: email.value,
+        notes: notes.value
       };
 
-      if (pickupInput)  new google.maps.places.Autocomplete(pickupInput, options);
-      if (stopInput)    new google.maps.places.Autocomplete(stopInput, options);
-      if (dropoffInput) new google.maps.places.Autocomplete(dropoffInput, options);
-    }
+      const res = await fetch(BACKEND_BASE + '/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    window.addEventListener('load', function () {
-      if (window.google && google.maps && google.maps.places) {
-        initAutocomplete();
+      if (res.ok) {
+        bookingMsg.textContent = 'Reservation received';
+        bookingMsg.className = 'msg success';
       } else {
-        const interval = setInterval(() => {
-          if (window.google && google.maps && google.maps.places) {
-            clearInterval(interval);
-            initAutocomplete();
-          }
-        }, 300);
+        bookingMsg.textContent = 'Server error';
+        bookingMsg.className = 'msg error';
       }
-    });
+    };
   </script>
 </body>
 </html>
