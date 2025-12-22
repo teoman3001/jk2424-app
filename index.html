@@ -508,6 +508,7 @@
       }
     });
 
+    <script>
     // Send reservation
     sendBookingBtn.addEventListener('click', async () => {
       bookingMsg.textContent = '';
@@ -556,8 +557,6 @@
         sendBookingBtn.disabled = true;
         bookingMsg.textContent = 'Sending reservation request...';
 
-        // FIX: call Render backend directly (GitHub Pages has no /api)
-        // ✅ ONLY CHANGE: /bookings2 -> /bookings
         const response = await fetch(BACKEND_BASE + '/bookings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -579,11 +578,10 @@
           return;
         }
 
-        // SAVE BOOKING ID + START LIVE STATUS
+        // ✅ SAVE BOOKING ID + START LIVE STATUS
         localStorage.setItem("jk2424_booking_id", data.booking.id);
         startStatusPolling(data.booking.id);
 
-        
         bookingMsg.textContent =
           'Reservation request received. I will confirm as soon as possible.';
         bookingMsg.classList.add('success');
@@ -597,81 +595,38 @@
         isSendingBooking = false;
         sendBookingBtn.disabled = false;
       }
-        async function startStatusPolling(bookingId) {
-        const statusBox = document.getElementById("statusBox");
-        statusBox.style.display = "block";
+    });
 
-        while (true) {
+    // ✅ GLOBAL STATUS POLLING (DOĞRU YER)
+    async function startStatusPolling(bookingId) {
+      const statusBox = document.getElementById("statusBox");
+      if (!statusBox) return;
+
+      statusBox.style.display = "block";
+
+      while (true) {
         try {
-       const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
-       const data = await res.json();
- 
-       if (data.success) {
-       statusBox.innerText = "Status: " + data.booking.status;
+          const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
+          const data = await res.json();
 
-       if (data.booking.status === "completed") { 
-       break;
-        }
-      }
-    } catch (err) {
-      console.error("Polling error:", err);
-    }
+          if (data.success && data.booking) {
+            statusBox.innerText = "Status: " + data.booking.status;
 
-    await new Promise(r => setTimeout(r, 5000));
-  }
-}
-
-    
-    });
-    </script>
-
-  <!-- Google Maps JavaScript + Places (FRONTEND KEY) -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"
-    async
-    defer
-  ></script>
-
-  <script>
-    function initAutocomplete() {
-      const pickupInput  = document.getElementById('pickup');
-      const stopInput    = document.getElementById('stop');
-      const dropoffInput = document.getElementById('dropoff');
-
-      const dcMetroBounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(38.3, -78.8),
-        new google.maps.LatLng(39.9, -76.0)
-      );
-
-      const options = {
-        componentRestrictions: { country: 'us' },
-        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
-        bounds: dcMetroBounds,
-        strictBounds: false
-      };
-
-      if (pickupInput)  new google.maps.places.Autocomplete(pickupInput, options);
-      if (stopInput)    new google.maps.places.Autocomplete(stopInput, options);
-      if (dropoffInput) new google.maps.places.Autocomplete(dropoffInput, options);
-    }
-
-    window.addEventListener('load', function () {
-      if (window.google && google.maps && google.maps.places) {
-        initAutocomplete();
-      } else {
-        const interval = setInterval(() => {
-          if (window.google && google.maps && google.maps.places) {
-            clearInterval(interval);
-            initAutocomplete();
+            if (data.booking.status === "completed") {
+              break;
+            }
           }
-        }, 300);
-      }
-    });
-const savedBookingId = localStorage.getItem("jk2424_booking_id");
-if (savedBookingId) {
-  startStatusPolling(savedBookingId);
-}
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
 
-  </script>
-</body>
-</html>
+        await new Promise(r => setTimeout(r, 5000));
+      }
+    }
+
+    // ✅ PAGE REFRESH → CONTINUE POLLING
+    const savedBookingId = localStorage.getItem("jk2424_booking_id");
+    if (savedBookingId) {
+      startStatusPolling(savedBookingId);
+    }
+</script>
