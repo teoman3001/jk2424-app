@@ -597,8 +597,33 @@
         isSendingBooking = false;
         sendBookingBtn.disabled = false;
       }
+        async function startStatusPolling(bookingId) {
+        const statusBox = document.getElementById("statusBox");
+        statusBox.style.display = "block";
+
+        while (true) {
+        try {
+       const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
+       const data = await res.json();
+ 
+       if (data.success) {
+       statusBox.innerText = "Status: " + data.booking.status;
+
+       if (data.booking.status === "completed") { 
+       break;
+        }
+      }
+    } catch (err) {
+      console.error("Polling error:", err);
+    }
+
+    await new Promise(r => setTimeout(r, 5000));
+  }
+}
+
+    
     });
-  </script>
+    </script>
 
   <!-- Google Maps JavaScript + Places (FRONTEND KEY) -->
   <script
@@ -642,6 +667,11 @@
         }, 300);
       }
     });
+const savedBookingId = localStorage.getItem("jk2424_booking_id");
+if (savedBookingId) {
+  startStatusPolling(savedBookingId);
+}
+
   </script>
 </body>
 </html>
