@@ -635,5 +635,31 @@
       }
     });
   </script>
+  <!-- 🔴 BURAYA KADAR HTML BİTİYOR -->
+
+  <script>
+    console.log("🟢 JK2424 frontend loaded");
+
+    const bookingId = localStorage.getItem("jk2424_booking_id");
+    console.log("📦 bookingId from localStorage:", bookingId);
+
+    if (bookingId) {
+      setInterval(async () => {
+        try {
+          const res = await fetch(
+            "https://jk2424-backend.onrender.com/bookings/" + bookingId
+          );
+          const data = await res.json();
+
+          if (data.success) {
+            console.log("🔁 LIVE STATUS:", data.booking.status);
+          }
+        } catch (e) {
+          console.error("❌ Status fetch error", e);
+        }
+      }, 5000);
+    }
+  </script>
+
 </body>
 </html>
