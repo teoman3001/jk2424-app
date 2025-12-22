@@ -10,7 +10,10 @@ const resultBox = document.getElementById("estimate-box");
 resultBox.classList.add("hidden");
 step2Card.classList.add("hidden");
 
-// Google Autocomplete
+// ===============================
+// GOOGLE AUTOCOMPLETE
+// ===============================
+
 let pickupAutocomplete, stopAutocomplete, dropoffAutocomplete;
 
 function initAutocomplete() {
@@ -31,7 +34,7 @@ function initAutocomplete() {
 }
 
 // ===============================
-// PRICE CALCULATION
+// PRICE CALCULATION (BACKEND)
 // ===============================
 
 document.getElementById("calculateBtn").addEventListener("click", async () => {
@@ -44,39 +47,36 @@ document.getElementById("calculateBtn").addEventListener("click", async () => {
         return;
     }
 
-    // Build Google Distance Matrix URL
-    let waypoints = stop ? `&waypoints=${encodeURIComponent(stop)}` : "";
-
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${encodeURIComponent(
-        pickup
-    )}&destinations=${encodeURIComponent(dropoff)}${waypoints}&key=YOUR_GOOGLE_MAPS_API_KEY`;
-
     try {
-        const response = await fetch(`https://jk2424-backend.onrender.com/calc?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`);
+        const response = await fetch(
+            `https://jk2424-backend.onrender.com/calc?pickup=${encodeURIComponent(
+                pickup
+            )}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`
+        );
 
         const data = await response.json();
 
         if (!data.success) {
-            alert("Unable to calculate distance.");
+            alert(data.error || "Unable to calculate price.");
             return;
         }
 
-        // Display STEP 2
+        // Show STEP 2
         step2Card.classList.remove("hidden");
         resultBox.classList.remove("hidden");
 
-        // Show results
-        document.getElementById("miles").innerText = data.miles + " mi";
-        document.getElementById("price").innerText = "$" + data.price;
+        // Display results
+        document.getElementById("miles").innerText = `${data.miles} mi`;
+        document.getElementById("price").innerText = `$${data.price}`;
 
     } catch (error) {
-        console.error("Error calculating:", error);
-        alert("A calculation error occurred.");
+        console.error("Calculation error:", error);
+        alert("A server error occurred.");
     }
 });
 
 // ===============================
-// AM/PM Buttons
+// AM / PM BUTTONS
 // ===============================
 
 function selectAMPM(value) {
