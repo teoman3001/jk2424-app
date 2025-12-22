@@ -1,15 +1,16 @@
 // ===============================
-// JK2424 – FRONTEND LOGIC
+// JK2424 – FRONTEND LOGIC (FINAL)
 // ===============================
 
 // Elements
 const step2Card = document.getElementById("step2-card");
 const resultBox = document.getElementById("estimate-box");
-const statusBox = document.getElementById("status-box"); // optional UI area
+const statusBox = document.getElementById("status-box");
 
+// Initial state
 step2Card.classList.add("hidden");
 resultBox.classList.add("hidden");
-if (statusBox) statusBox.classList.add("hidden");
+statusBox.classList.add("hidden");
 
 // ===============================
 // BACKEND API CONFIG
@@ -21,9 +22,7 @@ const BOOKING_API = `${BACKEND_BASE}/bookings`;
 // ===============================
 // HELPERS
 // ===============================
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // ===============================
 // CALCULATE PRICE
@@ -39,20 +38,11 @@ document.getElementById("calculateBtn").addEventListener("click", async () => {
   }
 
   try {
-    const params = new URLSearchParams({
-      pickup,
-      dropoff,
-      stop: stop || ""
-    });
+    const params = new URLSearchParams({ pickup, dropoff, stop });
+    const res = await fetch(`${CALC_API}?${params}`);
+    const data = await res.json();
 
-    const response = await fetch(`${CALC_API}?${params.toString()}`);
-    if (!response.ok) throw new Error("Backend request failed");
-
-    const data = await response.json();
-    if (!data.success) {
-      alert("Price calculation failed.");
-      return;
-    }
+    if (!data.success) throw new Error("Calc failed");
 
     step2Card.classList.remove("hidden");
     resultBox.classList.remove("hidden");
@@ -60,29 +50,29 @@ document.getElementById("calculateBtn").addEventListener("click", async () => {
     document.getElementById("miles").innerText = `${data.miles} mi`;
     document.getElementById("price").innerText = `$${data.price}`;
 
-  } catch (error) {
-    console.error("Calculation error:", error);
-    alert("Server error while calculating price.");
+  } catch (e) {
+    alert("Price calculation error");
+    console.error(e);
   }
 });
 
 // ===============================
 // CREATE BOOKING
 // ===============================
-document.getElementById("sendBookingBtn")?.addEventListener("click", async () => {
+document.getElementById("sendBookingBtn").addEventListener("click", async () => {
   const payload = {
-    pickup: document.getElementById("pickup").value.trim(),
-    stop: document.getElementById("extra_stop").value.trim(),
-    dropoff: document.getElementById("dropoff").value.trim(),
-    rideDate: document.getElementById("ride_date")?.value || "",
-    rideTime: document.getElementById("ride_time")?.value || "",
-    ampm: document.getElementById("ampm")?.value || "AM",
-    miles: document.getElementById("miles").innerText.replace(" mi", ""),
-    total: document.getElementById("price").innerText.replace("$", ""),
-    customerName: document.getElementById("full_name")?.value || "Guest",
-    customerPhone: document.getElementById("phone")?.value || "",
-    customerEmail: document.getElementById("email")?.value || "",
-    notes: document.getElementById("notes")?.value || ""
+    pickup: document.getElementById("pickup").value,
+    stop: document.getElementById("extra_stop").value,
+    dropoff: document.getElementById("dropoff").value,
+    rideDate: document.getElementById("ride_date").value,
+    rideTime: document.getElementById("ride_time").value,
+    ampm: document.getElementById("ampm").value,
+    miles: document.getElementById("miles").innerText.replace(" mi",""),
+    total: document.getElementById("price").innerText.replace("$",""),
+    customerName: document.getElementById("full_name").value,
+    customerPhone: document.getElementById("phone").value,
+    customerEmail: document.getElementById("email").value,
+    notes: document.getElementById("notes").value
   };
 
   try {
@@ -93,57 +83,48 @@ document.getElementById("sendBookingBtn")?.addEventListener("click", async () =>
     });
 
     const data = await res.json();
-    if (!data.success) {
-      alert("Booking failed.");
-      return;
-    }
+    if (!data.success) throw new Error("Booking failed");
 
-    // Save booking ID for live tracking
     localStorage.setItem("jk2424_booking_id", data.booking.id);
 
-    alert("Reservation sent. Waiting for confirmation...");
+    statusBox.classList.remove("hidden");
+    statusBox.innerText = "Status: pending";
+
     startStatusPolling(data.booking.id);
 
-  } catch (err) {
-    console.error("Booking error:", err);
-    alert("Server error while sending reservation.");
+  } catch (e) {
+    alert("Reservation failed");
+    console.error(e);
   }
 });
 
 // ===============================
-// LIVE STATUS POLLING (FAZ 2)
+// LIVE STATUS POLLING
 // ===============================
 async function startStatusPolling(bookingId) {
-  if (statusBox) statusBox.classList.remove("hidden");
-
   while (true) {
     try {
       const res = await fetch(`${BOOKING_API}/${bookingId}`);
-      if (!res.ok) throw new Error("Polling failed");
-
       const data = await res.json();
-      if (data.success) {
-        if (statusBox) {
-          statusBox.innerText = `Status: ${data.booking.status}`;
-        }
 
-        // Stop polling when completed
-        if (data.booking.status === "completed") {
-          break;
-        }
+      if (data.success) {
+        statusBox.innerText = `Status: ${data.booking.status}`;
+
+        if (data.booking.status === "completed") break;
       }
-    } catch (err) {
-      console.error("Polling error:", err);
+    } catch (e) {
+      console.error("Polling error", e);
     }
 
-    await sleep(5000); // every 5 seconds
+    await sleep(5000);
   }
 }
 
 // ===============================
-// AUTO RESUME POLLING (PAGE RELOAD)
+// AUTO RESUME (PAGE REFRESH)
 // ===============================
-const savedBookingId = localStorage.getItem("jk2424_booking_id");
-if (savedBookingId) {
-  startStatusPolling(savedBookingId);
+const savedId = localStorage.getItem("jk2424_booking_id");
+if (savedId) {
+  statusBox.classList.remove("hidden");
+  startStatusPolling(savedId);
 }
