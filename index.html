@@ -579,6 +579,11 @@
           return;
         }
 
+        // SAVE BOOKING ID + START LIVE STATUS
+        localStorage.setItem("jk2424_booking_id", data.booking.id);
+        startStatusPolling(data.booking.id);
+
+        
         bookingMsg.textContent =
           'Reservation request received. I will confirm as soon as possible.';
         bookingMsg.classList.add('success');
