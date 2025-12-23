@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Live Trip</title>
+  <title>JK2424 • Live Trip Status</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * { box-sizing:border-box; margin:0; padding:0; }
@@ -48,17 +48,23 @@ const bookingId = params.get("id");
 let map, directionsService, directionsRenderer, driverMarker;
 let routePath = [], routeIndex = 0, moveInterval = null, currentStatus = null;
 
-// 1. MAP INITIALIZATION (v1.4 Kristal Stil)
+// 1. MAP INITIALIZATION (v1.6 KRİSTAL NETLİKTE STİL)
 function initMap(center) {
   if (map) return;
   document.getElementById("map").style.display = "block";
   map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 14, center: center, disableDefaultUI: true,
+    zoom: 14, 
+    center: center, 
+    disableDefaultUI: true,
     styles: [
       { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
       { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+      { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+      { "elementType": "labels.text.stroke", "stylers": [{ "color": "#212121" }] },
+      { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#757575" }] },
+      { "featureType": "poi", "elementType": "labels.text", "stylers": [{ "visibility": "off" }] }, 
       { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#2c2c2c" }] },
-      { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#f5d05c" }, { "weight": 0.1 }, { "fontSize": "8px" }] },
+      { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#f5d05c" }, { "weight": 0.1 }, { "fontSize": "8px" }] }, // Tam istediğin küçük sarı yazılar
       { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
     ]
   });
@@ -91,7 +97,8 @@ async function loadRoute(origin, destination, showEta = true) {
     if (showEta) {
       document.getElementById("etaBox").style.display = "block";
       const leg = result.routes[0].legs[0];
-      document.getElementById("etaBox").innerText = `🚗 Arrival: ${leg.duration_in_traffic?.text || leg.duration.text}`;
+      const etaText = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
+      document.getElementById("etaBox").innerText = `🚗 Driver moving • ETA: ${etaText}`;
     }
     startDriverSimulation();
   });
@@ -102,36 +109,37 @@ function startDriverSimulation() {
   moveInterval = setInterval(() => {
     routeIndex++;
     if (routeIndex >= routePath.length) { clearInterval(moveInterval); return; }
-    driverMarker.setPosition(routePath[routeIndex]);
-    map.panTo(routePath[routeIndex]);
+    const nextPos = routePath[routeIndex];
+    driverMarker.setPosition(nextPos);
+    map.panTo(nextPos);
   }, 2000);
 }
 
 // 3. CENTRAL STATUS ROUTER
 function routeByStatus(status, b) {
-  if (status === currentStatus) return; // Aynı statüde tekrar işlem yapma
+  if (status === currentStatus) return; 
   currentStatus = status;
 
   const title = document.getElementById("statusTitle");
   const text = document.getElementById("statusText");
 
   switch (status) {
-    case "on_the_way": //
+    case "on_the_way":
       initMap({ lat: 38.9072, lng: -77.0369 });
-      loadRoute(b.pickup, b.dropoff);
+      loadRoute(b.pickup, b.dropoff, true);
       title.innerText = "Driver on the Way";
-      text.innerText = "Chauffeur is heading to pickup.";
+      text.innerText = "Your chauffeur is heading to pickup location.";
       break;
 
-    case "arrived": //
+    case "arrived":
       if (moveInterval) clearInterval(moveInterval);
       document.getElementById("etaBox").style.display = "none";
       title.innerText = "Driver Arrived";
-      text.innerText = "Vehicle is waiting outside.";
+      text.innerText = "Your vehicle is waiting outside.";
       title.style.color = "#4CAF50";
       break;
 
-    case "in_progress": //
+    case "in_progress":
       document.getElementById("tripDetails").style.display = "none";
       document.getElementById("tripDivider").style.display = "none";
       loadRoute(b.pickup, b.dropoff, false);
@@ -140,7 +148,7 @@ function routeByStatus(status, b) {
       title.style.color = "#f5d05c";
       break;
 
-    case "completed": //
+    case "completed":
       if (moveInterval) clearInterval(moveInterval);
       if (driverMarker) driverMarker.setMap(null);
       document.getElementById("map").style.display = "none";
