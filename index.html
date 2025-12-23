@@ -289,7 +289,9 @@
         Send reservation request
       </button>
       <div id="bookingMsg" class="msg"></div>
-      <p class="muted">
+      <!-- LIVE STATUS -->
+     <div id="statusBox" class="msg" style="display:none; font-weight:600;"></div>
+        <p class="muted">
         After you submit, I will review your request and confirm availability. You will
         receive a message with Zelle payment details. Your trip is only confirmed after
         payment is received.
@@ -304,7 +306,7 @@
 
   <script>
     // IMPORTANT: GitHub Pages + Render backend base URL
-    const BACKEND_BASE = 'https://jk2424-backend.onrender.com';
+    const BACKEND_BASE = 'https://jk2424-backend.onrender.com';degistirmem gereken yer burada 291. satirin altima 
 
     // --- Helpers ---
     function formatMoney(value) { return '$' + value.toFixed(2); }
