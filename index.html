@@ -286,7 +286,7 @@
         Send reservation request
       </button>
       <div id="bookingMsg" class="msg"></div>
-      <div id="statusBox" class="msg" style="display:none; font-weight:600;"></div>
+      
       <p class="muted">
         After you submit, I will review your request and confirm availability. You will
         receive a message with Zelle payment details. Your trip is only confirmed after
@@ -301,8 +301,7 @@
   </div>
 
   <script>
-    // IMPORTANT: GitHub Pages + Render backend base URL
-    const BACKEND_BASE = 'https://jk2424-backend.onrender.com'; // degistirmem gereken yer burasiydi
+    const BACKEND_BASE = 'https://jk2424-backend.onrender.com';
 
     // --- Helpers ---
     function formatMoney(value) { return '$' + value.toFixed(2); }
@@ -346,7 +345,6 @@
     document.getElementById('rideDate').addEventListener('input', function () { autoFormatDate(this); });
     document.getElementById('rideTime').addEventListener('input', function () { autoFormatTime(this); });
 
-    // AM / PM toggle
     let currentAmpm = 'AM';
     const amBtn = document.getElementById('amBtn');
     const pmBtn = document.getElementById('pmBtn');
@@ -429,7 +427,6 @@
         const data = await response.json();
 
         if (data.error || data.success === false) {
-          console.error(data);
           calcMsg.textContent = 'Error: ' + (data.error || 'Price calculation failed.');
           calcMsg.classList.add('error');
           return;
@@ -470,7 +467,7 @@
         estNightFare.textContent = nightInfo.label;
         estTotal.textContent = formatMoney(Number(total.toFixed(2)));
 
-        let gmapsUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
+        let gmapsUrl = 'https://www.google.com/maps/dir/?api=1';
         gmapsUrl += '&origin=' + encodeURIComponent(pickup);
         if (stop) gmapsUrl += '&waypoints=' + encodeURIComponent(stop);
         gmapsUrl += '&destination=' + encodeURIComponent(dropoff);
@@ -483,8 +480,8 @@
         summaryTotal.textContent = 'Estimated total: ' + formatMoney(Number(total.toFixed(2)));
 
         step2Card.classList.add('visible');
-
         calcMsg.textContent = '';
+
         lastQuote = {
           pickup, stop, dropoff,
           rideDate, rideTime, ampm: currentAmpm,
@@ -492,7 +489,6 @@
           total: Number(total.toFixed(2))
         };
       } catch (err) {
-        console.error('Request error', err);
         calcMsg.textContent = 'Server error while calculating price.';
         calcMsg.classList.add('error');
       }
@@ -502,11 +498,7 @@
       bookingMsg.textContent = '';
       bookingMsg.className = 'msg';
 
-      if (isSendingBooking) {
-        bookingMsg.textContent = 'Your reservation request is already being sent. Please wait.';
-        bookingMsg.classList.add('error');
-        return;
-      }
+      if (isSendingBooking) return;
 
       if (!lastQuote) {
         bookingMsg.textContent = 'Please calculate price first.';
@@ -517,7 +509,7 @@
       const customerName  = document.getElementById('fullName').value.trim();
       const customerPhone = document.getElementById('mobilePhone').value.trim();
       const customerEmail = document.getElementById('email').value.trim();
-      const notes          = document.getElementById('notes').value.trim();
+      const notes         = document.getElementById('notes').value.trim();
 
       if (!customerName || !customerPhone || !customerEmail) {
         bookingMsg.textContent = 'Name, phone and email are required.';
@@ -526,18 +518,8 @@
       }
 
       const payload = {
-        pickup: lastQuote.pickup,
-        stop: lastQuote.stop,
-        dropoff: lastQuote.dropoff,
-        rideDate: lastQuote.rideDate,
-        rideTime: lastQuote.rideTime,
-        ampm: lastQuote.ampm,
-        miles: lastQuote.miles,
-        total: lastQuote.total,
-        customerName,
-        customerPhone,
-        customerEmail,
-        notes
+        ...lastQuote,
+        customerName, customerPhone, customerEmail, notes
       };
 
       try {
@@ -551,32 +533,22 @@
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-          bookingMsg.textContent = 'Server error (HTTP ' + response.status + ').';
+        const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+          bookingMsg.textContent = data.message || 'Server error.';
           bookingMsg.classList.add('error');
           return;
         }
 
-        const data = await response.json().catch(() => ({}));
-
-        if (data.ok === false) {
-          console.error('Booking error:', data);
-          bookingMsg.textContent = data.message || 'Server error while saving reservation.';
-          bookingMsg.classList.add('error');
-          return;
-        }
-
-        // SAVE BOOKING ID + START LIVE STATUS
+        // --- GÜNCELLENEN KISIM: YÖNLENDİRME ---
+        // SAVE BOOKING ID
         localStorage.setItem("jk2424_booking_id", data.booking.id);
-        startStatusPolling(data.booking.id);
+        
+        // REDIRECT TO TRACK PAGE (APP FLOW)
+        window.location.href = "track.html?id=" + encodeURIComponent(data.booking.id);
 
-        bookingMsg.textContent =
-          'Reservation request received. I will confirm as soon as possible.';
-        bookingMsg.classList.add('success');
-
-        lastQuote = null;
       } catch (err) {
-        console.error('Booking request error:', err);
         bookingMsg.textContent = 'Server error while sending reservation.';
         bookingMsg.classList.add('error');
       } finally {
@@ -584,79 +556,32 @@
         sendBookingBtn.disabled = false;
       }
     });
-
-    async function startStatusPolling(bookingId) {
-      const statusBox = document.getElementById("statusBox");
-      if (!statusBox) return;
-
-      statusBox.style.display = "block";
-
-      while (true) {
-        try {
-          const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
-          const data = await res.json();
-
-          if (data.success && data.booking) {
-            statusBox.innerText = "Status: " + data.booking.status;
-
-            if (data.booking.status === "completed") {
-              break;
-            }
-          }
-        } catch (err) {
-          console.error("Polling error:", err);
-        }
-
-        await new Promise(r => setTimeout(r, 5000));
-      }
-    }
-
-    const savedBookingId = localStorage.getItem("jk2424_booking_id");
-    if (savedBookingId) {
-      startStatusPolling(savedBookingId);
-    }
   </script>
 
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"
-    async
-    defer
-  ></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places" async defer></script>
 
   <script>
     function initAutocomplete() {
-      const pickupInput  = document.getElementById('pickup');
-      const stopInput    = document.getElementById('stop');
-      const dropoffInput = document.getElementById('dropoff');
-
-      const dcMetroBounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(38.3, -78.8),
-        new google.maps.LatLng(39.9, -76.0)
-      );
-
       const options = {
         componentRestrictions: { country: 'us' },
-        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
-        bounds: dcMetroBounds,
-        strictBounds: false
+        fields: ['formatted_address', 'geometry', 'name'],
+        bounds: new google.maps.LatLngBounds(
+          new google.maps.LatLng(38.3, -78.8),
+          new google.maps.LatLng(39.9, -76.0)
+        )
       };
-
-      if (pickupInput)  new google.maps.places.Autocomplete(pickupInput, options);
-      if (stopInput)    new google.maps.places.Autocomplete(stopInput, options);
-      if (dropoffInput) new google.maps.places.Autocomplete(dropoffInput, options);
+      ['pickup', 'stop', 'dropoff'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) new google.maps.places.Autocomplete(el, options);
+      });
     }
-
-    window.addEventListener('load', function () {
-      if (window.google && google.maps && google.maps.places) {
-        initAutocomplete();
-      } else {
-        const interval = setInterval(() => {
-          if (window.google && google.maps && google.maps.places) {
-            clearInterval(interval);
-            initAutocomplete();
-          }
-        }, 300);
-      }
+    window.addEventListener('load', () => {
+      const check = setInterval(() => {
+        if (window.google && google.maps && google.maps.places) {
+          clearInterval(check);
+          initAutocomplete();
+        }
+      }, 300);
     });
   </script>
 </body>
