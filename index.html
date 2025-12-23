@@ -248,19 +248,30 @@
       try {
         const res = await fetch(`${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}`);
         const data = await res.json();
+        
         if(data.success) {
+          // ✅ ADIM 2.1 — FRONTEND HESAPLAMA MANTIĞI
+          const miles = Number(data.miles);
+          const baseFare = 65;
+          const includedMiles = 15;
+          const extraPerMile = 2;
+          const extraMiles = Math.max(0, miles - includedMiles);
+          const totalPrice = baseFare + (extraMiles * extraPerMile);
+
           document.getElementById('estimateEmptyText').style.display = 'none';
           document.getElementById('estimateDetails').style.display = 'block';
-          document.getElementById('estDistance').innerText = data.miles + " miles";
-          document.getElementById('estTotal').innerText = "$" + data.price;
+          document.getElementById('estDistance').innerText = miles + " miles";
+          document.getElementById('estTotal').innerText = "$" + totalPrice.toFixed(2);
           
           document.getElementById('summaryPickup').innerText = "From: " + pickup;
           document.getElementById('summaryDropoff').innerText = "To: " + dropoff;
           document.getElementById('summaryDateTime').innerText = `At: ${rideDate} ${rideTime} ${currentAmpm}`;
-          document.getElementById('summaryTotal').innerText = "Price: $" + data.price;
+          document.getElementById('summaryTotal').innerText = "Price: $" + totalPrice.toFixed(2);
           
           document.getElementById('step2Card').classList.add('visible');
-          lastQuote = { pickup, dropoff, rideDate, rideTime, ampm: currentAmpm, total: data.price, miles: data.miles };
+          
+          // ✅ lastQuote'a hesaplanan totalPrice'ı atıyoruz
+          lastQuote = { pickup, dropoff, rideDate, rideTime, ampm: currentAmpm, total: totalPrice.toFixed(2), miles: miles };
         }
       } catch (e) { alert("Calc error"); }
     });
@@ -273,7 +284,6 @@
 
       if(!name || !phone || !email) { alert("Missing info"); return; }
 
-      // ✅ ADIM 1: Yönlendirmeden önce verileri localStorage'a yedekle
       localStorage.setItem("jk2424_last_quote", JSON.stringify({
         ...lastQuote, customerName: name, customerPhone: phone, customerEmail: email, notes: notes
       }));
@@ -286,7 +296,6 @@
         });
         const data = await res.json();
 
-        // ✅ ADIM 2: data.booking.id kontrolü ve yönlendirme
         if (data.success && data.booking && data.booking.id) {
           localStorage.setItem("jk2424_booking_id", data.booking.id);
           window.location.href = "track.html?id=" + data.booking.id;
