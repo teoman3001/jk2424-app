@@ -5,6 +5,7 @@
   <title>JK2424 • Private Chauffeur Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* CSS kodlarında bir değişiklik yapmadım, tasarım aynı kalıyor */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background:#000;
@@ -171,8 +172,7 @@
     <h1>Book Your Ride</h1>
     <p class="lead">
       Fast, simple and premium. Enter your trip details to see an instant estimate and
-      submit your reservation request. Your driver will confirm availability and then
-      send you Zelle payment details.
+      submit your reservation request.
     </p>
 
     <div class="card">
@@ -241,12 +241,11 @@
           <span class="estimate-total-value" id="estTotal">$0.00</span>
         </div>
         <p class="note">
-          Final price may vary slightly due to real route and waiting times. Driver will confirm
-          before the trip.
+          Final price may vary slightly. Driver will confirm availability.
         </p>
         <p class="maps-link">
           <a id="mapsLink" href="#" target="_blank" rel="noopener noreferrer">
-            Open this route in Google Maps (driver view)
+            Open this route in Google Maps
           </a>
         </p>
       </div>
@@ -273,7 +272,7 @@
       </div>
 
       <div class="field-group">
-        <label for="email">Email (for confirmation)</label>
+        <label for="email">Email</label>
         <input id="email" type="email" placeholder="name@example.com" />
       </div>
 
@@ -288,14 +287,12 @@
       <div id="bookingMsg" class="msg"></div>
       
       <p class="muted">
-        After you submit, I will review your request and confirm availability. You will
-        receive a message with Zelle payment details. Your trip is only confirmed after
-        payment is received.
+        Your trip is only confirmed after payment is received via Zelle.
       </p>
     </div>
 
     <div class="footer">
-      Need help or a special request?<br />
+      Need help?<br />
       Call / text: +1 (771) 217 31 11
     </div>
   </div>
@@ -408,22 +405,11 @@
         return;
       }
 
-      calcMsg.textContent = 'Calculating route and distance...';
+      calcMsg.textContent = 'Calculating route...';
 
       try {
-        const url =
-          BACKEND_BASE + '/calc?pickup=' + encodeURIComponent(pickup) +
-          '&stop=' + encodeURIComponent(stop) +
-          '&dropoff=' + encodeURIComponent(dropoff);
-
+        const url = BACKEND_BASE + '/calc?pickup=' + encodeURIComponent(pickup) + '&stop=' + encodeURIComponent(stop) + '&dropoff=' + encodeURIComponent(dropoff);
         const response = await fetch(url);
-
-        if (!response.ok) {
-          calcMsg.textContent = 'Server error (HTTP ' + response.status + ').';
-          calcMsg.classList.add('error');
-          return;
-        }
-
         const data = await response.json();
 
         if (data.error || data.success === false) {
@@ -434,49 +420,36 @@
 
         const miles = Number(data.miles || 0);
         if (!miles || miles <= 0) {
-          calcMsg.textContent = 'Could not calculate distance. Try adjusting the addresses.';
+          calcMsg.textContent = 'Could not calculate distance.';
           calcMsg.classList.add('error');
           return;
         }
 
         if (data.pricing) pricingConfig = data.pricing;
-
-        const baseFare        = Number(pricingConfig?.baseFare ?? 65);
-        const includedMiles   = Number(pricingConfig?.includedMiles ?? 15);
-        const extraPerMile    = Number(pricingConfig?.extraPerMile ?? 2);
-        const minimumFare     = Number(pricingConfig?.minimumFare ?? baseFare);
+        const baseFare = Number(pricingConfig?.baseFare ?? 65);
+        const includedMiles = Number(pricingConfig?.includedMiles ?? 15);
+        const extraPerMile = Number(pricingConfig?.extraPerMile ?? 2);
+        const minimumFare = Number(pricingConfig?.minimumFare ?? baseFare);
         const nightMultiplier = Number(pricingConfig?.nightMultiplier ?? 1.25);
 
         const extraMiles = Math.max(0, miles - includedMiles);
         const daytimeSubtotal = baseFare + extraMiles * extraPerMile;
-
         const nightInfo = getNightInfo(rideTime, currentAmpm, nightMultiplier);
         let total = daytimeSubtotal * nightInfo.multiplier;
-
         if (total < minimumFare) total = minimumFare;
 
         estimateEmptyText.style.display = 'none';
         estimateDetails.style.display = 'block';
-
         estDistance.textContent = miles.toFixed(2) + ' miles';
         estBaseLabel.textContent = 'Base fare (up to ' + includedMiles.toFixed(2) + ' miles):';
         estBaseFare.textContent = formatMoney(baseFare);
-        estExtraMiles.textContent =
-          extraMiles.toFixed(2) + ' × ' + formatMoney(extraPerMile) + ' = ' +
-          formatMoney(extraMiles * extraPerMile);
+        estExtraMiles.textContent = extraMiles.toFixed(2) + ' × ' + formatMoney(extraPerMile) + ' = ' + formatMoney(extraMiles * extraPerMile);
         estNightFare.textContent = nightInfo.label;
         estTotal.textContent = formatMoney(Number(total.toFixed(2)));
 
-        let gmapsUrl = 'https://www.google.com/maps/dir/?api=1';
-        gmapsUrl += '&origin=' + encodeURIComponent(pickup);
-        if (stop) gmapsUrl += '&waypoints=' + encodeURIComponent(stop);
-        gmapsUrl += '&destination=' + encodeURIComponent(dropoff);
-        mapsLink.href = gmapsUrl;
-
         summaryPickup.textContent = 'Pickup: ' + pickup;
         summaryDropoff.textContent = 'Drop-off: ' + dropoff;
-        summaryDateTime.textContent =
-          'Date & time: ' + rideDate + ' · ' + rideTime + ' ' + currentAmpm;
+        summaryDateTime.textContent = 'Date & time: ' + rideDate + ' · ' + rideTime + ' ' + currentAmpm;
         summaryTotal.textContent = 'Estimated total: ' + formatMoney(Number(total.toFixed(2)));
 
         step2Card.classList.add('visible');
@@ -489,7 +462,7 @@
           total: Number(total.toFixed(2))
         };
       } catch (err) {
-        calcMsg.textContent = 'Server error while calculating price.';
+        calcMsg.textContent = 'Server error.';
         calcMsg.classList.add('error');
       }
     });
@@ -497,19 +470,13 @@
     sendBookingBtn.addEventListener('click', async () => {
       bookingMsg.textContent = '';
       bookingMsg.className = 'msg';
-
       if (isSendingBooking) return;
+      if (!lastQuote) return;
 
-      if (!lastQuote) {
-        bookingMsg.textContent = 'Please calculate price first.';
-        bookingMsg.classList.add('error');
-        return;
-      }
-
-      const customerName  = document.getElementById('fullName').value.trim();
+      const customerName = document.getElementById('fullName').value.trim();
       const customerPhone = document.getElementById('mobilePhone').value.trim();
       const customerEmail = document.getElementById('email').value.trim();
-      const notes         = document.getElementById('notes').value.trim();
+      const notes = document.getElementById('notes').value.trim();
 
       if (!customerName || !customerPhone || !customerEmail) {
         bookingMsg.textContent = 'Name, phone and email are required.';
@@ -517,10 +484,7 @@
         return;
       }
 
-      const payload = {
-        ...lastQuote,
-        customerName, customerPhone, customerEmail, notes
-      };
+      const payload = { ...lastQuote, customerName, customerPhone, customerEmail, notes };
 
       try {
         isSendingBooking = true;
@@ -535,21 +499,16 @@
 
         const data = await response.json();
 
-        if (!response.ok || data.success === false) {
+        if (data.success && data.bookingId) {
+          localStorage.setItem("jk2424_booking_id", data.bookingId);
+          window.location.href = "track.html?id=" + data.bookingId;
+          return;
+        } else {
           bookingMsg.textContent = data.message || 'Server error.';
           bookingMsg.classList.add('error');
-          return;
         }
-
-        // --- GÜNCELLENEN KISIM: YÖNLENDİRME ---
-        // SAVE BOOKING ID
-        localStorage.setItem("jk2424_booking_id", data.booking.id);
-        
-        // REDIRECT TO TRACK PAGE (APP FLOW)
-        window.location.href = "track.html?id=" + encodeURIComponent(data.booking.id);
-
       } catch (err) {
-        bookingMsg.textContent = 'Server error while sending reservation.';
+        bookingMsg.textContent = 'Server error.';
         bookingMsg.classList.add('error');
       } finally {
         isSendingBooking = false;
@@ -559,7 +518,6 @@
   </script>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places" async defer></script>
-
   <script>
     function initAutocomplete() {
       const options = {
