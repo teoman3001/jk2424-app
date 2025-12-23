@@ -61,7 +61,6 @@
       outline:none;
       transition:border-color 0.15s, box-shadow 0.15s, background 0.15s;
     }
-    input::placeholder, textarea::placeholder { color:#555; }
     input:focus, textarea:focus {
       border-color:#f5d05c;
       box-shadow:0 0 0 1px rgba(245,208,92,0.3);
@@ -104,10 +103,6 @@
       transition:transform 0.1s, box-shadow 0.1s, background 0.15s;
       box-shadow:0 14px 30px rgba(245,208,92,0.35);
     }
-    .primary-btn[disabled] { opacity:0.6; cursor:default; box-shadow:none; transform:none; }
-    .primary-btn:hover:not([disabled]) { transform:translateY(-1px); box-shadow:0 18px 36px rgba(245,208,92,0.45); }
-    .primary-btn:active:not([disabled]) { transform:translateY(0); box-shadow:0 10px 22px rgba(245,208,92,0.3); }
-
     .estimate-title { font-weight:700; color:#f5d05c; margin-bottom:8px; font-size:14px; }
     .estimate-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
     .estimate-total {
@@ -121,13 +116,31 @@
       font-weight:600;
     }
     .estimate-total-value { color:#f5d05c; font-size:20px; font-weight:700; }
-    .msg { margin-top:8px; font-size:12px; min-height:16px; }
-    .msg.error { color:#ff6b6b; }
     .step2 { display:none; }
     .step2.visible { display:block; }
     .trip-summary-line { font-size:12px; margin-bottom:2px; }
     .footer { margin-top:14px; text-align:center; font-size:11px; color:#777; }
     @media (max-width:600px) { body { padding:18px 8px 32px; } .card { padding:16px 14px 18px; } }
+
+    /* ✅ AUTOCOMPLETE RENKLERİ - ESKİ PREMİUM HALİ */
+    .pac-container {
+      background:#000 !important;
+      border:1px solid #444 !important;
+      border-radius:8px !important;
+      box-shadow:0 10px 25px rgba(0,0,0,0.7) !important;
+      z-index:9999 !important;
+    }
+    .pac-item {
+      background:#000 !important;
+      color:#f5d05c !important;
+      padding:8px 12px !important;
+      border-top:1px solid #222 !important;
+      cursor: pointer;
+    }
+    .pac-item:hover { background:#151515 !important; }
+    .pac-item-query { color:#ffffff !important; font-size: 14px !important; }
+    .pac-matched { color:#f5d05c !important; font-weight: bold; }
+    .pac-icon { filter: invert(80%) sepia(60%) saturate(400%) hue-rotate(10deg); }
   </style>
 </head>
 <body>
@@ -178,6 +191,8 @@
       <div id="estimateEmptyText" style="color:#aaa; font-size:11px;">Enter details and tap “CALCULATE PRICE”.</div>
       <div id="estimateDetails" style="display:none;">
         <div class="estimate-row"><span>Distance:</span><span><strong id="estDistance">–</strong></span></div>
+        <div class="estimate-row"><span>Base fare:</span><span><strong>$65.00</strong></span></div>
+        <div class="estimate-row"><span>Night multiplier:</span><span><strong id="estNight">–</strong></span></div>
         <div class="estimate-total"><span>Estimated total</span><span class="estimate-total-value" id="estTotal">$0.00</span></div>
       </div>
     </div>
@@ -203,7 +218,7 @@
       </div>
       <div class="field-group">
         <label for="notes">Notes</label>
-        <textarea id="notes" rows="2" placeholder="Gate codes, luggage details..."></textarea>
+        <textarea id="notes" rows="2" placeholder="Gate codes, luggage..."></textarea>
       </div>
       <button id="sendBookingBtn" class="primary-btn" type="button">Send reservation request</button>
       <div id="bookingMsg" class="msg"></div>
@@ -239,6 +254,7 @@
 
     document.getElementById('calcPriceBtn').addEventListener('click', async () => {
       const pickup = document.getElementById('pickup').value.trim();
+      const stop = document.getElementById('stop').value.trim();
       const dropoff = document.getElementById('dropoff').value.trim();
       const rideDate = document.getElementById('rideDate').value.trim();
       const rideTime = document.getElementById('rideTime').value.trim();
@@ -246,21 +262,33 @@
       if(!pickup || !dropoff || !rideDate || !rideTime) { alert("Please complete Step 1"); return; }
 
       try {
-        const res = await fetch(`${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}`);
+        const url = `${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}`;
+        const res = await fetch(url);
         const data = await res.json();
         
         if(data.success) {
-          // ✅ ADIM 2.1 — FRONTEND HESAPLAMA MANTIĞI
           const miles = Number(data.miles);
-          const baseFare = 65;
-          const includedMiles = 15;
-          const extraPerMile = 2;
-          const extraMiles = Math.max(0, miles - includedMiles);
-          const totalPrice = baseFare + (extraMiles * extraPerMile);
+          const config = data.pricing;
+          
+          // Fiyatlandırma Mantığı
+          const extraMiles = Math.max(0, miles - config.includedMiles);
+          let subtotal = config.baseFare + (extraMiles * config.extraPerMile);
+          
+          // Gece Çarpanı Kontrolü (22:00 - 05:00)
+          const [hStr, mStr] = rideTime.split(':');
+          let h = parseInt(hStr);
+          if (currentAmpm === 'PM' && h !== 12) h += 12;
+          if (currentAmpm === 'AM' && h === 12) h = 0;
+          const isNight = (h >= 22 || h < 5);
+          const multiplier = isNight ? config.nightMultiplier : 1;
+          
+          let totalPrice = subtotal * multiplier;
+          if (totalPrice < config.minimumFare) totalPrice = config.minimumFare;
 
           document.getElementById('estimateEmptyText').style.display = 'none';
           document.getElementById('estimateDetails').style.display = 'block';
-          document.getElementById('estDistance').innerText = miles + " miles";
+          document.getElementById('estDistance').innerText = miles.toFixed(2) + " miles";
+          document.getElementById('estNight').innerText = isNight ? "Yes (x1.25)" : "No (x1.0)";
           document.getElementById('estTotal').innerText = "$" + totalPrice.toFixed(2);
           
           document.getElementById('summaryPickup').innerText = "From: " + pickup;
@@ -269,11 +297,9 @@
           document.getElementById('summaryTotal').innerText = "Price: $" + totalPrice.toFixed(2);
           
           document.getElementById('step2Card').classList.add('visible');
-          
-          // ✅ lastQuote'a hesaplanan totalPrice'ı atıyoruz
-          lastQuote = { pickup, dropoff, rideDate, rideTime, ampm: currentAmpm, total: totalPrice.toFixed(2), miles: miles };
+          lastQuote = { pickup, stop, dropoff, rideDate, rideTime, ampm: currentAmpm, total: totalPrice.toFixed(2), miles: miles.toFixed(2) };
         }
-      } catch (e) { alert("Calc error"); }
+      } catch (e) { alert("Calc error: " + e.message); }
     });
 
     document.getElementById('sendBookingBtn').addEventListener('click', async () => {
@@ -300,7 +326,7 @@
           localStorage.setItem("jk2424_booking_id", data.booking.id);
           window.location.href = "track.html?id=" + data.booking.id;
         } else {
-          alert("Booking failed at server.");
+          alert("Booking failed.");
         }
       } catch (e) { alert("Network error."); }
     });
