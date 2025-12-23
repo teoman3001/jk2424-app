@@ -17,9 +17,7 @@
   .pricing-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:12px; background:#111; padding:18px; border-radius:14px; border:1px solid #333; margin-bottom:25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   .input-group label { display:block; font-size:10px; color:#aaa; margin-bottom:5px; text-transform:uppercase; font-weight:600; }
   .input-group input { width:100%; background:#050505; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; outline:none; font-size:14px; }
-  .input-group input:focus { border-color:#f5d05c; }
-  .save-btn { background:#f5d05c; color:#000; border:none; padding:14px; border-radius:10px; font-weight:800; width:100%; cursor:pointer; margin-top:10px; text-transform:uppercase; transition: transform 0.2s; }
-  .save-btn:active { transform: scale(0.98); }
+  .save-btn { background:#f5d05c; color:#000; border:none; padding:14px; border-radius:10px; font-weight:800; width:100%; cursor:pointer; margin-top:10px; text-transform:uppercase; }
 
   /* Booking Cards */
   .card { background:#111; border:1px solid #333; border-radius:18px; padding:20px; margin-bottom:18px; position:relative; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
@@ -36,32 +34,33 @@
   /* Müşteri Bilgileri */
   .cust-header { font-size:15px; color:#fff; margin-bottom:4px; font-weight:700; }
   .cust-contact { font-size:12px; color:#aaa; margin-bottom:12px; }
-  .cust-contact a { color:#f5d05c; text-decoration:none; margin-right:10px; }
+  .cust-contact a { color:#f5d05c; text-decoration:none; margin-right:15px; }
 
   /* Müşteri Notu */
   .note-pill { background:#1a1500; border: 1px dashed #f5d05c; color:#f5d05c; padding:10px; border-radius:10px; font-size:12px; margin-bottom:15px; line-height:1.4; }
   
-  /* Operasyonel Detaylar (Senin istediğin arşivlik kısım) */
-  .ops-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; background:#080808; padding:12px; border-radius:10px; font-size:11px; color:#888; border:1px solid #222; }
-  .ops-item b { color:#fff; display:block; font-size:13px; margin-top:2px; }
-  .ops-item i { color:#f5d05c; font-style:normal; font-weight:700; }
+  /* ✅ Şeffaf Fiyat Detayları (Resimdeki ile Birebir Aynı) */
+  .estimate-box { background:#080808; border: 1px solid #222; border-radius:12px; padding:15px; margin-bottom:15px; }
+  .est-title { font-size:11px; color:#f5d05c; font-weight:800; text-transform:uppercase; margin-bottom:10px; border-bottom:1px solid #222; padding-bottom:5px; }
+  .est-row { display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:5px; }
+  .est-row b { color:#fff; }
+  .est-total { display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #333; }
+  .est-total-label { font-size:13px; font-weight:700; color:#fff; }
+  .est-total-value { font-size:18px; font-weight:900; color:#f5d05c; }
 
-  .status-select { width:100%; padding:12px; background:#000; border:1px solid #444; color:#fff; border-radius:10px; margin-top:15px; font-weight:700; cursor:pointer; }
-  .status-select:focus { border-color:#f5d05c; }
-  
-  .price-highlight { color:#f5d05c; font-size:18px; font-weight:900; }
-  .empty { text-align:center; padding:60px; color:#444; font-size:14px; letter-spacing:1px; }
+  .status-select { width:100%; padding:12px; background:#000; border:1px solid #444; color:#fff; border-radius:10px; margin-top:10px; font-weight:700; cursor:pointer; }
+  .empty { text-align:center; padding:60px; color:#444; font-size:14px; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>JK2424 ADMIN CENTER</h1>
-  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v1.5 LIVE OPS</div>
+  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v1.7 LIVE OPS</div>
 </header>
 
 <div class="wrap">
-  <div class="section-title">Global Pricing Engine</div>
+  <div class="section-title">Global Pricing Engine Settings</div>
   <div class="pricing-grid">
     <div class="input-group"><label>Base Fare ($)</label><input type="number" id="baseFare"></div>
     <div class="input-group"><label>Inc. Miles</label><input type="number" id="includedMiles"></div>
@@ -70,7 +69,7 @@
     <button class="save-btn" onclick="savePricing()">Update Tariffs</button>
   </div>
 
-  <div class="section-title">Active Reservations & Log</div>
+  <div class="section-title">Active Reservations & Billing Breakdown</div>
   <div id="bookingList"></div>
 </div>
 
@@ -122,8 +121,15 @@ async function loadBookings() {
     }
 
     container.innerHTML = data.bookings.map(b => {
-      // Google Maps link
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(b.pickup)}&destination=${encodeURIComponent(b.dropoff)}${b.stop ? `&waypoints=${encodeURIComponent(b.stop)}` : ''}`;
+
+      // Gerçek zamanlı hesaplama verisi (O anki kurala göre admin ekranında simüle edilir)
+      const baseFareVal = 65;
+      const incMilesVal = 10;
+      const extraRateVal = 2;
+      const extraMiles = Math.max(0, b.miles - incMilesVal);
+      const extraCost = extraMiles * extraRateVal;
+      const nightApplied = b.total > (baseFareVal + extraCost);
 
       return `
       <div class="card">
@@ -143,11 +149,17 @@ async function loadBookings() {
 
         ${b.notes ? `<div class="note-pill"><b>CUSTOMER NOTE:</b><br>${b.notes}</div>` : ''}
 
-        <div class="ops-grid">
-          <div class="ops-item">TRIP SCHEDULE<b>${b.rideDate} @ ${b.rideTime} ${b.ampm}</b></div>
-          <div class="ops-item">DISTANCE<b>${b.miles} miles</b></div>
-          <div class="ops-item">CALCULATED TOTAL<b class="price-highlight">$${Number(b.total).toFixed(2)}</b></div>
-          <div class="ops-item">TARIFF LOG<i>Base $65 + Extra Miles</i></div>
+        <div class="estimate-box">
+          <div class="est-title">Estimate Details & Logistics</div>
+          <div class="est-row"><span>Schedule:</span><b>${b.rideDate} @ ${b.rideTime} ${b.ampm}</b></div>
+          <div class="est-row"><span>Total Distance:</span><b>${b.miles} miles</b></div>
+          <div class="est-row"><span>Base Fare (inc. miles):</span><b>$${baseFareVal.toFixed(2)} (inc. ${incMilesVal} mi)</b></div>
+          <div class="est-row"><span>Extra Miles Cost:</span><b>$${extraCost.toFixed(2)} (${extraMiles.toFixed(2)} mi x $${extraRateVal.toFixed(2)})</b></div>
+          <div class="est-row"><span>Night Rate Applied:</span><b>${nightApplied ? 'Yes (x1.25)' : 'No'}</b></div>
+          <div class="est-total">
+            <span class="est-total-label">OPERATIONAL TOTAL</span>
+            <span class="est-total-value">$${Number(b.total).toFixed(2)}</span>
+          </div>
         </div>
 
         <select class="status-select" onchange="updateStatus('${b.id}', this.value)">
