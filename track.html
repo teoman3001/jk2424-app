@@ -24,7 +24,7 @@
       padding:22px;
       box-shadow:0 18px 40px rgba(0,0,0,0.5);
     }
-    .status-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f5d05c; }
+    .status-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f5d05c; transition: all 0.3s ease; }
     .status-desc { font-size:13px; color:#ccc; line-height:1.5; margin-bottom:16px; }
     .divider { height:1px; background:#333; margin:14px 0; }
     .line { font-size:13px; margin-bottom:10px; line-height: 1.4; }
@@ -40,15 +40,14 @@
 
     <div class="card">
       <div id="contentArea">
-        <div class="status-title" id="statusTitle">Checking status...</div>
-        <div class="status-desc" id="statusText">Please wait while we connect to the server.</div>
+        <div class="status-title" id="statusTitle">Checking...</div>
+        <div class="status-desc" id="statusText">Connecting to secure server.</div>
 
         <div class="divider"></div>
 
         <div class="line"><strong>Pickup:</strong> <br><span id="tripPickup">---</span></div>
         <div class="line"><strong>Drop-off:</strong> <br><span id="tripDropoff">---</span></div>
         <div class="line"><strong>Date & Time:</strong> <br><span id="tripDate">---</span></div>
-        <div class="line"><strong>Total Distance:</strong> <br><span id="tripDistance">---</span></div>
         <div class="line"><strong>Total Price:</strong> <span id="tripPrice" class="highlight">---</span></div>
       </div>
     </div>
@@ -63,7 +62,7 @@ const BACKEND_BASE = "https://jk2424-backend.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("id");
 
-// 1. ÖNCE LOCALSTORAGE'DAN YEDEK VERİYİ OKU (Yeni yapıya uygun)
+// 1. LOCALSTORAGE'DAN İLK VERİYİ ÇEK (Hız için)
 const lastQuoteStr = localStorage.getItem("jk2424_last_quote");
 if (lastQuoteStr) {
   try {
@@ -71,28 +70,95 @@ if (lastQuoteStr) {
     document.getElementById("tripPickup").innerText = q.pickup || "---";
     document.getElementById("tripDropoff").innerText = q.dropoff || "---";
     document.getElementById("tripDate").innerText = `${q.rideDate} ${q.rideTime} ${q.ampm}`;
-    document.getElementById("tripDistance").innerText = q.miles ? q.miles + " miles" : "---";
-    document.getElementById("tripPrice").innerText = q.total ? "$" + Number(q.total).toFixed(2) : "---";
-    
-    // İlk açılışta status'u da gösterelim
-    document.getElementById("statusTitle").innerText = "Reservation Received";
-    document.getElementById("statusText").innerText = "Waiting for driver confirmation.";
+    document.getElementById("tripPrice").innerText = q.total ? "$" + q.total : "---";
   } catch (e) { console.error("Local data error", e); }
 }
 
-function getStatusDetails(status) {
-  const map = {
-    "pending": { title: "Reservation Received", desc: "Waiting for driver confirmation." },
-    "confirmed": { title: "Trip Confirmed", desc: "Confirmed! Payment details sent via Zelle." },
-    "paid": { title: "Payment Received", desc: "Payment verified. See you soon!" },
-    "on_the_way": { title: "Driver on the Way", desc: "Your chauffeur is heading to your location." },
-    "arrived": { title: "Driver Arrived", desc: "Your vehicle is outside and waiting." },
-    "completed": { title: "Trip Completed", desc: "Thank you for choosing JK2424." }
-  };
-  return map[status] || { title: "Updating Status", desc: "Please wait..." };
+// 2. DİNAMİK UI YÖNETİMİ (Lifecycle Engine)
+function renderStatusUI(status, booking) {
+  const title = document.getElementById("statusTitle");
+  const text  = document.getElementById("statusText");
+
+  switch (status) {
+    case "pending":
+      title.innerText = "Reservation Received";
+      text.innerText = "Waiting for driver confirmation.";
+      break;
+
+    case "confirmed":
+      title.innerText = "Trip Confirmed";
+      text.innerText = "Your chauffeur has confirmed the ride.";
+      break;
+
+    case "payment_sent":
+      title.innerText = "Payment Instructions Sent";
+      text.innerText = "Please complete payment via Zelle.";
+      break;
+
+    case "paid":
+      title.innerText = "Payment Received";
+      text.innerText = "Your ride is being prepared.";
+      break;
+
+    case "on_the_way":
+      title.innerText = "Driver on the Way";
+      text.innerText = "Your chauffeur is heading to your pickup location.";
+      showLiveTrackingUI(booking);
+      break;
+
+    case "arrived":
+      title.innerText = "Driver Arrived";
+      text.innerText = "Your vehicle is outside and waiting.";
+      break;
+
+    case "in_progress":
+      title.innerText = "Trip in Progress";
+      text.innerText = "Enjoy your ride with JK2424.";
+      break;
+
+    case "completed":
+      title.innerText = "Trip Completed";
+      text.innerText = "Thank you for choosing JK2424.";
+      break;
+
+    case "cancelled":
+      title.innerText = "Trip Cancelled";
+      text.innerText = "This reservation has been cancelled.";
+      break;
+  }
 }
 
-// 2. BACKEND'DEN DURUMU KONTROL ET (Polling)
+// 3. CANLI TAKİP PANELİ (Stub)
+function showLiveTrackingUI(booking) {
+  if (document.getElementById("liveBox")) return;
+
+  const box = document.createElement("div");
+  box.id = "liveBox";
+  box.style.marginTop = "16px";
+  box.style.padding = "14px";
+  box.style.border = "1px solid #444";
+  box.style.borderRadius = "12px";
+  box.style.background = "#080808";
+  box.style.animation = "fadeIn 0.5s ease-in";
+
+  box.innerHTML = `
+    <div style="font-weight:700;color:#f5d05c;margin-bottom:6px;font-size:14px;">
+      Live Trip Tracking
+    </div>
+    <div style="font-size:11px;color:#ccc;margin-bottom:10px;">
+      Driver is en route. Estimated arrival will be shown here.
+    </div>
+    <div style="height:140px;background:#000;border:1px dashed #333;
+      border-radius:8px;display:flex;align-items:center;justify-content:center;
+      font-size:11px;color:#555;text-align:center;padding:0 20px;">
+      Live map will appear here as soon as driver starts the trip
+    </div>
+  `;
+
+  document.getElementById("contentArea").appendChild(box);
+}
+
+// 4. POLLING ENGINE (Sürekli Kontrol)
 async function pollStatus() {
   if (!bookingId) return;
 
@@ -103,25 +169,28 @@ async function pollStatus() {
     const data = await res.json();
     if (data.success && data.booking) {
       const b = data.booking;
-      const details = getStatusDetails(b.status);
       
-      document.getElementById("statusTitle").innerText = details.title;
-      document.getElementById("statusText").innerText = details.desc;
+      // ✅ Status Lifecycle UI Tetikleme
+      renderStatusUI(b.status, b);
       
-      // Backend'de Admin fiyatı güncellediyse veya bir değişim olduysa fiyatı güncelle
+      // Fiyat güncellemesi (Admin değiştirirse)
       if (b.total) {
         document.getElementById("tripPrice").innerText = "$" + Number(b.total).toFixed(2);
       }
       
-      if (b.status === "completed") clearInterval(pollingInterval);
+      if (b.status === "completed" || b.status === "cancelled") clearInterval(pollingInterval);
     }
   } catch (err) {
-    console.warn("Polling (Network) error, showing local data.");
+    console.warn("Polling error, showing local data.");
   }
 }
 
 const pollingInterval = setInterval(pollStatus, 5000);
 pollStatus();
 </script>
+
+<style>
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </body>
 </html>
