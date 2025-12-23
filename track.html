@@ -27,8 +27,8 @@
     .status-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f5d05c; }
     .status-desc { font-size:13px; color:#ccc; line-height:1.5; margin-bottom:16px; }
     .divider { height:1px; background:#333; margin:14px 0; }
-    .line { font-size:13px; margin-bottom:8px; }
-    .highlight { color:#f5d05c; font-weight:600; }
+    .line { font-size:13px; margin-bottom:10px; line-height: 1.4; }
+    .highlight { color:#f5d05c; font-weight:600; font-size: 15px; }
     .footer { margin-top:14px; font-size:11px; color:#888; text-align:center; }
   </style>
 </head>
@@ -37,17 +37,24 @@
     <div class="logo">
       <div class="logo-title">JK2424</div>
     </div>
-    <div class="card" id="mainCard">
+
+    <div class="card">
       <div id="contentArea">
-        <div class="status-title" id="statusTitle">Checking status...</div>
-        <div class="status-desc" id="statusText">Please wait.</div>
+        <div class="status-title" id="statusTitle">Reservation Received</div>
+        <div class="status-desc" id="statusText">Waiting for driver confirmation.</div>
+
         <div class="divider"></div>
-        <div class="line"><strong>Route:</strong> <br><span id="tripRoute">---</span></div>
+
+        <div class="line"><strong>Pickup:</strong> <br><span id="tripPickup">---</span></div>
+        <div class="line"><strong>Drop-off:</strong> <br><span id="tripDropoff">---</span></div>
         <div class="line"><strong>Date & Time:</strong> <br><span id="tripDate">---</span></div>
         <div class="line"><strong>Total Price:</strong> <span id="tripPrice" class="highlight">---</span></div>
       </div>
     </div>
-    <div class="footer">JK2424 • Private Chauffeur Service</div>
+
+    <div class="footer">
+      JK2424 • Private Chauffeur Service
+    </div>
   </div>
 
 <script>
@@ -55,48 +62,59 @@ const BACKEND_BASE = "https://jk2424-backend.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("id");
 
-if (!bookingId) {
-  document.getElementById("statusTitle").innerText = "Invalid Link";
-  document.getElementById("statusText").innerText = "Booking ID not found in URL.";
+// 1. ÖNCE LOCALSTORAGE'DAN YEDEK VERİYİ OKU (Hızlı yükleme için)
+const lastQuoteStr = localStorage.getItem("jk2424_last_quote");
+if (lastQuoteStr) {
+  try {
+    const q = JSON.parse(lastQuoteStr);
+    document.getElementById("tripPickup").innerText = q.pickup || "---";
+    document.getElementById("tripDropoff").innerText = q.dropoff || "---";
+    document.getElementById("tripDate").innerText = `${q.rideDate} ${q.rideTime} ${q.ampm}`;
+    document.getElementById("tripPrice").innerText = q.total ? "$" + q.total : "---";
+  } catch (e) { console.error("Local data error", e); }
 }
 
 function getStatusDetails(status) {
   const map = {
     "pending": { title: "Reservation Received", desc: "Waiting for driver confirmation." },
-    "confirmed": { title: "Trip Confirmed", desc: "Confirmed! Payment details will be sent shortly." },
+    "confirmed": { title: "Trip Confirmed", desc: "Confirmed! Payment details sent via Zelle." },
     "paid": { title: "Payment Received", desc: "Payment verified. See you soon!" },
     "on_the_way": { title: "Driver on the Way", desc: "Your chauffeur is heading to your location." },
     "arrived": { title: "Driver Arrived", desc: "Your vehicle is outside and waiting." },
     "completed": { title: "Trip Completed", desc: "Thank you for choosing JK2424." }
   };
-  return map[status] || { title: "Updating", desc: "Please wait..." };
+  return map[status] || { title: "Updating Status", desc: "Please wait..." };
 }
 
+// 2. BACKEND'DEN DURUMU KONTROL ET (Polling)
 async function pollStatus() {
+  if (!bookingId) return;
+
   try {
     const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
-    if (!res.ok) throw new Error("Not found");
+    if (!res.ok) {
+        // Backend'de bulunamazsa (reset olmuşsa) bile sessiz kal, localStorage verisi kalsın
+        return; 
+    }
     
     const data = await res.json();
     if (data.success && data.booking) {
       const b = data.booking;
       const details = getStatusDetails(b.status);
       
+      // Sadece status ve varsa güncel fiyatı güncelle
       document.getElementById("statusTitle").innerText = details.title;
       document.getElementById("statusText").innerText = details.desc;
-      document.getElementById("tripRoute").innerText = `${b.pickup} → ${b.dropoff}`;
-      document.getElementById("tripDate").innerText = `${b.rideDate} ${b.rideTime} ${b.ampm}`;
       
-      // ✅ BURASI DÜZELTİLDİ: b.total olarak okuyoruz
-      document.getElementById("tripPrice").innerText = b.total ? "$" + b.total : "---";
-
+      // Eğer backend'de farklı bir fiyat varsa onu güncelle
+      if (b.total) {
+        document.getElementById("tripPrice").innerText = "$" + b.total;
+      }
+      
       if (b.status === "completed") clearInterval(pollingInterval);
     }
   } catch (err) {
-    console.error("Fetch error:", err);
-    // Eğer veri bulunamazsa (sunucu sıfırlandığı için), kullanıcıya bilgi ver
-    document.getElementById("statusTitle").innerText = "Session Expired";
-    document.getElementById("statusText").innerText = "Please create a new reservation.";
+    console.warn("Polling (Network) error, showing local data.");
   }
 }
 
