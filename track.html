@@ -40,14 +40,15 @@
 
     <div class="card">
       <div id="contentArea">
-        <div class="status-title" id="statusTitle">Reservation Received</div>
-        <div class="status-desc" id="statusText">Waiting for driver confirmation.</div>
+        <div class="status-title" id="statusTitle">Checking status...</div>
+        <div class="status-desc" id="statusText">Please wait while we connect to the server.</div>
 
         <div class="divider"></div>
 
         <div class="line"><strong>Pickup:</strong> <br><span id="tripPickup">---</span></div>
         <div class="line"><strong>Drop-off:</strong> <br><span id="tripDropoff">---</span></div>
         <div class="line"><strong>Date & Time:</strong> <br><span id="tripDate">---</span></div>
+        <div class="line"><strong>Total Distance:</strong> <br><span id="tripDistance">---</span></div>
         <div class="line"><strong>Total Price:</strong> <span id="tripPrice" class="highlight">---</span></div>
       </div>
     </div>
@@ -62,7 +63,7 @@ const BACKEND_BASE = "https://jk2424-backend.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("id");
 
-// 1. ÖNCE LOCALSTORAGE'DAN YEDEK VERİYİ OKU (Hızlı yükleme için)
+// 1. ÖNCE LOCALSTORAGE'DAN YEDEK VERİYİ OKU (Yeni yapıya uygun)
 const lastQuoteStr = localStorage.getItem("jk2424_last_quote");
 if (lastQuoteStr) {
   try {
@@ -70,7 +71,12 @@ if (lastQuoteStr) {
     document.getElementById("tripPickup").innerText = q.pickup || "---";
     document.getElementById("tripDropoff").innerText = q.dropoff || "---";
     document.getElementById("tripDate").innerText = `${q.rideDate} ${q.rideTime} ${q.ampm}`;
-    document.getElementById("tripPrice").innerText = q.total ? "$" + q.total : "---";
+    document.getElementById("tripDistance").innerText = q.miles ? q.miles + " miles" : "---";
+    document.getElementById("tripPrice").innerText = q.total ? "$" + Number(q.total).toFixed(2) : "---";
+    
+    // İlk açılışta status'u da gösterelim
+    document.getElementById("statusTitle").innerText = "Reservation Received";
+    document.getElementById("statusText").innerText = "Waiting for driver confirmation.";
   } catch (e) { console.error("Local data error", e); }
 }
 
@@ -92,23 +98,19 @@ async function pollStatus() {
 
   try {
     const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
-    if (!res.ok) {
-        // Backend'de bulunamazsa (reset olmuşsa) bile sessiz kal, localStorage verisi kalsın
-        return; 
-    }
+    if (!res.ok) return; 
     
     const data = await res.json();
     if (data.success && data.booking) {
       const b = data.booking;
       const details = getStatusDetails(b.status);
       
-      // Sadece status ve varsa güncel fiyatı güncelle
       document.getElementById("statusTitle").innerText = details.title;
       document.getElementById("statusText").innerText = details.desc;
       
-      // Eğer backend'de farklı bir fiyat varsa onu güncelle
+      // Backend'de Admin fiyatı güncellediyse veya bir değişim olduysa fiyatı güncelle
       if (b.total) {
-        document.getElementById("tripPrice").innerText = "$" + b.total;
+        document.getElementById("tripPrice").innerText = "$" + Number(b.total).toFixed(2);
       }
       
       if (b.status === "completed") clearInterval(pollingInterval);
