@@ -9,17 +9,17 @@
     body { background:#000; color:#f5f5f5; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; display:flex; justify-content:center; padding:24px 12px; }
     .container { width:100%; max-width:420px; }
     .card { background:#111; border:1px solid #333; border-radius:16px; padding:22px; box-shadow:0 18px 40px rgba(0,0,0,0.5); }
-    .status-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f5d05c; }
+    .status-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f5d05c; text-transform: uppercase; letter-spacing: 1px; }
     .status-desc { font-size:13px; color:#ccc; line-height:1.5; margin-bottom:16px; }
     
     /* 🗺️ MAP & ETA STYLES */
     #map { width:100%; height:260px; border-radius:14px; margin-top:16px; display:none; border:1px solid #444; }
-    #etaBox { margin-top:10px; font-size:13px; color:#f5d05c; font-weight:600; display:none; text-align:center; padding:8px; border:1px solid #f5d05c33; border-radius:8px; }
+    #etaBox { margin-top:10px; font-size:13px; color:#f5d05c; font-weight:600; display:none; text-align:center; padding:10px; border:1px solid #f5d05c44; border-radius:10px; background: rgba(245, 208, 92, 0.05); }
     
     .divider { height:1px; background:#333; margin:16px 0; }
-    .line { font-size:13px; margin-bottom:10px; color:#aaa; }
-    .highlight { color:#f5d05c; font-weight:600; }
-    .footer { margin-top:14px; font-size:11px; color:#888; text-align:center; }
+    .line { font-size:13px; margin-bottom:12px; color:#aaa; line-height: 1.4; }
+    .highlight { color:#f5d05c; font-weight:700; }
+    .footer { margin-top:14px; font-size:11px; color:#666; text-align:center; letter-spacing: 0.5px; }
   </style>
 </head>
 <body>
@@ -33,8 +33,8 @@
         <div id="etaBox">Calculating live traffic ETA...</div>
 
         <div class="divider"></div>
-        <div class="line"><strong>Pickup:</strong> <br><span id="tripPickup">---</span></div>
-        <div class="line"><strong>Drop-off:</strong> <br><span id="tripDropoff">---</span></div>
+        <div class="line"><strong>Pickup:</strong> <br><span id="tripPickup" style="color:#eee;">---</span></div>
+        <div class="line"><strong>Drop-off:</strong> <br><span id="tripDropoff" style="color:#eee;">---</span></div>
         <div class="line"><strong>Status:</strong> <span id="tripStatus" class="highlight">---</span></div>
         <div class="line"><strong>Total Price:</strong> <span id="tripPrice" class="highlight">---</span></div>
       </div>
@@ -49,45 +49,47 @@ const BACKEND_BASE = "https://jk2424-backend.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("id");
 
-// Map Değişkenleri
 let map, directionsService, directionsRenderer, driverMarker;
 let routePath = [];
 let routeIndex = 0;
 let moveInterval = null;
 let isMapInitialized = false;
 
-// 1. HARİTA BAŞLATMA
+// 1. HARİTA BAŞLATMA - KRİSTAL NETLİĞİNDE STİL
 function initMap(center) {
   if (isMapInitialized) return;
   
   map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 13,
+    zoom: 14,
     center: center,
     disableDefaultUI: true,
     styles: [
-      { elementType: "geometry", stylers: [{ color: "#111111" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#f5d05c" }] },
-      { featureType: "road", elementType: "geometry", stylers: [{ color: "#222222" }] },
-      { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }
+      { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
+      { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+      { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] }, // Yazı rengi daha yumuşak gri
+      { "elementType": "labels.text.stroke", "stylers": [{ "color": "#212121" }] },
+      { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#757575" }] },
+      { "featureType": "poi", "elementType": "labels.text", "stylers": [{ "visibility": "off" }] }, // Gereksiz yer isimlerini kapat
+      { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#2c2c2c" }] },
+      { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#f5d05c" }, { "weight": 0.1 }, { "fontSize": "8px" }] }, // Yol isimleri sarı ve çok küçük
+      { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
     ]
   });
 
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({
     suppressMarkers: true,
-    polylineOptions: { strokeColor: "#f5d05c", strokeWeight: 5, strokeOpacity: 0.8 }
+    polylineOptions: { strokeColor: "#f5d05c", strokeWeight: 4, strokeOpacity: 0.9 }
   });
 
   directionsRenderer.setMap(map);
   isMapInitialized = true;
 }
 
-// 2. ON_THE_WAY EKRANI VE SİMÜLASYON
 function renderOnTheWay(booking) {
   const mapEl = document.getElementById("map");
   const etaEl = document.getElementById("etaBox");
-  
-  if (mapEl.style.display === "block") return; // Zaten çalışıyorsa durma
+  if (mapEl.style.display === "block") return;
 
   mapEl.style.display = "block";
   etaEl.style.display = "block";
@@ -101,23 +103,20 @@ function renderOnTheWay(booking) {
       drivingOptions: { departureTime: new Date(), trafficModel: "bestguess" }
     }, (result, status) => {
       if (status !== "OK") return;
-
       directionsRenderer.setDirections(result);
       routePath = result.routes[0].overview_path;
       routeIndex = 0;
 
-      // 🚗 Sürücü Marker'ı (Ok simgesi)
       driverMarker = new google.maps.Marker({
         position: routePath[0],
         map: map,
         icon: {
           path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-          scale: 6,
+          scale: 5,
           fillColor: "#f5d05c",
           fillOpacity: 1,
-          strokeWeight: 2,
+          strokeWeight: 1,
           strokeColor: "#000",
-          rotation: 0
         }
       });
 
@@ -129,27 +128,24 @@ function renderOnTheWay(booking) {
 
 function startDriverSimulation() {
   if (moveInterval) clearInterval(moveInterval);
-
   moveInterval = setInterval(() => {
     routeIndex++;
     if (routeIndex >= routePath.length) {
       clearInterval(moveInterval);
       return;
     }
-    
     const nextPos = routePath[routeIndex];
     driverMarker.setPosition(nextPos);
     map.panTo(nextPos);
-  }, 1500); 
+  }, 2000); // Biraz daha yavaş ve akıcı hareket
 }
 
 function updateETA(result) {
   const leg = result.routes[0].legs[0];
   const etaText = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
-  document.getElementById("etaBox").innerText = `Estimated arrival: ${etaText} (live traffic)`;
+  document.getElementById("etaBox").innerText = `🚗 Driver is moving • ETA: ${etaText}`;
 }
 
-// 3. POLLING (Statü Takibi)
 async function pollStatus() {
   if (!bookingId) return;
   try {
@@ -157,14 +153,12 @@ async function pollStatus() {
     const data = await res.json();
     if (data.success && data.booking) {
       const b = data.booking;
-      
       document.getElementById("statusTitle").innerText = b.status.toUpperCase().replace('_', ' ');
       document.getElementById("tripStatus").innerText = b.status;
       document.getElementById("tripPickup").innerText = b.pickup;
       document.getElementById("tripDropoff").innerText = b.dropoff;
       document.getElementById("tripPrice").innerText = "$" + Number(b.total).toFixed(2);
 
-      // 🚨 ON THE WAY KONTROLÜ
       if (b.status === "on_the_way") {
         renderOnTheWay(b);
       } else {
@@ -172,10 +166,9 @@ async function pollStatus() {
         document.getElementById("etaBox").style.display = "none";
         if (moveInterval) clearInterval(moveInterval);
       }
-
       if (b.status === "completed" || b.status === "cancelled") clearInterval(pollingInterval);
     }
-  } catch (err) { console.warn("Polling error"); }
+  } catch (err) { console.warn("Polling..."); }
 }
 
 const pollingInterval = setInterval(pollStatus, 5000);
