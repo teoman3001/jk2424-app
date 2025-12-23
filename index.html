@@ -50,10 +50,7 @@
       color:#aaaaaa;
       margin-bottom:4px;
     }
-    input[type="text"],
-    input[type="tel"],
-    input[type="email"],
-    textarea {
+    input[type="text"], input[type="tel"], input[type="email"], textarea {
       width:100%;
       border-radius:8px;
       border:1px solid #444;
@@ -113,7 +110,6 @@
 
     .estimate-title { font-weight:700; color:#f5d05c; margin-bottom:8px; font-size:14px; }
     .estimate-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
-    .estimate-row strong { font-weight:600; }
     .estimate-total {
       margin-top:8px;
       padding-top:8px;
@@ -125,26 +121,13 @@
       font-weight:600;
     }
     .estimate-total-value { color:#f5d05c; font-size:20px; font-weight:700; }
-    .note { margin-top:6px; font-size:11px; color:#888; line-height:1.4; }
-    .muted { color:#aaa; font-size:11px; margin-top:4px; }
     .msg { margin-top:8px; font-size:12px; min-height:16px; }
     .msg.error { color:#ff6b6b; }
-    .msg.success { color:#4cd964; }
     .step2 { display:none; }
     .step2.visible { display:block; }
     .trip-summary-line { font-size:12px; margin-bottom:2px; }
     .footer { margin-top:14px; text-align:center; font-size:11px; color:#777; }
     @media (max-width:600px) { body { padding:18px 8px 32px; } .card { padding:16px 14px 18px; } }
-
-    /* Google Places autocomplete styling */
-    .pac-container {
-      background:#000 !important;
-      border:1px solid #444 !important;
-      border-radius:8px !important;
-      z-index:9999 !important;
-    }
-    .pac-item { color:#f5d05c !important; }
-    .pac-item-query { color:#ffffff !important; }
   </style>
 </head>
 <body>
@@ -155,7 +138,7 @@
 
   <div class="wrapper">
     <h1>Book Your Ride</h1>
-    <p class="lead">Enter your trip details to see an instant estimate and submit your reservation request.</p>
+    <p class="lead">Premium service at your fingertips. Enter trip details for an instant estimate.</p>
 
     <div class="card">
       <div class="card-header-pill">Step 1 · Trip details</div>
@@ -165,7 +148,7 @@
       </div>
       <div class="field-group">
         <label for="stop">Extra stop (optional)</label>
-        <input id="stop" type="text" placeholder="Optional extra stop address" />
+        <input id="stop" type="text" placeholder="Optional extra stop" />
       </div>
       <div class="field-group">
         <label for="dropoff">Drop-off location</label>
@@ -173,7 +156,7 @@
       </div>
       <div class="row">
         <div class="col field-group">
-          <label for="rideDate">Date (MM/DD/YYYY)</label>
+          <label for="rideDate">Date</label>
           <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" />
         </div>
         <div class="col field-group">
@@ -192,12 +175,9 @@
 
     <div class="card" id="estimateCard">
       <div class="estimate-title">Estimate</div>
-      <div id="estimateEmptyText" class="muted">Enter details and tap “CALCULATE PRICE”.</div>
+      <div id="estimateEmptyText" style="color:#aaa; font-size:11px;">Enter details and tap “CALCULATE PRICE”.</div>
       <div id="estimateDetails" style="display:none;">
         <div class="estimate-row"><span>Distance:</span><span><strong id="estDistance">–</strong></span></div>
-        <div class="estimate-row"><span id="estBaseLabel">Base fare:</span><span><strong id="estBaseFare">$0.00</strong></span></div>
-        <div class="estimate-row"><span>Extra miles:</span><span><strong id="estExtraMiles">–</strong></span></div>
-        <div class="estimate-row"><span>Night fare:</span><span><strong id="estNightFare">–</strong></span></div>
         <div class="estimate-total"><span>Estimated total</span><span class="estimate-total-value" id="estTotal">$0.00</span></div>
       </div>
     </div>
@@ -208,7 +188,7 @@
       <div class="trip-summary-line" id="summaryDropoff"></div>
       <div class="trip-summary-line" id="summaryDateTime"></div>
       <div class="trip-summary-line" id="summaryTotal"></div>
-      <div style="height:8px;"></div>
+      <div style="height:12px;"></div>
       <div class="field-group">
         <label for="fullName">Full name</label>
         <input id="fullName" type="text" placeholder="John Doe" />
@@ -223,7 +203,7 @@
       </div>
       <div class="field-group">
         <label for="notes">Notes</label>
-        <textarea id="notes" rows="3" placeholder="Gate code, luggage, etc."></textarea>
+        <textarea id="notes" rows="2" placeholder="Gate codes, luggage details..."></textarea>
       </div>
       <button id="sendBookingBtn" class="primary-btn" type="button">Send reservation request</button>
       <div id="bookingMsg" class="msg"></div>
@@ -244,75 +224,76 @@
       if (v.length > 2) v = v.slice(0, 2) + ':' + v.slice(2, 4);
       input.value = v.slice(0, 5);
     }
-    document.getElementById('rideDate').addEventListener('input', function () { autoFormatDate(this); });
-    document.getElementById('rideTime').addEventListener('input', function () { autoFormatTime(this); });
+    document.getElementById('rideDate').addEventListener('input', function() { autoFormatDate(this); });
+    document.getElementById('rideTime').addEventListener('input', function() { autoFormatTime(this); });
 
     let currentAmpm = 'AM';
-    const amBtn = document.getElementById('amBtn');
-    const pmBtn = document.getElementById('pmBtn');
-    amBtn.addEventListener('click', () => { currentAmpm = 'AM'; amBtn.classList.add('active'); pmBtn.classList.remove('active'); });
-    pmBtn.addEventListener('click', () => { currentAmpm = 'PM'; pmBtn.classList.add('active'); amBtn.classList.remove('active'); });
+    document.getElementById('amBtn').addEventListener('click', function() { 
+        currentAmpm = 'AM'; this.classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); 
+    });
+    document.getElementById('pmBtn').addEventListener('click', function() { 
+        currentAmpm = 'PM'; this.classList.add('active'); document.getElementById('amBtn').classList.remove('active'); 
+    });
 
-    const calcPriceBtn = document.getElementById('calcPriceBtn');
-    const step2Card = document.getElementById('step2Card');
     let lastQuote = null;
 
-    calcPriceBtn.addEventListener('click', async () => {
+    document.getElementById('calcPriceBtn').addEventListener('click', async () => {
       const pickup = document.getElementById('pickup').value.trim();
       const dropoff = document.getElementById('dropoff').value.trim();
       const rideDate = document.getElementById('rideDate').value.trim();
       const rideTime = document.getElementById('rideTime').value.trim();
 
-      if (!pickup || !dropoff || !rideDate || !rideTime) {
-        alert("Please fill all trip details.");
-        return;
-      }
+      if(!pickup || !dropoff || !rideDate || !rideTime) { alert("Please complete Step 1"); return; }
 
       try {
         const res = await fetch(`${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}`);
         const data = await res.json();
-        
-        if (data.success) {
+        if(data.success) {
           document.getElementById('estimateEmptyText').style.display = 'none';
           document.getElementById('estimateDetails').style.display = 'block';
           document.getElementById('estDistance').innerText = data.miles + " miles";
           document.getElementById('estTotal').innerText = "$" + data.price;
           
-          document.getElementById('summaryPickup').innerText = "Pickup: " + pickup;
-          document.getElementById('summaryDropoff').innerText = "Drop-off: " + dropoff;
-          document.getElementById('summaryDateTime').innerText = `Date: ${rideDate} Time: ${rideTime} ${currentAmpm}`;
+          document.getElementById('summaryPickup').innerText = "From: " + pickup;
+          document.getElementById('summaryDropoff').innerText = "To: " + dropoff;
+          document.getElementById('summaryDateTime').innerText = `At: ${rideDate} ${rideTime} ${currentAmpm}`;
           document.getElementById('summaryTotal').innerText = "Price: $" + data.price;
           
-          step2Card.classList.add('visible');
+          document.getElementById('step2Card').classList.add('visible');
           lastQuote = { pickup, dropoff, rideDate, rideTime, ampm: currentAmpm, total: data.price, miles: data.miles };
         }
-      } catch (e) { alert("Calculation error."); }
+      } catch (e) { alert("Calc error"); }
     });
 
     document.getElementById('sendBookingBtn').addEventListener('click', async () => {
       const name = document.getElementById('fullName').value.trim();
       const phone = document.getElementById('mobilePhone').value.trim();
       const email = document.getElementById('email').value.trim();
-      if (!name || !phone || !email) { alert("Missing info."); return; }
+      const notes = document.getElementById('notes').value.trim();
 
-      const payload = { ...lastQuote, customerName: name, customerPhone: phone, customerEmail: email };
-      
+      if(!name || !phone || !email) { alert("Missing info"); return; }
+
+      // ✅ ADIM 1: Yönlendirmeden önce verileri localStorage'a yedekle
+      localStorage.setItem("jk2424_last_quote", JSON.stringify({
+        ...lastQuote, customerName: name, customerPhone: phone, customerEmail: email, notes: notes
+      }));
+
       try {
         const res = await fetch(`${BACKEND_BASE}/bookings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ ...lastQuote, customerName: name, customerPhone: phone, customerEmail: email, notes })
         });
         const data = await res.json();
 
-        // ✅ KRİTİK DÜZELTME: data.booking.id kontrolü
+        // ✅ ADIM 2: data.booking.id kontrolü ve yönlendirme
         if (data.success && data.booking && data.booking.id) {
           localStorage.setItem("jk2424_booking_id", data.booking.id);
           window.location.href = "track.html?id=" + data.booking.id;
         } else {
-          alert("Booking failed.");
+          alert("Booking failed at server.");
         }
-      } catch (e) { alert("Server error."); }
+      } catch (e) { alert("Network error."); }
     });
   </script>
 
