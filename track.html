@@ -14,20 +14,9 @@
       justify-content:center;
       padding:24px 12px;
     }
-    .container {
-      width:100%;
-      max-width:420px;
-    }
-    .logo {
-      text-align:center;
-      margin-bottom:20px;
-    }
-    .logo-title {
-      font-size:26px;
-      letter-spacing:0.25em;
-      font-weight:700;
-      color:#f5d05c;
-    }
+    .container { width:100%; max-width:420px; }
+    .logo { text-align:center; margin-bottom:20px; }
+    .logo-title { font-size:26px; letter-spacing:0.25em; font-weight:700; color:#f5d05c; }
     .card {
       background:#111;
       border:1px solid #333;
@@ -35,41 +24,13 @@
       padding:22px;
       box-shadow:0 18px 40px rgba(0,0,0,0.5);
     }
-    .status-title {
-      font-size:18px;
-      font-weight:700;
-      margin-bottom:6px;
-    }
-    .status-desc {
-      font-size:13px;
-      color:#ccc;
-      line-height:1.5;
-      margin-bottom:16px;
-    }
-    .divider {
-      height:1px;
-      background:#333;
-      margin:14px 0;
-    }
-    .line {
-      font-size:13px;
-      margin-bottom:6px;
-    }
-    .highlight {
-      color:#f5d05c;
-      font-weight:600;
-    }
-    .footer {
-      margin-top:14px;
-      font-size:11px;
-      color:#888;
-      text-align:center;
-    }
-    .loading {
-      text-align:center;
-      color:#aaa;
-      font-size:13px;
-    }
+    .status-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f5d05c; }
+    .status-desc { font-size:13px; color:#ccc; line-height:1.5; margin-bottom:16px; }
+    .divider { height:1px; background:#333; margin:14px 0; }
+    .line { font-size:13px; margin-bottom:8px; display: flex; justify-content: space-between; }
+    .highlight { color:#f5d05c; font-weight:600; font-size: 16px; }
+    .footer { margin-top:14px; font-size:11px; color:#888; text-align:center; }
+    .loading-text { text-align:center; color:#aaa; font-size:13px; padding: 20px 0; }
   </style>
 </head>
 <body>
@@ -78,8 +39,19 @@
       <div class="logo-title">JK2424</div>
     </div>
 
-    <div class="card" id="card">
-      <div class="loading">Loading trip status…</div>
+    <div class="card" id="mainCard">
+      <div id="loadingArea" class="loading-text">Loading trip status…</div>
+      
+      <div id="contentArea" style="display:none;">
+        <div class="status-title" id="statusTitle">Status</div>
+        <div class="status-desc" id="statusText">Please wait...</div>
+
+        <div class="divider"></div>
+
+        <div class="line"><strong>Route:</strong> <span id="tripRoute"></span></div>
+        <div class="line"><strong>Date & Time:</strong> <span id="tripDate"></span></div>
+        <div class="line"><strong>Total Price:</strong> <span id="tripPrice" class="highlight"></span></div>
+      </div>
     </div>
 
     <div class="footer">
@@ -89,80 +61,69 @@
 
 <script>
 const BACKEND_BASE = "https://jk2424-backend.onrender.com";
+
+// 1. URL'DEN ID ALMA VE KONTROL
 const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("id");
-const card = document.getElementById("card");
 
 if (!bookingId) {
-  card.innerHTML = "<div class='status-title'>Invalid link</div><div class='status-desc'>Booking ID not found.</div>";
+  document.body.innerHTML = "<div style='text-align:center; padding-top:50px;'><h2>Invalid booking link</h2><p>Booking ID not found.</p></div>";
+  throw new Error("No booking ID in URL");
 }
 
-function renderStatus(booking) {
-  let title = "";
-  let desc = "";
-
-  switch (booking.status) {
-    case "pending":
-      title = "Reservation received";
-      desc = "Your request has been received and is awaiting confirmation.";
-      break;
-    case "confirmed":
-      title = "Trip confirmed";
-      desc = "Your trip is confirmed. Payment instructions have been sent.";
-      break;
-    case "paid":
-      title = "Payment received";
-      desc = "Payment confirmed. Preparing for your trip.";
-      break;
-    case "on_the_way":
-      title = "Driver on the way";
-      desc = "Your chauffeur is on the way to your pickup location.";
-      break;
-    case "arrived":
-      title = "Driver arrived";
-      desc = "Your vehicle has arrived and is waiting for you.";
-      break;
-    case "completed":
-      title = "Trip completed";
-      desc = "Thank you for riding with JK2424.";
-      break;
-    default:
-      title = "Updating status";
-      desc = "Please wait…";
-  }
-
-  card.innerHTML = `
-    <div class="status-title">${title}</div>
-    <div class="status-desc">${desc}</div>
-
-    <div class="divider"></div>
-
-    <div class="line"><strong>Pickup:</strong> ${booking.pickup}</div>
-    <div class="line"><strong>Drop-off:</strong> ${booking.dropoff}</div>
-    <div class="line"><strong>Date:</strong> ${booking.rideDate}</div>
-    <div class="line"><strong>Time:</strong> ${booking.rideTime} ${booking.ampm}</div>
-    <div class="line highlight">Total: $${booking.total}</div>
-  `;
+// Durum metinlerini yöneten yardımcı fonksiyon
+function getStatusDetails(status) {
+  const map = {
+    "pending": { title: "Reservation Received", desc: "Waiting for driver confirmation." },
+    "confirmed": { title: "Trip Confirmed", desc: "Confirmed! Payment details sent via text/email." },
+    "paid": { title: "Payment Received", desc: "Payment verified. See you soon!" },
+    "on_the_way": { title: "Driver on the Way", desc: "Your chauffeur is heading to your location." },
+    "arrived": { title: "Driver Arrived", desc: "Your vehicle is outside and waiting." },
+    "completed": { title: "Trip Completed", desc: "Thank you for choosing JK2424." }
+  };
+  return map[status] || { title: "Updating", desc: "Please wait..." };
 }
 
-async function fetchStatus() {
+// 2. POLLING FONKSİYONU (SADECE TEK ID İÇİN)
+async function pollStatus() {
   try {
+    // SADECE BU ID'YI SORGULA
     const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
     const data = await res.json();
 
-    if (data.success && data.booking) {
-      renderStatus(data.booking);
-      if (data.booking.status === "completed") {
-        clearInterval(polling);
-      }
+    if (!data.success || !data.booking) {
+      console.error("Booking not found");
+      return;
+    }
+
+    const booking = data.booking;
+    
+    // UI GÜNCELLEME
+    document.getElementById("loadingArea").style.display = "none";
+    document.getElementById("contentArea").style.display = "block";
+
+    const details = getStatusDetails(booking.status);
+    document.getElementById("statusTitle").innerText = details.title;
+    document.getElementById("statusText").innerText = details.desc;
+
+    // Bilgileri doldur
+    document.getElementById("tripRoute").innerText = booking.pickup + " → " + booking.dropoff;
+    document.getElementById("tripDate").innerText = booking.rideDate + " " + booking.rideTime + " " + booking.ampm;
+    document.getElementById("tripPrice").innerText = "$" + booking.total;
+
+    // Tamamlandıysa durdur
+    if (booking.status === "completed") {
+      clearInterval(pollingInterval);
     }
   } catch (err) {
-    console.error("Status fetch error", err);
+    console.error("Polling error:", err);
   }
 }
 
-fetchStatus();
-const polling = setInterval(fetchStatus, 5000);
+// 3. INTERVAL BAŞLATMA
+const pollingInterval = setInterval(pollStatus, 5000);
+pollStatus(); // İlk yüklemede hemen çalıştır
+
 </script>
 </body>
 </html>
