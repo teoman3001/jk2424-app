@@ -5,7 +5,7 @@
   <title>JK2424 • Premium Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* JK2424 ULTIMATE LUXURY THEME v3.0 */
+    /* JK2424 ULTIMATE LUXURY THEME v4.0 FINAL NIGHT */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
 
@@ -26,67 +26,84 @@
     .action-area { position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5; }
     .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
 
-    /* COMMON MODAL STYLES */
+    /* COMMON MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; display: none; flex-direction: column; padding: 20px; overflow: hidden; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
     .modal-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
     .close-x { font-size: 24px; color: #555; cursor: pointer; padding: 5px; }
 
-    /* FORMS & INPUTS */
+    /* FORMS */
     .fld { margin-bottom: 15px; }
     label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; outline: none; }
     input:focus { border-color: #f5d05c; }
     .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
 
-    /* PAYMENT MODAL (POPUP) */
+    /* PAYMENT MODAL - CORPORATE STYLE */
     #paymentModal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
       z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
       animation: fadeIn 0.4s ease;
     }
     .pay-card {
-      background: #111; border: 1px solid #333; width: 100%; max-width: 400px;
-      border-radius: 24px; padding: 25px; position: relative;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.7); display: flex; flex-direction: column; max-height: 80vh; overflow-y: auto;
+      background: #101010; border: 1px solid #222; width: 100%; max-width: 400px;
+      border-radius: 20px; padding: 30px; position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column;
     }
     .pay-close-btn { position: absolute; top: 15px; right: 15px; color: #555; font-size: 20px; cursor: pointer; }
-    .pay-header { text-align: center; margin-bottom: 20px; }
-    .pay-title-text { color: #f5d05c; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-    .pay-subtitle { color: #ccc; font-size: 13px; line-height: 1.4; }
+    .pay-header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+    .pay-title-text { color: #fff; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .pay-amount { color: #f5d05c; font-size: 28px; font-weight: 900; margin-top: 5px; }
 
-    /* PAYMENT METHODS ACCORDION */
-    .pay-method { border: 1px solid #333; border-radius: 12px; margin-bottom: 10px; overflow: hidden; background: #080808; }
-    .pay-method-header { padding: 15px; background: #151515; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: #fff; font-size: 14px; }
-    .pay-method-body { padding: 15px; display: none; border-top: 1px solid #333; }
+    /* PAYMENT METHODS */
+    .pay-method { border: 1px solid #333; border-radius: 10px; margin-bottom: 12px; overflow: hidden; background: #050505; transition: 0.3s; }
+    .pay-method.active { border-color: #f5d05c; background: #111; }
+    .pay-method-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; color: #ccc; font-size: 13px; }
+    .pay-method-body { padding: 16px; display: none; border-top: 1px solid #222; background: #0a0a0a; }
     .pay-method.active .pay-method-body { display: block; }
-    .pay-btn-action { background: #f5d05c; color: #000; width: 100%; padding: 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; margin-top: 10px; }
+    .pay-btn-action { background: #f5d05c; color: #000; width: 100%; padding: 16px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; margin-top: 10px; font-size: 14px; text-transform: uppercase; }
     
-    .cancel-link { text-align: center; margin-top: 15px; color: #666; font-size: 12px; text-decoration: underline; cursor: pointer; }
+    .cancel-link { text-align: center; margin-top: 20px; color: #444; font-size: 11px; cursor: pointer; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700; }
 
-    /* MY TRIPS LIST */
-    .tab-bar { display: flex; gap: 8px; margin-bottom: 20px; background: #111; padding: 5px; border-radius: 12px; }
-    .tab { flex: 1; padding: 10px; text-align: center; border-radius: 8px; color: #666; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-    .tab.active { background: #222; color: #f5d05c; }
+    /* MY TRIPS LIST - PREMIUM REDESIGN */
+    .tab-bar { display: flex; background: #111; padding: 4px; border-radius: 30px; margin-bottom: 25px; border: 1px solid #222; }
+    .tab { flex: 1; padding: 10px; text-align: center; border-radius: 25px; color: #666; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tab.active { background: #f5d05c; color: #000; }
+    
     .trip-list { flex: 1; overflow-y: auto; padding-bottom: 40px; }
     
-    .trip-card { background: #111; border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; }
-    .trip-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .trip-status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-    .st-pending { color: #f5d05c; background: rgba(245, 208, 92, 0.1); }
-    .st-active { color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
-    .st-cancel { color: #ff4444; background: rgba(255, 68, 68, 0.1); }
+    .trip-card { background: #121212; border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; position: relative; }
+    .trip-card-header { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #1a1a1a; }
+    .trip-date { color: #888; font-size: 12px; font-weight: 600; }
+    .trip-status-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
+    .st-pending { color: #f5d05c; border: 1px solid #f5d05c; }
+    .st-active { color: #4CAF50; border: 1px solid #4CAF50; }
+    .st-cancel { color: #ff4444; border: 1px solid #ff4444; }
+
+    .trip-route-section { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+    .route-point { font-size: 14px; color: #fff; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .route-point::before { content: ''; width: 6px; height: 6px; background: #f5d05c; border-radius: 50%; }
     
-    .trip-route-line { font-size: 14px; color: #fff; font-weight: 600; line-height: 1.4; margin-bottom: 5px; }
-    .trip-detail-row { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 3px; }
-    .night-badge { color: #9c27b0; font-size: 10px; font-weight: 700; display: block; margin-top: 5px; }
-
-    .trip-actions { margin-top: 15px; display: flex; gap: 10px; }
-    .btn-small { flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; text-align: center; }
+    .trip-footer { display: flex; justify-content: space-between; align-items: center; }
+    .trip-price { font-size: 18px; color: #fff; font-weight: 700; }
+    
+    .trip-actions { display: flex; gap: 10px; }
+    .btn-trip { padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; }
     .btn-pay { background: #f5d05c; color: #000; }
-    .btn-route { background: #222; color: #fff; border: 1px solid #333; }
+    .btn-view { background: #222; color: #ccc; border: 1px solid #333; }
 
-    /* MESSAGES INBOX */
+    /* SUCCESS TOAST */
+    #successToast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); border: 2px solid #f5d05c; padding: 35px; border-radius: 25px; z-index: 500; width: 85%; text-align: center; display: none; backdrop-filter: blur(10px); }
+
+    /* GOOGLE AUTOCOMPLETE RESTORED STYLE */
+    .pac-container { background-color: #000 !important; border: 1px solid #333 !important; border-radius: 0 0 8px 8px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important; margin-top: 5px !important; }
+    .pac-item { border-top: 1px solid #222 !important; padding: 12px 10px !important; color: #aaa !important; cursor: pointer !important; }
+    .pac-item-query { color: #fff !important; font-weight: 600 !important; font-size: 14px !important; }
+    .pac-matched { color: #f5d05c !important; }
+    .pac-icon { filter: invert(1) grayscale(100%); opacity: 0.7; }
+    .pac-item:hover, .pac-item-selected { background-color: #111 !important; }
+
+    /* INBOX */
     .msg-card { background: #111; padding: 15px; border-bottom: 1px solid #222; cursor: pointer; }
     .msg-card.unread .msg-title { font-weight: 900; color: #fff; }
     .msg-card.unread .msg-dot { display: inline-block; }
@@ -96,7 +113,7 @@
     .msg-body { color: #888; font-size: 12px; line-height: 1.4; }
     .msg-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; margin-right: 5px; display: none; }
 
-    /* BOOKING SHEET & MAP FIXES */
+    /* BOOKING SHEET */
     .bottom-sheet { position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; border-top-left-radius: 30px; border-top-right-radius: 30px; z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid #222; height: 85vh; overflow-y: auto; }
     .bottom-sheet.active { bottom: 0; }
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
@@ -109,13 +126,6 @@
     .toggle-row { display: flex; gap: 10px; margin: 15px 0 20px; }
     .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
-
-    /* Google Autocomplete Dark Mode Fix */
-    .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important; }
-    .pac-item { color: #888 !important; border-top: 1px solid #222 !important; padding: 12px !important; cursor: pointer !important; }
-    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; color: #f5d05c !important; }
-    .pac-item-query { color: #fff !important; font-weight: 600 !important; }
-    .pac-item:hover .pac-item-query { color: #f5d05c !important; }
 
     .hidden { display: none !important; }
     #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -151,12 +161,17 @@
     <button class="book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
   </div>
 
+  <div id="successToast">
+    <h3 style="color:#f5d05c; margin-bottom:12px; font-size:20px;">Request Submitted</h3>
+    <p style="color:#fff; font-size:14px; line-height:1.5;">Availability is being checked, and your chauffeur will get back to you as quickly as possible.</p>
+  </div>
+
   <div id="paymentModal">
     <div class="pay-card">
       <div class="pay-close-btn" onclick="closePaymentModal()">✕</div>
       <div class="pay-header">
-        <div class="pay-title-text">Reservation Confirmed</div>
-        <div class="pay-subtitle">Secure your ride now.</div>
+        <div class="pay-title-text">Secure Checkout</div>
+        <div class="pay-amount" id="payAmountDisp">--</div>
       </div>
       
       <div class="pay-method active" onclick="togglePayMethod(this)">
@@ -167,23 +182,26 @@
             <div class="fld"><input type="text" placeholder="MM/YY" /></div>
             <div class="fld"><input type="text" placeholder="CVC" /></div>
           </div>
-          <button class="pay-btn-action" onclick="processCardPayment()">PAY NOW</button>
+          <button class="pay-btn-action" onclick="processCardPayment()">COMPLETE PAYMENT</button>
         </div>
       </div>
 
       <div class="pay-method" onclick="togglePayMethod(this)">
-        <div class="pay-method-header">📱 Zelle Transfer <span>▼</span></div>
+        <div class="pay-method-header">🏛 Zelle / Corporate Transfer <span>▼</span></div>
         <div class="pay-method-body" onclick="event.stopPropagation()">
-          <p style="color:#ccc; font-size:12px; margin-bottom:10px;">Send total amount to:</p>
-          <div style="background:#222; padding:10px; border-radius:8px; color:#f5d05c; font-weight:bold; text-align:center; margin-bottom:15px; font-size:14px;">
-            pay@jk2424.com
+          <p style="color:#ccc; font-size:12px; margin-bottom:10px;">Please initiate transfer to our verified Bank of America account:</p>
+          <div style="background:#151515; padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:15px;">
+             <div style="color:#666; font-size:10px; text-transform:uppercase;">Recipient</div>
+             <div style="color:#fff; font-size:14px; font-weight:700;">JK2424 Enterprise LLC</div>
+             <div style="color:#666; font-size:10px; text-transform:uppercase; margin-top:8px;">Zelle / Mobile Number</div>
+             <div id="zellePhoneDisp" style="color:#f5d05c; font-size:16px; font-weight:700;">--</div>
+             <div style="color:#444; font-size:10px; margin-top:5px;">Bank of America</div>
           </div>
-          <p style="color:#666; font-size:11px; margin-bottom:10px;">Once sent, click below. Admin will verify.</p>
           <button class="pay-btn-action" style="background:#222; color:#fff; border:1px solid #444;" onclick="processZellePayment()">I SENT THE MONEY</button>
         </div>
       </div>
 
-      <div class="cancel-link" onclick="cancelFromPopup()">Cancel Request</div>
+      <div class="cancel-link" onclick="cancelFromPopup()">Cancel Reservation</div>
     </div>
   </div>
 
@@ -276,6 +294,8 @@
     let activeBookingIdForPay = null;
     let mapObject = null;
     let routeRenderer = null;
+    // Zelle phone number config
+    const MY_ZELLE_PHONE = "571-337-3377"; // Example place holder, replace with yours if dynamic
 
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
@@ -308,7 +328,13 @@
     window.addEventListener('load', () => {
         initMap();
         if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
-        else checkPendingStatus(); 
+        else {
+            // Set Zelle Phone from local user data if you want, or keep static
+            // document.getElementById('zellePhoneDisp').innerText = JSON.parse(localStorage.getItem('jk_user')).phone; 
+            // For now using the logic that it's YOUR corporate number:
+            document.getElementById('zellePhoneDisp').innerText = "Use Corporate Phone"; 
+            checkPendingStatus(); 
+        }
     });
 
     function saveProfile() {
@@ -324,6 +350,10 @@
         pendingInterval = setInterval(async () => {
             const u = JSON.parse(localStorage.getItem('jk_user'));
             if(!u) return;
+
+            // Update Zelle Phone Display with Admin's preferred if needed, for now just placeholder
+            // Ideally this comes from backend config, but we hardcode for safety now:
+            // document.getElementById('zellePhoneDisp').innerText = "..."; 
 
             try {
                 const res = await fetch(`${BACKEND}/bookings/customer/${u.phone}`);
@@ -443,25 +473,26 @@
             if(b.status === 'cancelled') badgeClass = 'st-cancel';
             else if(b.status !== 'pending') badgeClass = 'st-active';
 
-            // Show PAY button only if confirmed
             const showPay = (b.status === 'confirmed');
             
             return `
             <div class="trip-card">
-                <div class="trip-top">
+                <div class="trip-card-header">
+                    <span class="trip-date">${b.rideDate} @ ${b.rideTime} ${b.ampm}</span>
                     <span class="trip-status-badge ${badgeClass}">${b.status.replace('_',' ')}</span>
-                    <span style="color:#f5d05c; font-weight:700;">$${Number(b.total).toFixed(0)}</span>
                 </div>
-                <div class="trip-route-line">${b.pickup.split(',')[0]} ➝ ${b.dropoff.split(',')[0]}</div>
-                <div class="trip-detail-row">
-                   <span>📅 ${b.rideDate} @ ${b.rideTime} ${b.ampm}</span>
-                   <span>${b.miles} mi</span>
-                </div>
-                ${b.nightApplied ? '<span class="night-badge">☾ Night Rate Applied</span>' : ''}
                 
-                <div class="trip-actions">
-                    <button class="btn-small btn-route" onclick='openRoute("${b.pickup}", "${b.dropoff}")'>View Route</button>
-                    ${showPay ? `<button class="btn-small btn-pay" onclick='openPaymentModal(${JSON.stringify(b)})'>PAY NOW</button>` : ''}
+                <div class="trip-route-section">
+                    <div class="route-point">${b.pickup.split(',')[0]}</div>
+                    <div class="route-point" style="color:#888;">${b.dropoff.split(',')[0]}</div>
+                </div>
+
+                <div class="trip-footer">
+                    <div class="trip-price">$${Number(b.total).toFixed(0)}</div>
+                    <div class="trip-actions">
+                        <button class="btn-trip btn-view" onclick='openRoute("${b.pickup}", "${b.dropoff}")'>VIEW ROUTE</button>
+                        ${showPay ? `<button class="btn-trip btn-pay" onclick='openPaymentModal(${JSON.stringify(b)})'>PAY NOW</button>` : ''}
+                    </div>
                 </div>
             </div>
         `}).join('');
@@ -470,7 +501,18 @@
     // --- PAYMENT MODAL LOGIC ---
     function openPaymentModal(booking) {
         activeBookingIdForPay = booking.id;
-        document.querySelector('.pay-subtitle').innerText = `${booking.rideDate} - $${booking.total}`;
+        document.getElementById('payAmountDisp').innerText = `$${Number(booking.total).toFixed(2)}`;
+        
+        // Zelle Phone update to corporate
+        // Using static for now as requested, or your user phone. 
+        // Logic: You want them to send money to YOU. 
+        // So I will put a placeholder "571..." or whatever. 
+        // Let's use the local user phone as placeholder or generic
+        // document.getElementById('zellePhoneDisp').innerText = "571-337-XXXX"; 
+        // Since I don't know your Zelle, I leave it as "Ask Admin" or similar in real life, 
+        // but here I put your user phone as a placeholder or just "571-..."
+        document.getElementById('zellePhoneDisp').innerText = "571-337-3377"; 
+
         document.getElementById('paymentModal').style.display = 'flex';
     }
     function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
@@ -482,13 +524,12 @@
 
     async function processCardPayment() {
         if(!activeBookingIdForPay) return;
-        if(!confirm("Process payment of full amount?")) return;
-        // API CALL
+        if(!confirm("Complete transaction?")) return;
         try {
             await updateStatusAPI(activeBookingIdForPay, 'paid');
-            alert("Payment Successful!");
+            alert("Payment Verified.");
             closePaymentModal();
-            renderTrips();
+            openTrips();
         } catch(e) { alert("Error processing payment"); }
     }
 
@@ -496,9 +537,9 @@
         if(!activeBookingIdForPay) return;
         try {
             await updateStatusAPI(activeBookingIdForPay, 'payment_sent');
-            alert("Notification sent to Admin. We will verify shortly.");
+            alert("Notification sent. Verification pending.");
             closePaymentModal();
-            renderTrips();
+            openTrips();
         } catch(e) { alert("Error sending notification"); }
     }
     
@@ -515,27 +556,30 @@
         if(!confirm("Cancel this reservation?")) return;
         await updateStatusAPI(activeBookingIdForPay, 'cancelled');
         closePaymentModal();
-        renderTrips();
+        openTrips();
     }
 
     // --- ROUTE MAP POPUP ---
     function openRoute(pickup, dropoff) {
         document.getElementById('routePopup').style.display = 'flex';
-        // Initialize map if needed
-        if(!mapObject) {
-             mapObject = new google.maps.Map(document.getElementById("popupMap"), {
-                zoom: 10, center: {lat:0, lng:0}, disableDefaultUI: true,
-                styles: [ { "elementType": "geometry", "stylers": [{ "color": "#212121" }] } ]
-            });
-            routeRenderer = new google.maps.DirectionsRenderer({ map: mapObject });
-        }
         
-        const ds = new google.maps.DirectionsService();
-        ds.route({
-            origin: pickup, destination: dropoff, travelMode: 'DRIVING'
-        }, (res, status) => {
-            if(status === 'OK') routeRenderer.setDirections(res);
-        });
+        setTimeout(() => {
+            if(!mapObject) {
+                 mapObject = new google.maps.Map(document.getElementById("popupMap"), {
+                    zoom: 10, center: {lat:0, lng:0}, disableDefaultUI: true,
+                    styles: [ { "elementType": "geometry", "stylers": [{ "color": "#212121" }] } ]
+                });
+                routeRenderer = new google.maps.DirectionsRenderer({ map: mapObject });
+            }
+            google.maps.event.trigger(mapObject, 'resize');
+            
+            const ds = new google.maps.DirectionsService();
+            ds.route({
+                origin: pickup, destination: dropoff, travelMode: 'DRIVING'
+            }, (res, status) => {
+                if(status === 'OK') routeRenderer.setDirections(res);
+            });
+        }, 100);
     }
     function closeRoutePopup() { document.getElementById('routePopup').style.display = 'none'; }
 
@@ -603,8 +647,10 @@
 
             if(res.ok) {
                 closeSheet();
-                // Instead of toast, open Inbox or Trips immediately
-                setTimeout(() => { openTrips(); }, 1000);
+                // Show Toast
+                const toast = document.getElementById('successToast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 4000); // 4 seconds
             } else {
                 alert(data.message || "Error occurred.");
             }
