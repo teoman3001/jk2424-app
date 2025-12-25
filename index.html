@@ -39,7 +39,7 @@
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; outline: none; }
     input:focus { border-color: #f5d05c; }
 
-    /* AM/PM BUTONLARI (ESKİ GENİŞ VE DOLGUN HALİ) */
+    /* AM/PM BUTTONS - PRESERVED WIDE STYLE */
     .toggle-row { display: flex; gap: 10px; margin: 15px 0 20px; }
     .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
@@ -76,7 +76,7 @@
 
   <div id="sideMenu" class="side-menu">
     <div class="close-x" style="text-align:right;" onclick="toggleMenu(false)">✕</div>
-    <div class="menu-item" onclick="openTrips()">🚗 My Trips (Yolculuklarım)</div>
+    <div class="menu-item" onclick="openTrips()">🚗 My Trips</div>
     <div class="menu-item" onclick="alert('Support connected')">💬 Support</div>
   </div>
 
@@ -85,8 +85,8 @@
   </div>
 
   <div id="successToast">
-    <h3 style="color:#f5d05c; margin-bottom:12px; font-size:20px;">Talebiniz İletilmiştir</h3>
-    <p style="color:#fff; font-size:14px; line-height:1.5;">Müsaitlik kontrol edilip şoförünüz en hızlı şekilde size dönüş yapacaktır.</p>
+    <h3 style="color:#f5d05c; margin-bottom:12px; font-size:20px;">Request Submitted</h3>
+    <p style="color:#fff; font-size:14px; line-height:1.5;">Availability is being checked, and your chauffeur will get back to you as quickly as possible.</p>
   </div>
 
   <div id="profileModal">
