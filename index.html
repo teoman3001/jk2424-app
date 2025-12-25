@@ -5,12 +5,13 @@
   <title>JK2424 • Premium Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* JK2424 LUXURY INTERFACE */
+    /* JK2424 LUXURY SIGNATURE STYLE */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
 
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
+    /* UI ELEMENTS */
     .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
     .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
@@ -18,6 +19,7 @@
     .action-area { position: absolute; bottom: 60px; width: 100%; display: flex; justify-content: center; z-index: 5; }
     .book-btn { background: #f5d05c; color: #000; border: none; padding: 18px 40px; border-radius: 40px; font-weight: 900; font-size: 15px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
 
+    /* PANEL & FORM */
     .bottom-sheet { 
         position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; 
         border-top-left-radius: 30px; border-top-right-radius: 30px; 
@@ -46,13 +48,10 @@
     .total-val { font-size: 24px; color: #f5d05c; font-weight: 900; }
 
     .hidden { display: none !important; }
-
-    /* GOOGLE AUTOCOMPLETE STYLING */
     .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
     .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
     .pac-item-query { color: #fff !important; }
     .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; }
-
     #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
   </style>
 </head>
@@ -123,7 +122,6 @@
     let currentAmpm = 'AM';
     let lastQuote = null;
 
-    // AUTO-FORMATTERS
     function formatDate(i) {
         let v = i.value.replace(/\D/g, '');
         if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
@@ -142,8 +140,10 @@
             styles: [
                 { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
                 { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "off" }] },
                 { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] },
+                { "featureType": "transit", "stylers": [{ "visibility": "off" }] }
             ]
         });
         const opt = { componentRestrictions: { country: 'us' } };
@@ -168,11 +168,7 @@
 
     function openSheet() { document.getElementById('sheet').classList.add('active'); }
     function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
-    function setAmpm(v) { 
-        currentAmpm = v; 
-        document.getElementById('amBtn').classList.toggle('active', v==='AM'); 
-        document.getElementById('pmBtn').classList.toggle('active', v==='PM'); 
-    }
+    function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
 
     function toggleStep(s) {
         document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
@@ -184,34 +180,24 @@
         const p = document.getElementById('pickup').value;
         const d = document.getElementById('dropoff').value;
         const b = document.getElementById('calcBtn');
-        if(!p || !d) return alert("Please select locations.");
+        if(!p || !d) return alert("Select locations.");
         
         try {
-            b.innerText = "Processing..."; b.disabled = true;
-            // Dinamik URL oluşturma
-            const url = `${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`;
-            const res = await fetch(url);
+            b.innerText = "Connecting..."; b.disabled = true;
+            const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
             const data = await res.json();
             
             if(data.success && data.pricing) {
                 const pr = data.pricing;
                 lastQuote = { ...pr, pickup:p, dropoff:d, ampm:currentAmpm };
-                
-                // VERİLERİ YAZ (Hata kontrolü eklenerek)
                 document.getElementById('resDist').innerText = (pr.miles || 0) + " miles";
                 document.getElementById('resExtra').innerText = `$${(pr.extraCost || 0).toFixed(2)} (${pr.extraMiles || 0} mi x $2.00)`;
                 document.getElementById('resNight').innerText = pr.nightApplied ? "Yes (x1.25)" : "No";
                 document.getElementById('resTotal').innerText = "$" + (pr.total || 0).toFixed(2);
-                
                 toggleStep(2);
-            } else {
-                alert("Could not calculate price. Please check locations.");
             }
-        } catch (e) { 
-            alert("Connection error. Please try again."); 
-        } finally { 
-            b.innerText = "Calculate Price"; b.disabled = false; 
-        }
+        } catch (e) { alert("Calculating... try again."); }
+        finally { b.innerText = "Calculate Price"; b.disabled = false; }
     }
 
     async function sendBooking() {
