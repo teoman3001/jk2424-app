@@ -40,22 +40,22 @@ async function calculatePrice() {
         let finalHr = (currentAmpm === 'PM' && hr !== 12) ? hr + 12 : (currentAmpm === 'AM' && hr === 12) ? 0 : hr;
         const isNight = (finalHr >= 22 || finalHr < 5);
 
-        // API ÇAĞRISI
         const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
-        
-        if (!res.ok) throw new Error("Server error");
         const data = await res.json();
         
-        // GÜVENLİ VERİ OKUMA (toFixed Hatasını Çözer)
         if(data.success && data.pricing) {
             const pricing = data.pricing;
             lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:pricing.total, miles:pricing.miles };
             
-            // 3. RESİM DETAYLARI
+            // ESTIMATE DETAILS
             document.getElementById('resDist').innerText = (pricing.miles || 0) + " miles";
-            document.getElementById('resBase').innerText = "$65 (inc. 10 mi)";
-            document.getElementById('resExtra').innerText = pricing.extraCost ? `$${pricing.extraCost.toFixed(2)} (${pricing.extraMiles} mi x $2.00)` : "$0.00";
-            document.getElementById('resNight').innerText = pricing.nightApplied ? "Yes (x1.25)" : "No";
+            document.getElementById('resBase').innerText = `$${pricing.baseFare || 65} (inc. ${pricing.includedMiles || 10} mi)`;
+            
+            // Dinamik Mile Rate Gösterimi ($2.00/mile vb.)
+            const rate = pricing.extraRate ? pricing.extraRate.toFixed(2) : "2.00";
+            document.getElementById('resExtra').innerText = pricing.extraCost ? `$${pricing.extraCost.toFixed(2)} (${pricing.extraMiles} mi x $${rate})` : `$0.00`;
+            
+            document.getElementById('resNight').innerText = pricing.nightApplied ? `Yes (x${pricing.nightMultiplier})` : "No";
             document.getElementById('resTotal').innerText = pricing.total ? "$" + pricing.total.toFixed(2) : "$0.00";
             
             document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nSchedule: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nTotal Price: $${(pricing.total || 0).toFixed(2)}`;
@@ -65,24 +65,26 @@ async function calculatePrice() {
             document.getElementById('sectionStep2').classList.remove('hidden');
             document.getElementById('headerBack').style.visibility = 'visible';
             window.scrollTo(0,0);
-        } else {
-            throw new Error("Invalid pricing data");
         }
-    } catch (e) { 
-        console.error("Calculate Error:", e);
-        alert("Server is waking up. Please wait 10 seconds and try again."); 
-    } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
+    } catch (e) { alert("Server error. Try again."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
 
 async function sendBooking() {
     const btn = document.getElementById('bookBtn');
-    if(!document.getElementById('fullName').value) return alert("Name required.");
+    const name = document.getElementById('fullName').value;
+    if(!name) return alert("Name required.");
     try {
         btn.innerText = "Sending..."; btn.disabled = true;
         const res = await fetch(`${BACKEND}/bookings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...lastQuote, customerName: document.getElementById('fullName').value, customerPhone: document.getElementById('phone').value })
+            body: JSON.stringify({ 
+                ...lastQuote, 
+                customerName: name, 
+                customerPhone: document.getElementById('phone').value,
+                customerEmail: document.getElementById('email').value, //
+                notes: document.getElementById('notes').value //
+            })
         });
         const data = await res.json();
         if(data.success) {
