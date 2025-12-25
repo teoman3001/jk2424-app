@@ -5,7 +5,6 @@ let lastQuote = null;
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('amBtn').onclick = () => { currentAmpm = 'AM'; document.getElementById('amBtn').classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); };
     document.getElementById('pmBtn').onclick = () => { currentAmpm = 'PM'; document.getElementById('pmBtn').classList.add('active'); document.getElementById('amBtn').classList.remove('active'); };
-
     if (typeof google !== 'undefined') {
         const opt = { componentRestrictions: { country: 'us' } };
         new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
@@ -41,30 +40,34 @@ async function calculatePrice() {
         let finalHr = (currentAmpm === 'PM' && hr !== 12) ? hr + 12 : (currentAmpm === 'AM' && hr === 12) ? 0 : hr;
         const isNight = (finalHr >= 22 || finalHr < 5);
 
+        // API ÇAĞRISI
         const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
+        
+        if (!res.ok) throw new Error("Server response error");
         const data = await res.json();
         
         if(data.success) {
             const pricing = data.pricing;
             lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:pricing.total, miles:pricing.miles };
             
-            // 3. RESİMDEKİ DETAYLARI DOLDUR
+            // 3. RESİM DETAYLARI
             document.getElementById('resDist').innerText = pricing.miles + " miles";
             document.getElementById('resBase').innerText = "$65 (inc. 10 mi)";
             document.getElementById('resExtra').innerText = `$${pricing.extraCost.toFixed(2)} (${pricing.extraMiles} mi x $2.00)`;
             document.getElementById('resNight').innerText = pricing.nightApplied ? "Yes (x1.25)" : "No";
             document.getElementById('resTotal').innerText = "$" + pricing.total.toFixed(2);
             
-            // STEP 2 ÖZETİ
-            document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nAt: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nPrice: $${pricing.total.toFixed(2)}`;
+            document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nSchedule: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nTotal Price: $${pricing.total.toFixed(2)}`;
             
-            // EKRANLARI GÖSTER
             document.getElementById('sectionStep1').classList.add('hidden');
             document.getElementById('estimateResultArea').classList.remove('hidden');
             document.getElementById('sectionStep2').classList.remove('hidden');
             document.getElementById('headerBack').style.visibility = 'visible';
         }
-    } catch (e) { alert("Error."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
+    } catch (e) { 
+        console.error("Calculate Error:", e);
+        alert("Server connection failed. If you just updated, please wait 30 seconds and refresh the page."); 
+    } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
 
 async function sendBooking() {
@@ -82,5 +85,5 @@ async function sendBooking() {
             localStorage.setItem("jk2424_booking_id", data.booking.id);
             window.location.href = "track.html?id=" + data.booking.id;
         }
-    } catch (e) { alert("Failed."); }
+    } catch (e) { alert("Failed."); } finally { btn.innerText = "Confirm Booking"; btn.disabled = false; }
 }
