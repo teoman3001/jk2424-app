@@ -4,7 +4,52 @@
   <meta charset="UTF-8" />
   <title>JK2424 • Premium EQS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* MERCEDES EQS BLACK INTERIOR DESIGN */
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body, html { height: 100%; width: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
+
+    /* FULL MAP BACKGROUND */
+    #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: #111; }
+
+    /* TOP NAV */
+    .top-nav { position: absolute; top: 50px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .menu-circle { width: 50px; height: 50px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .logo-pill { background: rgba(0,0,0,0.85); border: 1.5px solid #c0c0c0; padding: 10px 25px; border-radius: 30px; color: #fff; font-weight: 900; letter-spacing: 2px; font-size: 14px; }
+
+    /* TRIGGER BUTTON (SAFE ZONE) */
+    .action-area { position: absolute; bottom: 85px; width: 100%; display: flex; justify-content: center; z-index: 5; }
+    .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+
+    /* EQS BOTTOM SHEET (FÜME/GÜMÜŞ) */
+    .bottom-sheet { 
+        position: fixed; bottom: -110%; left: 0; right: 0; background: #0c0c0c; 
+        border-top-left-radius: 35px; border-top-right-radius: 35px; 
+        z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+        border-top: 1px solid #333; max-height: 90vh; overflow-y: auto;
+    }
+    .bottom-sheet.active { bottom: 0; }
+    .handle { width: 45px; height: 5px; background: #333; border-radius: 3px; margin: -10px auto 25px; }
+
+    .fld { margin-bottom: 18px; }
+    label { display: block; font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
+    input, textarea { width: 100%; background: #151515; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 14px; font-size: 14px; outline: none; }
+    input:focus { border-color: #c0c0c0; background: #1a1a1a; }
+
+    .toggle-row { display: flex; gap: 10px; margin: 15px 0; }
+    .t-btn { flex: 1; padding: 16px; border-radius: 14px; border: 1px solid #222; background: #111; color: #fff; font-weight: 700; cursor: pointer; }
+    .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
+
+    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 18px; font-weight: 900; font-size: 14px; text-transform: uppercase; cursor: pointer; }
+
+    .est-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 5px solid #f5d05c; }
+    .est-total { font-size: 28px; color: #f5d05c; font-weight: 900; margin-top: 10px; display: block; }
+    
+    .hidden { display: none; }
+    .pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 15px !important; z-index: 9999 !important; }
+    .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
+    .pac-item-query { color: #fff !important; }
+  </style>
 </head>
 <body>
 
@@ -16,43 +61,129 @@
   </div>
 
   <div class="action-area">
-    <button class="main-book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
+    <button class="book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
   </div>
 
   <div class="bottom-sheet" id="sheet">
-    <div class="handle"></div>
+    <div class="handle" onclick="closeSheet()"></div>
     
     <div id="step1">
-      <h2 style="color:#fff; margin-bottom:20px; font-size:18px;">Trip Details</h2>
-      <div class="fld"><label>Pickup</label><input id="pickup" type="text" placeholder="Pickup location" /></div>
-      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Optional stop" /></div>
-      <div class="fld"><label>Drop-off</label><input id="dropoff" type="text" placeholder="Drop-off location" /></div>
+      <h2 style="color:#fff; margin-bottom:20px; font-size:20px; font-weight:900;">Trip Details</h2>
+      <div class="fld"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Where from?" /></div>
+      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add stop (optional)" /></div>
+      <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
       <div style="display:flex; gap:10px;">
         <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
         <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
       </div>
       <div class="toggle-row">
-        <button id="amBtn" class="t-btn active">AM</button>
-        <button id="pmBtn" class="t-btn">PM</button>
+        <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
+        <button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button>
       </div>
-      <button class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
+      <button class="primary-btn" id="calcBtn" onclick="calculatePrice()">Calculate Price</button>
     </div>
 
-    <div id="step2" style="display:none;">
-      <h2 style="color:#fff; margin-bottom:15px; font-size:18px;">Confirm Booking</h2>
+    <div id="step2" class="hidden">
+      <h2 style="color:#fff; margin-bottom:15px; font-size:20px; font-weight:900;">Reservation Details</h2>
       <div class="est-card">
         <div id="resDist" style="color:#aaa; font-size:13px;"></div>
-        <div id="resTotal" class="est-total"></div>
+        <span id="resTotal" class="est-total">--</span>
       </div>
       <div class="fld"><label>Full Name</label><input id="fullName" type="text" placeholder="Enter your name" /></div>
-      <div class="fld"><label>Phone</label><input id="phone" type="tel" placeholder="Enter phone" /></div>
+      <div class="fld"><label>Phone</label><input id="phone" type="tel" placeholder="Enter mobile" /></div>
       <div class="fld"><label>Email</label><input id="email" type="email" placeholder="Enter email" /></div>
-      <div class="fld"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#151515; border:1px solid #222; border-radius:12px; color:#fff; padding:15px; outline:none;"></textarea></div>
+      <div class="fld"><label>Notes</label><textarea id="notes" rows="2" placeholder="Luggage, gate codes, etc."></textarea></div>
       <button class="primary-btn" onclick="sendBooking()">Confirm Reservation</button>
     </div>
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
-  <script src="app.js"></script>
+  <script>
+    // JK2424 CONSOLIDATED LOGIC
+    const BACKEND = 'https://jk2424-backend.onrender.com';
+    let currentAmpm = 'AM';
+    let lastQuote = null;
+
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 38.9072, lng: -77.0369 },
+            zoom: 12,
+            disableDefaultUI: true,
+            styles: [
+                { "elementType": "geometry", "stylers": [ { "color": "#212121" } ] },
+                { "elementType": "labels.text.fill", "stylers": [ { "color": "#757575" } ] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [ { "color": "#303030" } ] }
+            ]
+        });
+
+        const opt = { componentRestrictions: { country: 'us' } };
+        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+    }
+
+    function openSheet() { document.getElementById('sheet').classList.add('active'); }
+    function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
+
+    function setAmpm(val) {
+        currentAmpm = val;
+        document.getElementById('amBtn').classList.toggle('active', val === 'AM');
+        document.getElementById('pmBtn').classList.toggle('active', val === 'PM');
+    }
+
+    async function calculatePrice() {
+        const btn = document.getElementById('calcBtn');
+        const p = document.getElementById('pickup').value;
+        const d = document.getElementById('dropoff').value;
+        if(!p || !d) return alert("Please enter locations.");
+
+        try {
+            btn.innerText = "Processing..."; btn.disabled = true;
+            const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
+            const data = await res.json();
+            
+            if(data.success) {
+                lastQuote = { ...data.pricing, pickup:p, dropoff:d, ampm:currentAmpm };
+                document.getElementById('resDist').innerText = data.pricing.miles + " miles total distance";
+                document.getElementById('resTotal').innerText = "$" + data.pricing.total.toFixed(2);
+                
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+                window.scrollTo(0,0);
+            }
+        } catch (e) { alert("Server connection error. Please try again."); } 
+        finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
+    }
+
+    async function sendBooking() {
+        if(!document.getElementById('fullName').value) return alert("Name is required.");
+        try {
+            const res = await fetch(`${BACKEND}/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    ...lastQuote, 
+                    customerName: document.getElementById('fullName').value,
+                    customerPhone: document.getElementById('phone').value,
+                    customerEmail: document.getElementById('email').value,
+                    notes: document.getElementById('notes').value
+                })
+            });
+            const data = await res.json();
+            if(data.success) {
+                localStorage.setItem("jk2424_booking_id", data.booking.id);
+                window.location.href = "track.html?id=" + data.booking.id;
+            }
+        } catch (e) { alert("Booking failed."); }
+    }
+
+    function checkLastBooking() {
+        const id = localStorage.getItem("jk2424_booking_id");
+        if(id) window.location.href = "track.html?id=" + id;
+        else alert("No active booking found.");
+    }
+
+    google.maps.event.addDomListener(window, 'load', initMap);
+  </script>
 </body>
 </html>
