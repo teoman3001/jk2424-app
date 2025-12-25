@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • EQS Black</title>
+  <title>JK2424 • Premium EQS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="style.css">
 </head>
@@ -11,48 +11,44 @@
   <div id="map"></div>
 
   <div class="top-nav">
-    <div class="menu-btn" onclick="checkLastBooking()">☰</div>
-    <div class="brand-pill">JK2424</div>
+    <div class="menu-circle" onclick="checkLastBooking()">☰</div>
+    <div class="logo-pill">JK2424</div>
   </div>
 
-  <div class="main-btn-container">
-    <button class="book-trigger" onclick="toggleSheet(true)">
-      Book Luxury Ride
-    </button>
+  <div class="action-area">
+    <button class="main-book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
   </div>
 
   <div class="bottom-sheet" id="sheet">
     <div class="handle"></div>
     
     <div id="step1">
-      <h3 style="color:#fff; margin-bottom:20px; font-weight:800;">Trip Details</h3>
-      <div class="input-field"><label>Pickup</label><input id="pickup" type="text" placeholder="Where from?" /></div>
-      <div class="input-field"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add stop (optional)" /></div>
-      <div class="input-field"><label>Drop-off</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
+      <h2 style="color:#fff; margin-bottom:20px; font-size:18px;">Trip Details</h2>
+      <div class="fld"><label>Pickup</label><input id="pickup" type="text" placeholder="Pickup location" /></div>
+      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Optional stop" /></div>
+      <div class="fld"><label>Drop-off</label><input id="dropoff" type="text" placeholder="Drop-off location" /></div>
       <div style="display:flex; gap:10px;">
-        <div class="input-field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
-        <div class="input-field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
+        <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
+        <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
       </div>
-      <div class="ampm-row">
+      <div class="toggle-row">
         <button id="amBtn" class="t-btn active">AM</button>
         <button id="pmBtn" class="t-btn">PM</button>
       </div>
-      <button class="book-trigger" style="width:100%; margin-top:20px;" onclick="calculatePrice()">Calculate Price</button>
+      <button class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
     </div>
 
     <div id="step2" style="display:none;">
-      <h3 style="color:#fff; margin-bottom:15px; font-weight:800;">Confirm Booking</h3>
+      <h2 style="color:#fff; margin-bottom:15px; font-size:18px;">Confirm Booking</h2>
       <div class="est-card">
-        <div id="resDist" class="est-line"></div>
-        <div id="resExtra" class="est-line" style="color:#666; font-size:11px;"></div>
-        <span id="resTotal" class="est-total"></span>
+        <div id="resDist" style="color:#aaa; font-size:13px;"></div>
+        <div id="resTotal" class="est-total"></div>
       </div>
-      <input id="fullName" type="text" placeholder="Full Name" />
-      <input id="phone" type="tel" placeholder="Mobile Phone" />
-      <input id="email" type="email" placeholder="Email Address" />
-      <textarea id="notes" rows="2" placeholder="Notes for your chauffeur..."></textarea>
-      <button class="book-trigger" style="width:100%;" onclick="sendBooking()">Confirm Reservation</button>
-      <p onclick="toggleStep(1)" style="color:#888; text-align:center; font-size:12px; margin-top:15px; cursor:pointer;">❮ Edit trip details</p>
+      <div class="fld"><label>Full Name</label><input id="fullName" type="text" placeholder="Enter your name" /></div>
+      <div class="fld"><label>Phone</label><input id="phone" type="tel" placeholder="Enter phone" /></div>
+      <div class="fld"><label>Email</label><input id="email" type="email" placeholder="Enter email" /></div>
+      <div class="fld"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#151515; border:1px solid #222; border-radius:12px; color:#fff; padding:15px; outline:none;"></textarea></div>
+      <button class="primary-btn" onclick="sendBooking()">Confirm Reservation</button>
     </div>
   </div>
 
