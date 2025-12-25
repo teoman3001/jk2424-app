@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <header>
     <div class="back-btn" id="headerBack" onclick="goBack()">❮</div>
     <div class="header-logo">JK2424</div>
@@ -18,14 +17,19 @@
     <div id="sectionStep1">
       <div class="card">
         <div class="step-title">Step 1 · Trip Details</div>
-        <div class="field"><label>Pickup</label><input id="pickup" type="text" /></div>
-        <div class="field"><label>Extra Stop</label><input id="stop" type="text" /></div>
-        <div class="field"><label>Drop-off</label><input id="dropoff" type="text" /></div>
+        <div class="field"><label>Pickup</label><input id="pickup" type="text" placeholder="Where from?" /></div>
+        <div class="field"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add a stop" /></div>
+        <div class="field"><label>Drop-off</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
         <div style="display:flex; gap:10px;">
-          <input id="rideDate" type="text" placeholder="Date" style="flex:1" />
-          <input id="rideTime" type="text" placeholder="Time" style="flex:1" />
+          <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
+          <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
         </div>
-        <button id="calcBtn" class="primary-btn" onclick="calculatePrice()">Calculate</button>
+        <label>Time Period</label>
+        <div class="toggle-row">
+          <button id="amBtn" class="t-btn active">AM</button>
+          <button id="pmBtn" class="t-btn">PM</button>
+        </div>
+        <button id="calcBtn" class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
       </div>
     </div>
 
@@ -33,17 +37,19 @@
       <div class="card">
         <div class="step-title">Step 2 · Passenger</div>
         <div class="summary-box">
-          <div id="sumRoute"></div>
+          <div id="sumRoute" style="font-size: 12px; color: #aaa;"></div>
           <div id="sumTotal" class="sum-val"></div>
         </div>
-        <input id="fullName" type="text" placeholder="Name" />
-        <input id="phone" type="tel" placeholder="Phone" />
-        <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm</button>
+        <div class="field"><label>Full Name</label><input id="fullName" type="text" /></div>
+        <div class="field"><label>Phone</label><input id="phone" type="tel" /></div>
+        <div class="field"><label>Email</label><input id="email" type="email" /></div>
+        <div class="field"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#080808; border:1px solid #333; color:#fff; border-radius:12px; padding:10px;"></textarea></div>
+        <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Reservation</button>
       </div>
     </div>
   </div>
 
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
   <script src="app.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places" async defer></script>
 </body>
 </html>
