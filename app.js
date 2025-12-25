@@ -42,31 +42,29 @@ async function calculatePrice() {
 
         // API ÇAĞRISI
         const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
-        
-        if (!res.ok) throw new Error("Server response error");
         const data = await res.json();
         
         if(data.success) {
             const pricing = data.pricing;
             lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:pricing.total, miles:pricing.miles };
             
-            // 3. RESİM DETAYLARI
+            // DETAYLARI DOLDUR
             document.getElementById('resDist').innerText = pricing.miles + " miles";
             document.getElementById('resBase').innerText = "$65 (inc. 10 mi)";
             document.getElementById('resExtra').innerText = `$${pricing.extraCost.toFixed(2)} (${pricing.extraMiles} mi x $2.00)`;
             document.getElementById('resNight').innerText = pricing.nightApplied ? "Yes (x1.25)" : "No";
             document.getElementById('resTotal').innerText = "$" + pricing.total.toFixed(2);
             
-            document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nSchedule: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nTotal Price: $${pricing.total.toFixed(2)}`;
+            document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nAt: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nPrice: $${pricing.total.toFixed(2)}`;
             
             document.getElementById('sectionStep1').classList.add('hidden');
             document.getElementById('estimateResultArea').classList.remove('hidden');
             document.getElementById('sectionStep2').classList.remove('hidden');
             document.getElementById('headerBack').style.visibility = 'visible';
+            window.scrollTo(0,0);
         }
     } catch (e) { 
-        console.error("Calculate Error:", e);
-        alert("Server connection failed. If you just updated, please wait 30 seconds and refresh the page."); 
+        alert("Server is waking up. Please wait 10 seconds and try again."); 
     } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
 
