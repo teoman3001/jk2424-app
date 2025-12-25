@@ -5,6 +5,7 @@
   <title>JK2424 • Live Trip Status</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* JK2424 Dark Tracking Theme */
     * { box-sizing:border-box; margin:0; padding:0; }
     body { background:#000; color:#f5f5f5; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; display:flex; justify-content:center; padding:24px 12px; }
     .container { width:100%; max-width:420px; }
@@ -31,7 +32,7 @@
         <div id="tripDetails">
           <div class="line"><strong>Pickup:</strong> <br><span id="tripPickup" style="color:#eee;">---</span></div>
           <div class="line"><strong>Drop-off:</strong> <br><span id="tripDropoff" style="color:#eee;">---</span></div>
-          <div class="line"><strong>Total Price:</strong> <span id="tripPrice" class="highlight">---</span></div>
+          <div class="line"><strong>Status:</strong> <span id="tripStatusText" class="highlight">---</span></div>
         </div>
       </div>
     </div>
@@ -46,144 +47,96 @@ const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("id");
 
 let map, directionsService, directionsRenderer, driverMarker;
-let routePath = [], routeIndex = 0, moveInterval = null, currentStatus = null;
+let currentStatus = null;
 
-// 1. MAP INITIALIZATION (v1.6 KRİSTAL NETLİKTE STİL)
+// 1. Harita Stili ve Başlatma
 function initMap(center) {
   if (map) return;
   document.getElementById("map").style.display = "block";
   map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 14, 
-    center: center, 
-    disableDefaultUI: true,
+    zoom: 14, center: center, disableDefaultUI: true,
     styles: [
       { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
-      { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-      { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-      { "elementType": "labels.text.stroke", "stylers": [{ "color": "#212121" }] },
-      { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#757575" }] },
-      { "featureType": "poi", "elementType": "labels.text", "stylers": [{ "visibility": "off" }] }, 
       { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#2c2c2c" }] },
-      { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#f5d05c" }, { "weight": 0.1 }, { "fontSize": "8px" }] }, // Tam istediğin küçük sarı yazılar
+      { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#f5d05c" }] },
       { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
     ]
   });
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({
-    suppressMarkers: true,
-    polylineOptions: { strokeColor: "#f5d05c", strokeWeight: 4, strokeOpacity: 0.9 }
+    suppressMarkers: false,
+    polylineOptions: { strokeColor: "#f5d05c", strokeWeight: 4 }
   });
   directionsRenderer.setMap(map);
 }
 
-// 2. ROTA YÜKLEME VE SİMÜLASYON
-async function loadRoute(origin, destination, showEta = true) {
-  directionsService.route({
-    origin: origin, destination: destination,
-    travelMode: "DRIVING", drivingOptions: { departureTime: new Date(), trafficModel: "bestguess" }
-  }, (result, status) => {
-    if (status !== "OK") return;
-    directionsRenderer.setDirections(result);
-    routePath = result.routes[0].overview_path;
-    routeIndex = 0;
-    
-    if (!driverMarker) {
-      driverMarker = new google.maps.Marker({
-        position: routePath[0], map: map,
-        icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 5, fillColor: "#f5d05c", fillOpacity: 1, strokeWeight: 1, strokeColor: "#000" }
-      });
-    }
-    
-    if (showEta) {
-      document.getElementById("etaBox").style.display = "block";
-      const leg = result.routes[0].legs[0];
-      const etaText = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
-      document.getElementById("etaBox").innerText = `🚗 Driver moving • ETA: ${etaText}`;
-    }
-    startDriverSimulation();
-  });
-}
-
-function startDriverSimulation() {
-  if (moveInterval) clearInterval(moveInterval);
-  moveInterval = setInterval(() => {
-    routeIndex++;
-    if (routeIndex >= routePath.length) { clearInterval(moveInterval); return; }
-    const nextPos = routePath[routeIndex];
-    driverMarker.setPosition(nextPos);
-    map.panTo(nextPos);
-  }, 2000);
-}
-
-// 3. CENTRAL STATUS ROUTER
-function routeByStatus(status, b) {
+// 2. Duruma Göre Ekranı Güncelle
+function updateUIByStatus(status, b) {
   if (status === currentStatus) return; 
   currentStatus = status;
 
   const title = document.getElementById("statusTitle");
   const text = document.getElementById("statusText");
+  const statusLabel = document.getElementById("tripStatusText");
+  statusLabel.innerText = status.toUpperCase().replace('_', ' ');
 
   switch (status) {
-    case "on_the_way":
-      initMap({ lat: 38.9072, lng: -77.0369 });
-      loadRoute(b.pickup, b.dropoff, true);
-      title.innerText = "Driver on the Way";
-      text.innerText = "Your chauffeur is heading to pickup location.";
+    case "pending":
+      title.innerText = "Request Sent";
+      text.innerText = "Waiting for chauffeur confirmation.";
       break;
-
-    case "arrived":
-      if (moveInterval) clearInterval(moveInterval);
-      document.getElementById("etaBox").style.display = "none";
-      title.innerText = "Driver Arrived";
-      text.innerText = "Your vehicle is waiting outside.";
-      title.style.color = "#4CAF50";
-      break;
-
-    case "in_progress":
-      document.getElementById("tripDetails").style.display = "none";
-      document.getElementById("tripDivider").style.display = "none";
-      loadRoute(b.pickup, b.dropoff, false);
-      title.innerText = "Trip in Progress";
-      text.innerText = "Enjoy your premium ride.";
+    case "confirmed":
+      title.innerText = "Booking Confirmed";
+      text.innerText = "Your chauffeur is assigned and preparing.";
       title.style.color = "#f5d05c";
       break;
-
+    case "on_the_way":
+      initMap({ lat: 38.9072, lng: -77.0369 });
+      title.innerText = "Driver on the Way";
+      text.innerText = "Your chauffeur is heading to your location.";
+      break;
+    case "arrived":
+      title.innerText = "Driver Arrived";
+      text.innerText = "Your vehicle is waiting at the pickup spot.";
+      title.style.color = "#4CAF50";
+      break;
+    case "in_progress":
+      title.innerText = "Trip in Progress";
+      text.innerText = "Enjoy your premium ride.";
+      break;
     case "completed":
-      if (moveInterval) clearInterval(moveInterval);
-      if (driverMarker) driverMarker.setMap(null);
-      document.getElementById("map").style.display = "none";
-      document.getElementById("etaBox").style.display = "none";
-      document.getElementById("tripDetails").style.display = "block";
       title.innerText = "Trip Completed";
       text.innerText = "Thank you for choosing JK2424.";
-      clearInterval(pollingInterval);
+      document.getElementById("map").style.display = "none";
       break;
-    
     case "cancelled":
-        title.innerText = "Cancelled";
-        text.innerText = "Reservation has been cancelled.";
-        title.style.color = "#FF5252";
-        break;
+      title.innerText = "Cancelled";
+      text.innerText = "This reservation has been cancelled.";
+      title.style.color = "#FF5252";
+      break;
   }
 }
 
-// 4. POLLING ENGINE
+// 3. Canlı Veri Çekme (Polling)
 async function pollStatus() {
-  if (!bookingId) return;
+  if (!bookingId) {
+    document.getElementById("statusTitle").innerText = "Error";
+    document.getElementById("statusText").innerText = "No Booking ID found.";
+    return;
+  }
   try {
     const res = await fetch(`${BACKEND_BASE}/bookings/${bookingId}`);
     const data = await res.json();
     if (data.success && data.booking) {
       const b = data.booking;
-      routeByStatus(b.status, b);
+      updateUIByStatus(b.status, b);
       document.getElementById("tripPickup").innerText = b.pickup;
       document.getElementById("tripDropoff").innerText = b.dropoff;
-      document.getElementById("tripPrice").innerText = "$" + Number(b.total).toFixed(2);
     }
-  } catch (err) { console.warn("Sync..."); }
+  } catch (err) { console.warn("Syncing with network..."); }
 }
 
-const pollingInterval = setInterval(pollStatus, 5000);
+setInterval(pollStatus, 5000); // 5 saniyede bir kontrol et
 pollStatus();
 </script>
 </body>
