@@ -21,6 +21,12 @@ function goBack() {
     document.getElementById('headerBack').style.visibility = 'hidden';
 }
 
+function checkLastBooking() {
+    const id = localStorage.getItem("jk2424_booking_id");
+    if(id) window.location.href = "track.html?id=" + id;
+    else alert("No active booking found.");
+}
+
 async function calculatePrice() {
     const btn = document.getElementById('calcBtn');
     const p = document.getElementById('pickup').value;
