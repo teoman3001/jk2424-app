@@ -15,15 +15,12 @@ header { width: 100%; max-width: 500px; display: flex; justify-content: space-be
 .step-pill { display: inline-block; padding: 5px 12px; border-radius: 20px; border: 1px solid #333; font-size: 10px; text-transform: uppercase; color: #aaa; margin-bottom: 15px; letter-spacing: 1px; }
 
 input, textarea { width: 100%; background: #050505; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none; margin-bottom: 12px; }
-input:focus { border-color: #f5d05c; }
+input:focus, textarea:focus { border-color: #f5d05c; background: #080808; }
 
-/* 3. RESİMDEKİ ŞIK TAHMİN KUTUSU */
 .estimate-details-card { background: #080808; border: 1px solid #222; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
 .est-title { font-size: 13px; color: #f5d05c; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; }
 .est-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #f5f5f5; }
-.est-row span:last-child { font-weight: 700; }
 .est-total-line { margin-top: 12px; padding-top: 12px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-.est-total-label { font-size: 14px; font-weight: 700; }
 .est-total-val { font-size: 22px; color: #f5d05c; font-weight: 900; }
 
 .toggle-row { display: flex; gap: 8px; margin-bottom: 15px; }
@@ -32,8 +29,7 @@ input:focus { border-color: #f5d05c; }
 
 .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; box-shadow: 0 10px 25px rgba(245,208,92,0.25); }
 
-/* GOOGLE ÖNERİLERİ - BEYAZLIK DÜZELTME */
-.pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 10px !important; margin-top: 5px !important; z-index: 9999 !important; }
+.pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 10px !important; z-index: 9999 !important; }
 .pac-item { border-top: 1px solid #222 !important; padding: 12px !important; color: #f5d05c !important; cursor: pointer; }
 .pac-item:hover, .pac-item-selected { background-color: #222 !important; }
 .pac-item-query { color: #fff !important; }
