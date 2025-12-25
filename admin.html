@@ -38,7 +38,7 @@
 
 <header>
   <h1>JK2424 ADMIN CENTER</h1>
-  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v2.0 OPS</div>
+  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v2.1 OPS</div>
 </header>
 
 <div class="wrap">
@@ -155,12 +155,12 @@ async function loadBookings() {
 async function updateStatus(id, newStatus) {
   if(!newStatus) return;
   try {
-    const res = await fetch(`${API_BASE}/bookings/${id}/status`, {
+    await fetch(`${API_BASE}/bookings/${id}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
     });
-    if (!res.ok) alert("Error updating status");
+    // Sessiz güncelleme
   } catch (e) { alert("Connection Failed"); }
 }
 
