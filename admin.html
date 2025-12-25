@@ -15,15 +15,12 @@
 </head>
 <body>
 <header><h1>JK2424 ADMIN CENTER</h1></header>
-<div class="wrap">
-  <div id="bookingList"></div>
-</div>
+<div class="wrap"><div id="bookingList"></div></div>
 <script>
 const API_BASE = 'https://jk2424-backend.onrender.com';
 const ACTIONS = [
-  { id: 'Approved', label: '✓ Approve (Choice)', color: '#28a745' },
-  { id: 'PaymentRequested', label: '💳 Request Zelle', color: '#f5d05c' },
-  { id: 'Confirmed', label: '⭐ Confirm Ride', color: '#007bff' },
+  { id: 'Approved', label: '✓ Approve (Show Payment)', color: '#28a745' },
+  { id: 'PaymentReceived', label: '💰 Payment Verified', color: '#007bff' },
   { id: 'cancelled', label: '✕ Cancel', color: '#dc3545' }
 ];
 
@@ -33,14 +30,11 @@ async function loadBookings() {
     const data = await res.json();
     document.getElementById('bookingList').innerHTML = data.bookings.map(b => `
       <div class="card">
-        <div style="color:#f5d05c; font-weight:bold; margin-bottom:10px;">
-          ${b.customerName || 'Client'} - ${b.rideDate || 'No Date'} @ ${b.rideTime || ''}
-        </div>
+        <div style="color:#f5d05c; font-weight:bold;">${b.customerName || 'Client'} - ${b.rideDate}</div>
         <div style="font-size:12px; color:#aaa;">${b.pickup} ➔ ${b.dropoff}</div>
-        <div style="background:#050505; padding:10px; border-radius:10px; margin:10px 0; font-size:11px; color:#f5d05c;">NOTE: ${b.notes || 'No note'}</div>
-        <div style="font-weight:bold;">Status: ${b.status.toUpperCase()} | Total: $${b.total}</div>
+        <div style="font-weight:bold; margin-top:10px;">Status: ${b.status.toUpperCase()} | Total: $${b.total}</div>
         <div class="action-grid">
-          ${ACTIONS.map(a => `<button class="act-btn" onclick="updateStatus('${b.id}', '${a.id}')" style="background:${a.color}; color:${a.id==='PaymentRequested'?'#000':'#fff'}">${a.label}</button>`).join('')}
+          ${ACTIONS.map(a => `<button class="act-btn" onclick="updateStatus('${b.id}', '${a.id}')" style="background:${a.color};">${a.label}</button>`).join('')}
         </div>
       </div>
     `).join('');
@@ -48,16 +42,13 @@ async function loadBookings() {
 }
 
 async function updateStatus(id, newStatus) {
-  try {
-    await fetch(`${API_BASE}/update-booking`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id, status: newStatus })
-    });
-    loadBookings();
-  } catch (e) { alert("Failed to connect server."); }
+  await fetch(`${API_BASE}/update-booking`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id, status: newStatus })
+  });
+  loadBookings();
 }
-
 loadBookings();
 setInterval(loadBookings, 8000);
 </script>
