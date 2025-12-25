@@ -2,29 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium App</title>
+  <title>JK2424 • Private Chauffeur</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="back-btn" id="headerBack" onclick="goBack()">❮</div>
-    <div class="header-logo">JK2424</div>
-    <div class="menu-btn" onclick="checkLastBooking()">☰</div>
-  </header>
 
-  <div class="app-container">
+  <div class="logo-container">
+    <span class="logo-title">JK2424</span>
+    <span class="logo-sub">PRIVATE CHAUFFEUR SERVICE</span>
+  </div>
+
+  <div class="wrapper">
+    <header>
+      <div class="back-btn" id="headerBack" onclick="goBack()">❮</div>
+      <div class="menu-btn" onclick="checkLastBooking()">☰</div>
+    </header>
+
     <div id="sectionStep1">
+      <h2 style="font-size: 24px; margin-bottom: 5px;">Book Your Ride</h2>
+      <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Premium service at your fingertips. Enter trip details for an instant estimate.</p>
+      
       <div class="card">
-        <div class="step-title">Step 1 · Trip Details</div>
-        <div class="field"><label>Pickup</label><input id="pickup" type="text" placeholder="Where from?" /></div>
-        <div class="field"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add a stop" /></div>
-        <div class="field"><label>Drop-off</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
+        <div class="step-pill">Step 1 · Trip Details</div>
+        <div class="field"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Tysons, VA" /></div>
+        <div class="field"><label>Extra Stop (Optional)</label><input id="stop" type="text" placeholder="Optional extra stop" /></div>
+        <div class="field"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Dulles Airport" /></div>
         <div style="display:flex; gap:10px;">
-          <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
-          <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
+          <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
+          <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
         </div>
-        <label>Time Period</label>
+        <label>AM / PM</label>
         <div class="toggle-row">
           <button id="amBtn" class="t-btn active">AM</button>
           <button id="pmBtn" class="t-btn">PM</button>
@@ -35,16 +43,14 @@
 
     <div id="sectionStep2" class="hidden">
       <div class="card">
-        <div class="step-title">Step 2 · Passenger</div>
-        <div class="summary-box">
-          <div id="sumRoute" style="font-size: 12px; color: #aaa;"></div>
-          <div id="sumTotal" class="sum-val"></div>
+        <div class="step-pill">Step 2 · Passenger Details</div>
+        <div style="background:#050505; border-radius:10px; padding:15px; margin-bottom:15px; border:1px solid #222;">
+          <div id="sumRoute" style="font-size:12px; color:#888;"></div>
+          <div id="sumTotal" style="font-size:22px; color:#f5d05c; font-weight:900; margin-top:5px;"></div>
         </div>
         <div class="field"><label>Full Name</label><input id="fullName" type="text" /></div>
-        <div class="field"><label>Phone</label><input id="phone" type="tel" /></div>
-        <div class="field"><label>Email</label><input id="email" type="email" /></div>
-        <div class="field"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#080808; border:1px solid #333; color:#fff; border-radius:12px; padding:10px;"></textarea></div>
-        <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Reservation</button>
+        <div class="field"><label>Mobile Phone</label><input id="phone" type="tel" /></div>
+        <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
       </div>
     </div>
   </div>
