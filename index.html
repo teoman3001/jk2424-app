@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Private Chauffeur</title>
+  <title>JK2424 • Premium Chauffeur</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="style.css">
 </head>
@@ -32,7 +32,7 @@
           <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
           <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
         </div>
-        <label>AM / PM</label>
+        <label>Time Period</label>
         <div class="toggle-row">
           <button id="amBtn" class="t-btn active">AM</button>
           <button id="pmBtn" class="t-btn">PM</button>
@@ -44,12 +44,14 @@
     <div id="sectionStep2" class="hidden">
       <div class="card">
         <div class="step-pill">Step 2 · Passenger Details</div>
-        <div style="background:#050505; border-radius:10px; padding:15px; margin-bottom:15px; border:1px solid #222;">
+        <div class="summary-box">
           <div id="sumRoute" style="font-size:12px; color:#888;"></div>
           <div id="sumTotal" style="font-size:22px; color:#f5d05c; font-weight:900; margin-top:5px;"></div>
         </div>
-        <div class="field"><label>Full Name</label><input id="fullName" type="text" /></div>
-        <div class="field"><label>Mobile Phone</label><input id="phone" type="tel" /></div>
+        <div class="field"><label>Full Name</label><input id="fullName" type="text" placeholder="John Doe" /></div>
+        <div class="field"><label>Mobile Phone</label><input id="phone" type="tel" placeholder="+1..." /></div>
+        <div class="field"><label>Email</label><input id="email" type="email" placeholder="name@example.com" /></div>
+        <div class="field"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#050505; border:1px solid #333; color:#fff; border-radius:10px; padding:10px;"></textarea></div>
         <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
       </div>
     </div>
