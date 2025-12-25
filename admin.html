@@ -1,28 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" /><title>JK2424 • Admin</title>
-<style>
-  body { background:#000; color:#fff; font-family:sans-serif; padding:20px; }
-  .card { background:#111; border:1px solid #333; padding:20px; border-radius:15px; margin-bottom:15px; }
-  button { background:#f5d05c; color:#000; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-weight:bold; }
-</style>
-</head>
+<head><meta charset="UTF-8" /><title>JK2424 • Admin</title><style>body{background:#000;color:#fff;font-family:sans-serif;padding:20px;}.card{background:#111;border:1px solid #333;padding:20px;border-radius:15px;margin-bottom:15px;}button{background:#f5d05c;color:#000;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;}</style></head>
 <body>
-<h1>JK2424 ADMIN - ON-SITE</h1>
+<h1>JK2424 ADMIN</h1>
 <div id="list"></div>
 <script>
   const API = 'https://jk2424-backend.onrender.com';
   async function load() {
     const res = await fetch(`${API}/bookings`);
     const data = await res.json();
-    document.getElementById('list').innerHTML = data.bookings.map(b => `
-      <div class="card">
-        <p>Pickup: ${b.pickup}</p>
-        <p>Status: <b>${b.status.toUpperCase()}</b></p>
-        <button onclick="approve('${b.id}')">APPROVE RIDE</button>
-      </div>
-    `).join('');
+    document.getElementById('list').innerHTML = data.bookings.map(b => `<div class="card"><p>Pickup: ${b.pickup}</p><p>Status: ${b.status}</p><button onclick="approve('${b.id}')">APPROVE</button></div>`).join('');
   }
   async function approve(id) {
     await fetch(`${API}/update-booking`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: 'Approved' }) });
