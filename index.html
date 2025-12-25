@@ -2,66 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium App</title>
+  <title>JK2424 • EQS Black</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="logo-container">
-    <span class="logo-title">JK2424</span>
-    <span class="logo-sub">PRIVATE CHAUFFEUR SERVICE</span>
+
+  <div id="map"></div>
+
+  <div class="top-nav">
+    <div class="menu-btn" onclick="checkLastBooking()">☰</div>
+    <div class="brand-pill">JK2424</div>
   </div>
 
-  <div class="wrapper">
-    <header>
-      <div class="back-btn" id="headerBack" onclick="goBack()">❮</div>
-      <div class="menu-btn" onclick="checkLastBooking()">☰</div>
-    </header>
+  <div class="main-btn-container">
+    <button class="book-trigger" onclick="toggleSheet(true)">
+      Book Luxury Ride
+    </button>
+  </div>
 
-    <div id="sectionStep1">
-      <h2 style="font-size: 24px; margin-bottom: 20px;">Book Your Ride</h2>
-      <div class="card">
-        <div class="step-pill">Step 1 · Trip Details</div>
-        <input id="pickup" type="text" placeholder="Pickup Location" />
-        <input id="stop" type="text" placeholder="Extra Stop (Optional)" />
-        <input id="dropoff" type="text" placeholder="Drop-off Location" />
-        <div style="display:flex; gap:10px;">
-          <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" />
-          <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" />
-        </div>
-        <div class="toggle-row">
-          <button id="amBtn" class="t-btn active">AM</button>
-          <button id="pmBtn" class="t-btn">PM</button>
-        </div>
-        <button id="calcBtn" class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
+  <div class="bottom-sheet" id="sheet">
+    <div class="handle"></div>
+    
+    <div id="step1">
+      <h3 style="color:#fff; margin-bottom:20px; font-weight:800;">Trip Details</h3>
+      <div class="input-field"><label>Pickup</label><input id="pickup" type="text" placeholder="Where from?" /></div>
+      <div class="input-field"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add stop (optional)" /></div>
+      <div class="input-field"><label>Drop-off</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
+      <div style="display:flex; gap:10px;">
+        <div class="input-field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
+        <div class="input-field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
       </div>
+      <div class="ampm-row">
+        <button id="amBtn" class="t-btn active">AM</button>
+        <button id="pmBtn" class="t-btn">PM</button>
+      </div>
+      <button class="book-trigger" style="width:100%; margin-top:20px;" onclick="calculatePrice()">Calculate Price</button>
     </div>
 
-    <div id="estimateResultArea" class="hidden">
-      <div class="estimate-details-card">
-        <div class="est-title">Estimate Details</div>
-        <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
-        <div class="est-row"><span>Base Fare (inc. miles):</span><span id="resBase">--</span></div>
-        <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
-        <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
-        <div class="est-total-line">
-          <span class="est-total-label">Estimated total</span>
-          <span class="est-total-val" id="resTotal">--</span>
-        </div>
+    <div id="step2" style="display:none;">
+      <h3 style="color:#fff; margin-bottom:15px; font-weight:800;">Confirm Booking</h3>
+      <div class="est-card">
+        <div id="resDist" class="est-line"></div>
+        <div id="resExtra" class="est-line" style="color:#666; font-size:11px;"></div>
+        <span id="resTotal" class="est-total"></span>
       </div>
-    </div>
-
-    <div id="sectionStep2" class="hidden">
-      <h2 style="font-size: 24px; margin-bottom: 20px;">Passenger Info</h2>
-      <div class="card">
-        <div class="step-pill">Step 2 · Passenger Details</div>
-        <div style="background:#050505; padding:15px; border-radius:12px; border:1px dashed #333; margin-bottom:15px; font-size:12px; color:#aaa; line-height:1.4;">
-           <div id="sumTripInfo"></div>
-        </div>
-        <input id="fullName" type="text" placeholder="Full Name" />
-        <input id="phone" type="tel" placeholder="Mobile Phone" />
-        <input id="email" type="email" placeholder="Email Address" /> <textarea id="notes" rows="3" placeholder="Notes (Gate codes, luggage, etc.)"></textarea> <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
-      </div>
+      <input id="fullName" type="text" placeholder="Full Name" />
+      <input id="phone" type="tel" placeholder="Mobile Phone" />
+      <input id="email" type="email" placeholder="Email Address" />
+      <textarea id="notes" rows="2" placeholder="Notes for your chauffeur..."></textarea>
+      <button class="book-trigger" style="width:100%;" onclick="sendBooking()">Confirm Reservation</button>
+      <p onclick="toggleStep(1)" style="color:#888; text-align:center; font-size:12px; margin-top:15px; cursor:pointer;">❮ Edit trip details</p>
     </div>
   </div>
 
