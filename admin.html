@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>JK2424 • Admin Center</title>
+<meta charset="UTF-8" /><title>JK2424 • Admin Center</title>
 <style>
   * { box-sizing: border-box; }
   body { margin:0; background:#000; color:#f5f5f5; font-family:sans-serif; }
@@ -11,24 +9,23 @@
   h1 { margin:0; font-size:18px; color:#f5d05c; }
   .wrap { padding:12px; max-width:850px; margin:0 auto; }
   .card { background:#111; border:1px solid #333; border-radius:18px; padding:20px; margin-bottom:18px; }
-  .pricing-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:12px; background:#111; padding:18px; border-radius:14px; margin-bottom:25px; }
-  input { width:100%; background:#050505; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; }
-  .status-select { width:100%; padding:12px; background:#000; border:1px solid #f5d05c; color:#fff; border-radius:10px; margin-top:10px; font-weight:700; cursor:pointer; }
+  .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+  .act-btn { border:none; padding:12px; border-radius:10px; font-weight:800; cursor:pointer; font-size:11px; text-transform:uppercase; color:#fff; }
 </style>
 </head>
 <body>
 <header><h1>JK2424 ADMIN CENTER</h1></header>
 <div class="wrap">
-  <div class="pricing-grid">
-    <input type="number" id="baseFare" placeholder="Base Fare">
-    <input type="number" id="extraPerMile" placeholder="Extra/Mile">
-    <button style="background:#f5d05c; padding:10px; border-radius:8px;" onclick="savePricing()">Update Tariffs</button>
-  </div>
   <div id="bookingList"></div>
 </div>
 <script>
 const API_BASE = 'https://jk2424-backend.onrender.com';
-const STATUS_OPTIONS = ["pending", "confirmed", "cancelled", "completed"];
+const ACTIONS = [
+  { id: 'Approved', label: '✓ Approve (Choice)', color: '#28a745' },
+  { id: 'PaymentRequested', label: '💳 Request Zelle', color: '#f5d05c' },
+  { id: 'Confirmed', label: '⭐ Confirm Ride', color: '#007bff' },
+  { id: 'cancelled', label: '✕ Cancel', color: '#dc3545' }
+];
 
 async function loadBookings() {
   try {
@@ -36,13 +33,15 @@ async function loadBookings() {
     const data = await res.json();
     document.getElementById('bookingList').innerHTML = data.bookings.map(b => `
       <div class="card">
-        <div style="color:#f5d05c; font-weight:bold;">${b.customerName} - ${b.rideDate}</div>
+        <div style="color:#f5d05c; font-weight:bold; margin-bottom:10px;">
+          ${b.customerName || 'Client'} - ${b.rideDate || 'No Date'} @ ${b.rideTime || ''}
+        </div>
         <div style="font-size:12px; color:#aaa;">${b.pickup} ➔ ${b.dropoff}</div>
-        <div style="margin-top:10px; font-weight:bold;">Total: $${b.total} | Status: ${b.status.toUpperCase()}</div>
-        <select class="status-select" onchange="updateStatus('${b.id}', this.value)">
-          <option value="" disabled selected>Update Status...</option>
-          ${STATUS_OPTIONS.map(opt => `<option value="${opt}" ${b.status === opt ? 'selected' : ''}>${opt.toUpperCase()}</option>`).join('')}
-        </select>
+        <div style="background:#050505; padding:10px; border-radius:10px; margin:10px 0; font-size:11px; color:#f5d05c;">NOTE: ${b.notes || 'No note'}</div>
+        <div style="font-weight:bold;">Status: ${b.status.toUpperCase()} | Total: $${b.total}</div>
+        <div class="action-grid">
+          ${ACTIONS.map(a => `<button class="act-btn" onclick="updateStatus('${b.id}', '${a.id}')" style="background:${a.color}; color:${a.id==='PaymentRequested'?'#000':'#fff'}">${a.label}</button>`).join('')}
+        </div>
       </div>
     `).join('');
   } catch (e) {}
@@ -50,16 +49,17 @@ async function loadBookings() {
 
 async function updateStatus(id, newStatus) {
   try {
-    await fetch(`${API_BASE}/bookings/${id}/status`, {
-      method: 'PATCH',
+    await fetch(`${API_BASE}/update-booking`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
+      body: JSON.stringify({ id: id, status: newStatus })
     });
     loadBookings();
-  } catch (e) {}
+  } catch (e) { alert("Failed to connect server."); }
 }
+
 loadBookings();
-setInterval(loadBookings, 10000);
+setInterval(loadBookings, 8000);
 </script>
 </body>
 </html>
