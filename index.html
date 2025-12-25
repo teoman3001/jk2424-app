@@ -39,7 +39,7 @@
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; outline: none; }
     input:focus { border-color: #f5d05c; }
 
-    /* AM/PM BUTTONS - PRESERVED WIDE STYLE */
+    /* AM/PM BUTTONS */
     .toggle-row { display: flex; gap: 10px; margin: 15px 0 20px; }
     .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
@@ -111,7 +111,7 @@
       <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Enter destination" /></div>
       <div style="display:flex; gap:12px;">
         <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" /></div>
-        <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" /></div>
+        <div class="fld" style="flex:1;"><label>Time (12h)</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" /></div>
       </div>
       <div class="toggle-row">
         <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
@@ -123,7 +123,7 @@
     <div id="step2" class="hidden">
       <div class="est-card">
         <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
-        <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span>$65.00</span></div>
+        <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span id="resBase">--</span></div>
         <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
         <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
         <div class="est-total-line">
@@ -187,21 +187,43 @@
         document.getElementById('sheetTitle').innerText = s === 1 ? "Step 1 · Trip Details" : "Step 2 · Confirmation";
     }
 
+    // YENİ GECE TARİFESİ KONTROLÜ (11PM - 05:59AM)
+    function checkIsNight(timeStr, ampm) {
+        if (!timeStr || timeStr.length < 5) return false;
+        let [h, m] = timeStr.split(':').map(Number);
+        
+        // Convert to 24h
+        if (ampm === 'PM' && h !== 12) h += 12;
+        if (ampm === 'AM' && h === 12) h = 0;
+
+        // Rule: Night is 23:00 (11PM) to 05:59 (6AM exclusive)
+        return (h >= 23 || h < 6);
+    }
+
     async function calculatePrice() {
         const p = document.getElementById('pickup').value;
         const d = document.getElementById('dropoff').value;
+        const timeVal = document.getElementById('rideTime').value;
         const b = document.getElementById('calcBtn');
+
         if(!p || !d) return alert("Select locations.");
+        if(timeVal.length !== 5) return alert("Please enter time as HH:MM");
+
+        const isNight = checkIsNight(timeVal, currentAmpm);
+
         try {
             b.innerText = "Connecting..."; b.disabled = true;
-            const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
+            const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${isNight}`);
             const data = await res.json();
             if(data.success) {
-                lastQuote = { ...data.pricing, pickup:p, dropoff:d, ampm:currentAmpm };
+                lastQuote = { ...data.pricing, pickup:p, dropoff:d, ampm:currentAmpm, rideTime: timeVal, rideDate: document.getElementById('rideDate').value };
+                
                 document.getElementById('resDist').innerText = (data.pricing.miles || 0) + " miles";
-                document.getElementById('resExtra').innerText = `$${(data.pricing.extraCost || 0).toFixed(2)} (${data.pricing.extraMiles || 0} mi x $2.00)`;
-                document.getElementById('resNight').innerText = data.pricing.nightApplied ? "Yes (x1.25)" : "No";
+                document.getElementById('resBase').innerText = "Dynamic Base Fare"; // Or get from API if needed
+                document.getElementById('resExtra').innerText = `$${(data.pricing.extraCost || 0).toFixed(2)} (${data.pricing.extraMiles || 0} mi)`;
+                document.getElementById('resNight').innerText = data.pricing.nightApplied ? `Yes (x${data.pricing.nightMultiplier})` : "No";
                 document.getElementById('resTotal').innerText = "$" + (data.pricing.total || 0).toFixed(2);
+                
                 toggleStep(2);
             }
         } catch (e) { alert("Server starting... try again."); }
