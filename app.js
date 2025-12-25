@@ -1,22 +1,33 @@
-// JK2424 CORE LOGIC
 const BACKEND = 'https://jk2424-backend.onrender.com';
 let currentAmpm = 'AM';
 let lastQuote = null;
 
-// NAVIGATION
+// Sayfa yüklendiğinde butonları bağla
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('amBtn').onclick = () => { currentAmpm = 'AM'; document.getElementById('amBtn').classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); };
+  document.getElementById('pmBtn').onclick = () => { currentAmpm = 'PM'; document.getElementById('pmBtn').classList.add('active'); document.getElementById('amBtn').classList.remove('active'); };
+  
+  // Google Autocomplete Başlat
+  const opt = { componentRestrictions: { country: 'us' } };
+  new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
+  new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
+  new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+});
+
+// Tarih Formatlayıcı
+document.getElementById('rideDate').oninput = (e) => {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+  if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
+  e.target.value = v.slice(0,10);
+};
+
 function goBack() {
   document.getElementById('sectionStep2').classList.add('hidden');
   document.getElementById('sectionStep1').classList.remove('hidden');
   document.getElementById('headerBack').style.visibility = 'hidden';
 }
 
-function checkLastBooking() {
-  const id = localStorage.getItem("jk2424_booking_id");
-  if(id) window.location.href = "track.html?id=" + id;
-  else alert("No active booking found.");
-}
-
-// PRICING ENGINE
 async function calculatePrice() {
   const btn = document.getElementById('calcBtn');
   const p = document.getElementById('pickup').value;
@@ -36,26 +47,20 @@ async function calculatePrice() {
     
     if(data.success) {
       lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:data.pricing.total, miles:data.pricing.miles };
-      
       document.getElementById('sumRoute').innerText = `From: ${p} → To: ${d}`;
-      document.getElementById('sumTime').innerText = `At: ${lastQuote.rideDate} @ ${t} ${currentAmpm}`;
       document.getElementById('sumTotal').innerText = `$${data.pricing.total.toFixed(2)}`;
-      
       document.getElementById('sectionStep1').classList.add('hidden');
       document.getElementById('sectionStep2').classList.remove('hidden');
       document.getElementById('headerBack').style.visibility = 'visible';
     }
-  } catch (e) { alert("Error connecting to server."); } 
-  finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
+  } catch (e) { alert("Error connecting."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
 
-// BOOKING
 async function sendBooking() {
   const btn = document.getElementById('bookBtn');
   const name = document.getElementById('fullName').value;
   const phone = document.getElementById('phone').value;
   if(!name || !phone) return alert("Missing info.");
-
   try {
     btn.innerText = "Sending..."; btn.disabled = true;
     const res = await fetch(`${BACKEND}/bookings`, {
@@ -68,5 +73,5 @@ async function sendBooking() {
       localStorage.setItem("jk2424_booking_id", data.booking.id);
       window.location.href = "track.html?id=" + data.booking.id;
     }
-  } catch (e) { alert("Failed to send reservation."); }
+  } catch (e) { alert("Failed."); }
 }
