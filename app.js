@@ -42,28 +42,34 @@ async function calculatePrice() {
 
         // API ÇAĞRISI
         const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
+        
+        if (!res.ok) throw new Error("Server error");
         const data = await res.json();
         
-        if(data.success) {
+        // GÜVENLİ VERİ OKUMA (toFixed Hatasını Çözer)
+        if(data.success && data.pricing) {
             const pricing = data.pricing;
             lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:pricing.total, miles:pricing.miles };
             
-            // DETAYLARI DOLDUR
-            document.getElementById('resDist').innerText = pricing.miles + " miles";
+            // 3. RESİM DETAYLARI
+            document.getElementById('resDist').innerText = (pricing.miles || 0) + " miles";
             document.getElementById('resBase').innerText = "$65 (inc. 10 mi)";
-            document.getElementById('resExtra').innerText = `$${pricing.extraCost.toFixed(2)} (${pricing.extraMiles} mi x $2.00)`;
+            document.getElementById('resExtra').innerText = pricing.extraCost ? `$${pricing.extraCost.toFixed(2)} (${pricing.extraMiles} mi x $2.00)` : "$0.00";
             document.getElementById('resNight').innerText = pricing.nightApplied ? "Yes (x1.25)" : "No";
-            document.getElementById('resTotal').innerText = "$" + pricing.total.toFixed(2);
+            document.getElementById('resTotal').innerText = pricing.total ? "$" + pricing.total.toFixed(2) : "$0.00";
             
-            document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nAt: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nPrice: $${pricing.total.toFixed(2)}`;
+            document.getElementById('sumTripInfo').innerText = `Pickup: ${p}\nDrop-off: ${d}\nSchedule: ${lastQuote.rideDate} @ ${t} ${currentAmpm}\nTotal Price: $${(pricing.total || 0).toFixed(2)}`;
             
             document.getElementById('sectionStep1').classList.add('hidden');
             document.getElementById('estimateResultArea').classList.remove('hidden');
             document.getElementById('sectionStep2').classList.remove('hidden');
             document.getElementById('headerBack').style.visibility = 'visible';
             window.scrollTo(0,0);
+        } else {
+            throw new Error("Invalid pricing data");
         }
     } catch (e) { 
+        console.error("Calculate Error:", e);
         alert("Server is waking up. Please wait 10 seconds and try again."); 
     } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
