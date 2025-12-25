@@ -21,7 +21,7 @@
 
     <div id="sectionStep1">
       <h2 style="font-size: 24px; margin-bottom: 5px;">Book Your Ride</h2>
-      <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Premium service at your fingertips. Enter trip details for an instant estimate.</p>
+      <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Premium service at your fingertips. Enter trip details.</p>
       
       <div class="card">
         <div class="step-pill">Step 1 · Trip Details</div>
@@ -32,7 +32,7 @@
           <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
           <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
         </div>
-        <label>Time Period</label>
+        <label>AM / PM</label>
         <div class="toggle-row">
           <button id="amBtn" class="t-btn active">AM</button>
           <button id="pmBtn" class="t-btn">PM</button>
@@ -42,16 +42,20 @@
     </div>
 
     <div id="sectionStep2" class="hidden">
+      <h2 style="font-size: 24px; margin-bottom: 5px;">Passenger Info</h2>
+      <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Almost there. Confirm your details to finish.</p>
       <div class="card">
         <div class="step-pill">Step 2 · Passenger Details</div>
         <div class="summary-box">
-          <div id="sumRoute" style="font-size:12px; color:#888;"></div>
-          <div id="sumTotal" style="font-size:22px; color:#f5d05c; font-weight:900; margin-top:5px;"></div>
+          <span class="sum-title">Trip Summary</span>
+          <div id="sumRoute" class="sum-text"></div>
+          <div id="sumTime" class="sum-text"></div>
+          <span id="sumTotal" class="sum-total"></span>
         </div>
         <div class="field"><label>Full Name</label><input id="fullName" type="text" placeholder="John Doe" /></div>
         <div class="field"><label>Mobile Phone</label><input id="phone" type="tel" placeholder="+1..." /></div>
         <div class="field"><label>Email</label><input id="email" type="email" placeholder="name@example.com" /></div>
-        <div class="field"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#050505; border:1px solid #333; color:#fff; border-radius:10px; padding:10px;"></textarea></div>
+        <div class="field"><label>Notes</label><textarea id="notes" rows="2" placeholder="Gate codes, luggage..."></textarea></div>
         <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
       </div>
     </div>
