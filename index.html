@@ -81,6 +81,7 @@
     .tab.active { background: #222; color: #f5d05c; }
     
     .trip-list { flex: 1; overflow-y: auto; padding-bottom: 40px; }
+    
     /* APP STYLE CARD */
     .trip-card { 
       background: #111; border-radius: 16px; padding: 20px; margin-bottom: 15px; 
@@ -95,9 +96,14 @@
     .trip-route-line { font-size: 14px; color: #fff; font-weight: 600; line-height: 1.4; }
     .trip-meta { font-size: 12px; color: #666; display: flex; gap: 10px; margin-top: 5px; }
 
-    .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
-    .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
-    .pac-item-query { color: #fff !important; }
+    /* GOOGLE AUTOCOMPLETE DARK MODE FIX */
+    .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important; }
+    .pac-item { color: #888 !important; border-top: 1px solid #222 !important; padding: 12px !important; cursor: pointer !important; }
+    .pac-item-query { color: #fff !important; font-weight: 600 !important; }
+    
+    /* HOVER & SELECTED STATE FIX */
+    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; color: #f5d05c !important; }
+    .pac-item:hover .pac-item-query, .pac-item-selected .pac-item-query { color: #f5d05c !important; }
 
     .hidden { display: none !important; }
     #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
