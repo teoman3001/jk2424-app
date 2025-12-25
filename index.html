@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium Experience</title>
+  <title>JK2424 • Luxury Ride</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* JK2424 SIGNATURE DESIGN - CRYSTAL BLACK [cite: 2025-12-25] */
+    /* JK2424 SIGNATURE DESIGN */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; color: #fff; }
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
@@ -20,61 +20,19 @@
     .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #333; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; margin-top: 5px; outline: none; font-size: 14px; }
-    .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
-    .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
-    .pac-item-query { color: #fff !important; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <div class="top-nav">
-    <div class="menu-circle" onclick="toggleMenu(true)">☰</div>
-    <div class="logo-pill">JK2424</div>
-  </div>
+  <div class="top-nav"><div class="menu-circle" onclick="toggleMenu(true)">☰</div><div class="logo-pill">JK2424</div></div>
+  <div style="position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5;"><button id="mainBtn" class="primary-btn" style="width: auto; padding: 20px 45px; border-radius: 40px;" onclick="handleStart()">🚗 BOOK LUXURY RIDE</button></div>
 
-  <div style="position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5;">
-    <button id="mainBtn" class="primary-btn" style="width: auto; padding: 20px 45px; border-radius: 40px;" onclick="handleStart()">🚗 BOOK LUXURY RIDE</button>
-  </div>
-
-  <div id="screenPending" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#f5d05c; font-weight:900;">REQUEST SENT</h2>
-      <p style="color:#fff; margin-top:15px; font-size:14px;">Reviewing your trip. Please wait for chauffeur approval.</p>
-      <button class="primary-btn" style="margin-top:25px; background:#222; color:#fff;" onclick="hideAllScreens()">CLOSE</button>
-    </div>
-  </div>
-
-  <div id="screenPaymentSelection" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#f5d05c; font-weight:900;">APPROVED</h2>
-      <p style="margin-bottom:20px; font-size:14px;">Please select payment method:</p>
-      <div onclick="showZellePage()" style="background:#111; border:1.5px solid #f5d05c; padding:15px; border-radius:15px; display:flex; gap:15px; align-items:center; text-align:left; cursor:pointer;">
-          <span style="font-size:24px;">💜</span><div><div style="font-weight:700;">Zelle Transfer</div><div style="color:#f5d05c; font-size:10px;">Instant Approval</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="screenZelleDetails" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#f5d05c; font-weight:900;">ZELLE INFO</h2>
-      <div style="background:#080808; padding:20px; border:1px dashed #444; border-radius:15px; margin:20px 0; text-align:left;">
-          <div style="color:#fff; font-weight:900; font-size:16px;">jk2424vip@email.com</div>
-          <div style="display:flex; justify-content:space-between; border-top:1px solid #222; padding-top:10px;">
-              <span>Total:</span><span id="finalPay" style="color:#f5d05c; font-weight:900; font-size:22px;">$0.00</span>
-          </div>
-      </div>
-      <button class="primary-btn" onclick="notifyPayment()">I HAVE SENT THE PAYMENT</button>
-    </div>
-  </div>
-
-  <div id="screenConfirmed" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#28a745; font-weight:900;">CONFIRMED</h2>
-      <p style="color:#fff; font-size:14px; margin-top:10px;">Ride scheduled. See you soon!</p>
-      <button class="primary-btn" style="margin-top:20px;" onclick="hideAllScreens()">VIEW MAP</button>
-    </div>
-  </div>
+  <div id="screenPending" class="full-overlay"><div class="state-card"><h2 style="color:#f5d05c; font-weight:900;">REQUEST SENT</h2><p style="color:#fff; margin-top:15px;">Awaiting chauffeur approval...</p></div></div>
+  <div id="screenApprovedNotify" class="full-overlay"><div class="state-card"><h2 style="color:#f5d05c; font-weight:900;">TRIP APPROVED</h2><p style="margin-top:10px;">Please complete payment to secure your ride.</p><button class="primary-btn" onclick="showPaymentSelection()">PAY NOW</button></div></div>
+  <div id="screenPaymentSelection" class="full-overlay"><div class="state-card"><h2 style="color:#fff; font-weight:900;">PAYMENT METHOD</h2><div onclick="showZelleDetails()" style="background:#111; border:1.5px solid #f5d05c; padding:20px; border-radius:15px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:15px; margin-top:20px;"><span style="font-size:24px;">💜</span><div><div style="font-weight:700;">Zelle Transfer</div><div style="color:#f5d05c; font-size:10px;">Instant Approval</div></div></div></div></div>
+  <div id="screenZelleDetails" class="full-overlay"><div class="state-card"><h2 style="color:#f5d05c; font-weight:900;">ZELLE INFO</h2><div style="background:#080808; padding:20px; border:1px dashed #444; border-radius:15px; margin:20px 0; text-align:left;"><small style="color:#f5d05c; font-weight:800;">SEND TO:</small><div style="font-weight:900; color:#fff;">jk2424vip@email.com</div><div style="display:flex; justify-content:space-between; border-top:1px solid #222; margin-top:10px; padding-top:10px;"><span>Total:</span><span id="finalPay" style="color:#f5d05c; font-weight:900;">$0.00</span></div></div><button class="primary-btn" onclick="notifyZelleSent()">I HAVE SENT THE ZELLE</button></div></div>
+  <div id="screenProcessing" class="full-overlay"><div class="state-card"><h2 style="color:#f5d05c;">PROCESSING</h2><p style="margin-top:10px;">Verification in progress. Stay tuned.</p></div></div>
 
   <div class="bottom-sheet" id="sheet">
     <div id="step1">
@@ -82,27 +40,17 @@
       <input id="pickup" type="text" placeholder="Pickup location" />
       <input id="stop" type="text" placeholder="Extra Stop (Optional)" />
       <input id="dropoff" type="text" placeholder="Destination" />
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" />
-        <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" />
-      </div>
-      <div style="display:flex; gap:10px; margin:20px 0;">
-        <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
-        <button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button>
-      </div>
-      <button class="primary-btn" id="calcBtn" onclick="calculatePrice()">Calculate Price</button>
+      <div style="display:flex; gap:10px;"><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" /><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" /></div>
+      <div style="display:flex; gap:10px; margin:20px 0;"><button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button><button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button></div>
+      <button class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
     </div>
-    <div id="step2" class="hidden">
-      <div id="quoteDisplay" style="margin-bottom:20px;"></div>
-      <textarea id="notes" rows="3" placeholder="Additional notes..."></textarea>
-      <button class="primary-btn" id="submitBtn" onclick="sendBooking()">Confirm Booking</button>
-    </div>
+    <div id="step2" class="hidden"><div id="quoteDisplay" style="margin-bottom:20px;"></div><textarea id="notes" rows="3" placeholder="Luggage, Gate codes..."></textarea><button class="primary-btn" onclick="sendBooking()">Confirm Booking</button></div>
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
   <script>
     const BACKEND = 'https://jk2424-backend.onrender.com';
-    let currentAmpm = 'AM', activeId = null, lastQuote = null;
+    let currentAmpm = 'AM', activeId = null, lastQuote = null, statusLocked = false;
 
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
@@ -119,21 +67,18 @@
         const p = document.getElementById('pickup').value, d = document.getElementById('dropoff').value;
         if(!p || !d) return alert("Select locations.");
         try {
-            document.getElementById('calcBtn').innerText = "Connecting...";
             const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
             const data = await res.json();
             if(data.success) {
                 lastQuote = data.pricing;
-                document.getElementById('quoteDisplay').innerHTML = `<div style="background:#080808; border:1px solid #222; padding:20px; border-radius:15px;"><div style="display:flex; justify-content:space-between; color:#888; font-size:12px;"><span>Distance:</span><span>${data.pricing.miles} mi</span></div><div style="display:flex; justify-content:space-between; margin-top:15px; border-top:1px solid #222; padding-top:15px;"><span style="font-weight:800; color:#fff;">ESTIMATED TOTAL:</span><span style="color:#f5d05c; font-weight:900; font-size:24px;">$${data.pricing.total.toFixed(2)}</span></div></div>`;
+                document.getElementById('quoteDisplay').innerHTML = `<div style="background:#080808; border:1px solid #222; padding:20px; border-radius:15px;"><div style="display:flex; justify-content:space-between; color:#888;"><span>Distance:</span><span>${data.pricing.miles} mi</span></div><div style="display:flex; justify-content:space-between; margin-top:15px; border-top:1px solid #222; padding-top:15px;"><span style="font-weight:800;">TOTAL:</span><span style="color:#f5d05c; font-weight:900; font-size:24px;">$${data.pricing.total.toFixed(2)}</span></div></div>`;
                 toggleStep(2);
             }
-        } catch (e) { alert("Server error."); }
-        finally { document.getElementById('calcBtn').innerText = "Calculate Price"; }
+        } catch (e) { alert("Server starting..."); }
     }
 
     async function sendBooking() {
         try {
-            document.getElementById('submitBtn').innerText = "Sending...";
             const res = await fetch(`${BACKEND}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -141,10 +86,9 @@
             });
             const data = await res.json();
             if(data.success) {
-                activeId = data.booking.id;
+                activeId = data.booking.id; statusLocked = true;
                 document.getElementById('sheet').classList.remove('active');
-                hideAllScreens();
-                document.getElementById('screenPending').style.display = 'flex';
+                hideAllScreens(); document.getElementById('screenPending').style.display = 'flex';
                 startStatusCheck(activeId);
             }
         } catch (e) { alert("Error."); }
@@ -152,34 +96,31 @@
 
     async function startStatusCheck(id) {
         setInterval(async () => {
+            if(!statusLocked) return;
             try {
                 const res = await fetch(`${BACKEND}/booking-status/${id}`);
                 const data = await res.json();
                 if(data.status === 'Approved') {
-                    hideAllScreens();
-                    document.getElementById('finalPay').innerText = "$" + data.total.toFixed(2);
-                    document.getElementById('screenPaymentSelection').style.display = 'flex';
-                } else if(data.status === 'PaymentRequested') {
-                    showZellePage();
-                    document.getElementById('finalPay').innerText = "$" + data.total.toFixed(2);
-                } else if(data.status === 'Confirmed') {
-                    hideAllScreens();
-                    document.getElementById('screenConfirmed').style.display = 'flex';
+                    hideAllScreens(); document.getElementById('finalPay').innerText = "$" + data.total.toFixed(2);
+                    document.getElementById('screenApprovedNotify').style.display = 'flex';
                 }
             } catch(e) {}
         }, 5000);
     }
 
+    function showPaymentSelection() { hideAllScreens(); document.getElementById('screenPaymentSelection').style.display = 'flex'; }
+    function showZelleDetails() { hideAllScreens(); document.getElementById('screenZelleDetails').style.display = 'flex'; }
+    async function notifyZelleSent() {
+        await fetch(`${BACKEND}/update-booking`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: activeId, status: 'PaymentSent' }) });
+        hideAllScreens(); document.getElementById('screenProcessing').style.display = 'flex';
+    }
     function hideAllScreens() { document.querySelectorAll('.full-overlay').forEach(el => el.style.display='none'); }
-    function showZellePage() { hideAllScreens(); document.getElementById('screenZelleDetails').style.display = 'flex'; }
-    function backToSelection() { hideAllScreens(); document.getElementById('screenPaymentSelection').style.display = 'flex'; }
-    function handleStart() { if(activeId) document.getElementById('screenPending').style.display='flex'; else document.getElementById('sheet').classList.add('active'); }
+    function handleStart() { if(statusLocked) alert("Pending request."); else document.getElementById('sheet').classList.add('active'); }
     function toggleStep(s) { document.getElementById('step1').classList.toggle('hidden', s===2); document.getElementById('step2').classList.toggle('hidden', s===1); }
     function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
-    function notifyPayment() { alert("Notification sent!"); hideAllScreens(); document.getElementById('screenPending').style.display='flex'; }
-    function toggleMenu(o) { alert("Journeys coming soon."); }
+    function toggleMenu() { alert("Journeys locked."); }
     window.onload = initMap;
   </script>
 </body>
