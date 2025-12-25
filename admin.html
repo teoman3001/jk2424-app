@@ -38,7 +38,7 @@
 
 <header>
   <h1>JK2424 ADMIN CENTER</h1>
-  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v2.1 OPS</div>
+  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v2.2 FINAL</div>
 </header>
 
 <div class="wrap">
@@ -160,7 +160,6 @@ async function updateStatus(id, newStatus) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
     });
-    // Sessiz güncelleme
   } catch (e) { alert("Connection Failed"); }
 }
 
