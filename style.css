@@ -2,7 +2,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background:#000; color:#f5f5f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow-x: hidden; }
 
-/* HEADER */
 header {
   position: sticky; top: 0; width: 100%; height: 60px; background: rgba(0,0,0,0.9);
   display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
@@ -12,12 +11,10 @@ header {
 .header-logo { font-size: 18px; font-weight: 800; letter-spacing: 2px; color: #f5d05c; }
 .menu-btn { font-size: 20px; color: #f5d05c; cursor: pointer; }
 
-/* CONTAINERS */
 .app-container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px 100px; }
 .card { background: #111; border: 1px solid #333; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .step-title { font-size: 12px; font-weight: 700; color: #f5d05c; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
 
-/* INPUTS & BUTTONS */
 .field { margin-bottom: 12px; }
 label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; margin-left: 5px; }
 input { 
@@ -25,18 +22,25 @@ input {
   padding: 12px 15px; border-radius: 12px; font-size: 14px; outline: none; transition: 0.2s;
 }
 input:focus { border-color: #f5d05c; background: #0c0c0c; }
+
+/* AM/PM BUTONLARI */
+.toggle-row { display: flex; gap: 10px; margin-top: 5px; margin-bottom: 15px; }
+.t-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #333; background: #080808; color: #fff; font-size: 12px; cursor: pointer; transition: 0.2s; }
+.t-btn.active { background: #f5d05c; color: #000; font-weight: bold; border-color: #f5d05c; box-shadow: 0 5px 15px rgba(245,208,92,0.2); }
+
 .primary-btn { 
   width: 100%; background: #f5d05c; color: #000; border: none; padding: 15px; 
   border-radius: 15px; font-weight: 800; font-size: 14px; text-transform: uppercase; 
   cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(245,208,92,0.3);
 }
 
-/* GOOGLE SUGGESTIONS FIX */
-.pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 12px !important; z-index: 2000 !important; }
-.pac-item { border-top: 1px solid #222 !important; padding: 10px !important; color: #f5d05c !important; }
-.pac-item-query { color: #fff !important; }
+/* GOOGLE ÖNERİLERİ SİYAH TEMA */
+.pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 12px !important; margin-top: 5px !important; z-index: 2000 !important; }
+.pac-item { border-top: 1px solid #222 !important; padding: 10px !important; color: #f5d05c !important; cursor: pointer; }
+.pac-item:hover { background-color: #181818 !important; }
+.pac-item-query { color: #fff !important; font-size: 14px !important; }
+.pac-matched { color: #f5d05c !important; }
 
-/* UTILS */
 .hidden { display: none; }
 .summary-box { background: #080808; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px dashed #444; }
-.sum-val { color: #f5d05c; font-weight: bold; font-size: 18px; display: block; }
+.sum-val { color: #f5d05c; font-weight: bold; font-size: 20px; display: block; margin-top: 5px; }
