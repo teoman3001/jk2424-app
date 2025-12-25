@@ -2,39 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium Experience</title>
+  <title>JK2424 • Premium Journey Management</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* JK2424 SIGNATURE DESIGN - RE-STABILIZED */
+    /* JK2424 CRYSTAL BLACK THEME */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
+    body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; color: #fff; }
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
     /* UI ELEMENTS */
     .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; }
     .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
 
-    /* SIDE MENU */
-    .side-menu { position: fixed; top: 0; left: -100%; width: 320px; height: 100%; background: #0a0a0a; z-index: 300; transition: 0.4s; padding: 50px 20px; border-right: 1px solid #222; }
-    .side-menu.open { left: 0; }
-    .menu-item { color: #fff; font-size: 15px; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; justify-content: space-between; }
-
-    /* STATE-BASED OVERLAYS (Her Aşama İçin Yeni Ekran) */
-    .full-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; backdrop-filter: blur(10px); }
-    .state-card { background: #0a0a0a; border: 1.5px solid #f5d05c; padding: 35px 25px; border-radius: 30px; width: 100%; max-width: 400px; }
+    /* PHASE OVERLAYS (Her Durum İçin Ayrı Bir Sayfa Tasarımı) */
+    .phase-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; padding: 40px 25px; transition: 0.5s; overflow-y: auto; }
+    .phase-overlay.active { display: flex; }
     
-    /* PANELS */
+    .status-icon { width: 80px; height: 80px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 40px auto 20px; color: #000; }
+    .phase-title { font-size: 28px; font-weight: 900; text-align: center; margin-bottom: 10px; color: #f5d05c; }
+    .phase-desc { font-size: 15px; color: #888; text-align: center; line-height: 1.6; margin-bottom: 30px; }
+
+    /* BOTTOM SHEETS */
     .bottom-sheet { position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; border-top-left-radius: 35px; border-top-right-radius: 35px; z-index: 100; padding: 25px; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); height: 85vh; border-top: 1px solid #222; overflow-y: auto; }
     .bottom-sheet.active { bottom: 0; }
 
-    /* BUTTONS & FORMS */
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 18px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; }
-    .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
-    .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
-    input { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; margin-top: 5px; outline: none; }
+    /* INPUTS & BUTTONS */
+    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 22px; border-radius: 18px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; }
+    .secondary-btn { width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 18px; border-radius: 15px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+    input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 18px; border-radius: 15px; margin-bottom: 15px; outline: none; font-size: 16px; }
 
-    /* GOOGLE AUTOCOMPLETE FIX */
+    /* PAC AUTOCOMPLETE FIX (Koyu Tema) */
     .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
     .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
     .pac-item-query { color: #fff !important; }
@@ -47,74 +45,84 @@
   <div id="map"></div>
 
   <div class="top-nav">
-    <div class="menu-circle" onclick="toggleMenu(true)">☰</div>
+    <div class="menu-circle" onclick="openMyTrips()">☰</div>
     <div class="logo-pill">JK2424</div>
   </div>
 
-  <div id="sideMenu" class="side-menu">
-    <div onclick="toggleMenu(false)" style="text-align:right; color:#555; cursor:pointer;">CLOSE ✕</div>
-    <h2 style="color:#fff; margin:20px 0; font-weight:900;">MY JOURNEYS</h2>
-    <div class="menu-item" onclick="showActiveFlow()"><span>Active Request</span><span style="color:#f5d05c;">●</span></div>
-    <div class="menu-item"><span>Past Trips</span><span>0</span></div>
-  </div>
-
   <div style="position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5;">
-    <button id="mainBtn" class="primary-btn" style="width: auto; padding: 20px 45px; border-radius: 40px;" onclick="startBooking()">🚗 BOOK LUXURY RIDE</button>
-  </div>
-
-  <div id="screenPending" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#f5d05c; margin-bottom:15px;">REQUEST SENT</h2>
-      <p style="color:#fff; font-size:14px; line-height:1.6;">Your ride request has been received. Our team is checking availability for your schedule.</p>
-      <div style="margin-top:25px; color:#555; font-size:12px;">PLEASE WAIT FOR APPROVAL</div>
-      <button class="primary-btn" style="margin-top:20px; background:#222; color:#fff;" onclick="hideOverlay()">CLOSE</button>
-    </div>
-  </div>
-
-  <div id="screenPayment" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#f5d05c; margin-bottom:15px;">APPROVED</h2>
-      <p style="color:#fff; font-size:14px;">Your request is approved! To finalize your reservation, please complete the Zelle payment.</p>
-      <div style="background:#111; padding:20px; border-radius:15px; margin:20px 0; text-align:left; border:1px dashed #333;">
-        <label style="color:#f5d05c; font-size:10px; font-weight:800;">ZELLE RECIPIENT</label>
-        <div style="color:#fff; font-weight:900; margin-bottom:10px;">jk2424vip@email.com</div>
-        <div style="display:flex; justify-content:space-between;">
-            <span style="color:#888;">Amount:</span>
-            <span id="payValue" style="color:#f5d05c; font-weight:900; font-size:18px;">$0.00</span>
-        </div>
-      </div>
-      <button class="primary-btn" onclick="notifyPayment()">I HAVE SENT THE PAYMENT</button>
-    </div>
+    <button id="bookBtn" class="primary-btn" style="width: auto; padding: 20px 45px; border-radius: 40px;" onclick="handleBookingStart()">🚗 BOOK LUXURY RIDE</button>
   </div>
 
   <div class="bottom-sheet" id="sheet">
     <div id="step1">
-      <h2 style="color:#fff; margin-bottom:20px; font-weight:900;">Step 1 · Trip Details</h2>
-      <input id="pickup" type="text" placeholder="Pickup location" />
-      <input id="dropoff" type="text" placeholder="Destination" />
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" />
-        <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" />
-      </div>
-      <div style="display:flex; gap:10px; margin:20px 0;">
-        <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
-        <button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button>
-      </div>
-      <button class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
+        <h2 style="margin-bottom:20px; font-weight:900;">Step 1: Where to?</h2>
+        <input id="pickup" type="text" placeholder="Pickup Address" />
+        <input id="dropoff" type="text" placeholder="Drop-off Address" />
+        <div style="display:flex; gap:10px;">
+            <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" />
+            <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" />
+        </div>
+        <button class="primary-btn" onclick="goToStep2()">Estimate & Continue</button>
     </div>
-
     <div id="step2" class="hidden">
-      <div id="quoteBox" style="margin-bottom:20px;"></div>
-      <textarea id="notes" rows="3" placeholder="Additional notes..." style="width:100%; background:#050505; border:1px solid #222; color:#fff; padding:15px; border-radius:12px;"></textarea>
-      <button class="primary-btn" onclick="submitBooking()">Send Request</button>
+        <h2 style="margin-bottom:10px; font-weight:900;">Step 2: Review</h2>
+        <div style="background:#111; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #222;">
+            <div style="display:flex; justify-content:space-between; color:#888; font-size:13px;"><span>Distance:</span><span style="color:#fff;">12.4 miles</span></div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:18px; font-weight:900;"><span style="color:#f5d05c;">TOTAL ESTIMATE:</span><span>$84.50</span></div>
+        </div>
+        <textarea id="notes" rows="3" placeholder="Notes for driver..."></textarea>
+        <button class="primary-btn" onclick="sendBookingRequest()">Send Request</button>
     </div>
+  </div>
+
+  <div id="overlayPending" class="phase-overlay">
+    <div class="status-icon">⏳</div>
+    <h1 class="phase-title">REQUEST SENT</h1>
+    <p class="phase-desc">We are currently checking the availability of our fleet for your selected time. Please stay on this page.</p>
+    <div style="border:1px solid #222; border-radius:20px; padding:20px; background:#050505;">
+        <div style="color:#555; font-size:11px; margin-bottom:5px;">TRIP STATUS</div>
+        <div style="color:#f5d05c; font-weight:900; letter-spacing:1px;">AWAITING ADMIN APPROVAL</div>
+    </div>
+    <button class="secondary-btn" onclick="closeOverlays()">CLOSE & MONITOR</button>
+  </div>
+
+  <div id="overlayPayment" class="phase-overlay">
+    <div class="status-icon">💳</div>
+    <h1 class="phase-title">APPROVED</h1>
+    <p class="phase-desc">Your trip is approved! Please complete the Zelle transfer to secure your luxury ride.</p>
+    <div style="background:#111; border:1.5px solid #f5d05c; border-radius:20px; padding:25px; margin-bottom:30px;">
+        <label style="color:#f5d05c; font-size:10px; font-weight:900;">SEND VIA ZELLE TO:</label>
+        <div style="font-size:18px; font-weight:900; margin:10px 0;">jk2424vip@email.com</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:15px; border-top:1px solid #222;">
+            <span style="color:#888;">Amount Due:</span>
+            <span style="font-size:24px; font-weight:900; color:#f5d05c;">$84.50</span>
+        </div>
+    </div>
+    <button class="primary-btn" onclick="clientNotifiedPayment()">I'VE SENT THE PAYMENT</button>
+    <p style="margin-top:20px; font-size:12px; color:#444;">Once sent, our team will confirm within minutes.</p>
+  </div>
+
+  <div id="overlayConfirmed" class="phase-overlay">
+    <div class="status-icon" style="background:#28a745;">✓</div>
+    <h1 class="phase-title" style="color:#28a745;">CONFIRMED</h1>
+    <p class="phase-desc">Payment verified! Your chauffeur is scheduled and will arrive at the pickup location on time.</p>
+    <div style="background:#111; border-radius:20px; padding:20px; margin-bottom:20px;">
+        <div style="font-size:11px; color:#555; margin-bottom:10px;">DRIVER INFO</div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <div style="width:50px; height:50px; background:#222; border-radius:50%;"></div>
+            <div>
+                <div style="font-weight:900;">Premium Chauffeur</div>
+                <div style="color:#888; font-size:13px;">Black Cadillac Escalade</div>
+            </div>
+        </div>
+    </div>
+    <button class="primary-btn" onclick="closeOverlays()">VIEW MAP</button>
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
   <script>
-    const BACKEND = 'https://jk2424-backend.onrender.com';
-    let currentAmpm = 'AM';
-    let activeBooking = null;
+    let activePhase = 'none'; // none, pending, payment, confirmed
+    let bookingData = null;
 
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
@@ -130,57 +138,50 @@
         new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
     }
 
-    // STATE CONTROLLERS
-    async function startBooking() {
-        if(activeBooking) return showActiveFlow();
-        openSheet();
-    }
-
-    async function submitBooking() {
-        // Backend'e siparişi gönder
-        const res = await fetch(`${BACKEND}/bookings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pickup: document.getElementById('pickup').value, customerName: "User" }) // Örnek
-        });
-        const data = await res.json();
-        if(data.success) {
-            activeBooking = data.booking;
-            closeSheet();
-            document.getElementById('screenPending').style.display = 'flex';
-            startStatusPolling(data.booking.id);
+    // FLOW HANDLERS
+    function handleBookingStart() {
+        if(activePhase === 'none') {
+            document.getElementById('sheet').classList.add('active');
+        } else {
+            showCurrentPhase();
         }
     }
 
-    function startStatusPolling(id) {
-        const interval = setInterval(async () => {
-            const res = await fetch(`${BACKEND}/booking-status/${id}`);
-            const data = await res.json();
-            if(data.status === 'Approved') {
-                clearInterval(interval);
-                document.getElementById('screenPending').style.display = 'none';
-                document.getElementById('payValue').innerText = "$" + data.total;
-                document.getElementById('screenPayment').style.display = 'flex';
-            }
+    function goToStep2() {
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+    }
+
+    function sendBookingRequest() {
+        // Bu fonksiyon Admin Panelindeki "New Booking" bildirimini tetikleyecek
+        activePhase = 'pending';
+        document.getElementById('sheet').classList.remove('active');
+        showCurrentPhase();
+        // Simülasyon: Admin 5 sn sonra onayladı varsayalım
+        setTimeout(() => { 
+            // Bu normalde Admin Paneline verdiğin onayla tetiklenecek
+            // activePhase = 'payment'; 
+            // showCurrentPhase(); 
         }, 5000);
     }
 
-    function notifyPayment() {
-        alert("Payment notification sent! We will confirm your ride soon.");
-        document.getElementById('screenPayment').style.display = 'none';
+    function clientNotifiedPayment() {
+        alert("Payment notification sent to admin.");
+        closeOverlays();
     }
 
-    function showActiveFlow() {
-        // Mevcut durumu kontrol et ve ilgili overlay'i aç
-        document.getElementById('screenPending').style.display = 'flex';
+    function showCurrentPhase() {
+        closeOverlays();
+        if(activePhase === 'pending') document.getElementById('overlayPending').classList.add('active');
+        if(activePhase === 'payment') document.getElementById('overlayPayment').classList.add('active');
+        if(activePhase === 'confirmed') document.getElementById('overlayConfirmed').classList.add('active');
+    }
+
+    function closeOverlays() {
+        document.querySelectorAll('.phase-overlay').forEach(el => el.classList.remove('active'));
     }
 
     // UTILS
-    function toggleMenu(o) { document.getElementById('sideMenu').classList.toggle('open', o); }
-    function openSheet() { document.getElementById('sheet').classList.add('active'); }
-    function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
-    function hideOverlay() { document.querySelectorAll('.full-overlay').forEach(el => el.style.display='none'); }
-    function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
     window.onload = initMap;
