@@ -4,61 +4,7 @@
   <meta charset="UTF-8" />
   <title>JK2424 • Premium App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <style>
-    /* 1. MOBİL APP TEMEL STİLLERİ */
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background:#000; color:#f5f5f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow-x: hidden; }
-    
-    /* ÜST HEADER (MOBİL GÖRÜNÜM) */
-    header {
-      position: sticky; top: 0; width: 100%; height: 60px; background: rgba(0,0,0,0.9);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
-      border-bottom: 1px solid #222; z-index: 1000; backdrop-filter: blur(10px);
-    }
-    .back-btn { font-size: 20px; color: #f5d05c; cursor: pointer; visibility: hidden; }
-    .header-logo { font-size: 18px; font-weight: 800; letter-spacing: 2px; color: #f5d05c; }
-    .menu-btn { font-size: 20px; color: #f5d05c; cursor: pointer; }
-
-    /* KONTEYNER VE KARTLAR */
-    .app-container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px 100px; }
-    .card { background: #111; border: 1px solid #333; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .step-title { font-size: 12px; font-weight: 700; color: #f5d05c; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
-
-    /* INPUT VE BUTONLAR */
-    .field { margin-bottom: 12px; }
-    label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; margin-left: 5px; }
-    input { 
-      width: 100%; background: #080808; border: 1px solid #333; color: #fff; 
-      padding: 12px 15px; border-radius: 12px; font-size: 14px; outline: none; transition: 0.2s;
-    }
-    input:focus { border-color: #f5d05c; background: #0c0c0c; }
-    .primary-btn { 
-      width: 100%; background: #f5d05c; color: #000; border: none; padding: 15px; 
-      border-radius: 15px; font-weight: 800; font-size: 14px; text-transform: uppercase; 
-      cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(245,208,92,0.3);
-    }
-    .primary-btn:disabled { background: #333; color: #666; box-shadow: none; }
-
-    /* GOOGLE AUTOCOMPLETE DÜZELTME (SİYAH TEMA) */
-    .pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 12px !important; margin-top: 5px !important; z-index: 2000 !important; }
-    .pac-item { border-top: 1px solid #222 !important; padding: 10px !important; color: #f5d05c !important; cursor: pointer; }
-    .pac-item:hover { background-color: #181818 !important; }
-    .pac-item-query { color: #fff !important; font-size: 14px !important; }
-    .pac-matched { color: #f5d05c !important; }
-
-    /* AM/PM TOGGLE */
-    .toggle-row { display: flex; gap: 10px; margin-top: 5px; }
-    .t-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #333; background: #080808; color: #fff; font-size: 12px; cursor: pointer; }
-    .t-btn.active { background: #f5d05c; color: #000; font-weight: bold; border-color: #f5d05c; }
-
-    /* ÖZET ALANI */
-    .summary-box { background: #080808; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px dashed #444; }
-    .sum-line { font-size: 12px; color: #aaa; margin-bottom: 5px; }
-    .sum-val { color: #f5d05c; font-weight: bold; font-size: 18px; margin-top: 5px; display: block; }
-
-    /* GÖRÜNÜRLÜK KONTROLÜ */
-    .hidden { display: none; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -69,133 +15,35 @@
   </header>
 
   <div class="app-container">
-    
     <div id="sectionStep1">
       <div class="card">
         <div class="step-title">Step 1 · Trip Details</div>
-        <div class="field"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Where from?" /></div>
-        <div class="field"><label>Extra Stop (Optional)</label><input id="stop" type="text" placeholder="Add a stop" /></div>
-        <div class="field"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
+        <div class="field"><label>Pickup</label><input id="pickup" type="text" /></div>
+        <div class="field"><label>Extra Stop</label><input id="stop" type="text" /></div>
+        <div class="field"><label>Drop-off</label><input id="dropoff" type="text" /></div>
         <div style="display:flex; gap:10px;">
-          <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
-          <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
+          <input id="rideDate" type="text" placeholder="Date" style="flex:1" />
+          <input id="rideTime" type="text" placeholder="Time" style="flex:1" />
         </div>
-        <label>Time Period</label>
-        <div class="toggle-row">
-          <button id="amBtn" class="t-btn active">AM</button>
-          <button id="pmBtn" class="t-btn">PM</button>
-        </div>
-        <button id="calcBtn" class="primary-btn">Calculate Price</button>
+        <button id="calcBtn" class="primary-btn" onclick="calculatePrice()">Calculate</button>
       </div>
     </div>
 
     <div id="sectionStep2" class="hidden">
       <div class="card">
-        <div class="step-title">Step 2 · Passenger Info</div>
+        <div class="step-title">Step 2 · Passenger</div>
         <div class="summary-box">
-          <div class="sum-line" id="sumRoute"></div>
-          <div class="sum-line" id="sumTime"></div>
-          <div class="sum-val" id="sumTotal"></div>
+          <div id="sumRoute"></div>
+          <div id="sumTotal" class="sum-val"></div>
         </div>
-        <div class="field"><label>Full Name</label><input id="fullName" type="text" placeholder="John Doe" /></div>
-        <div class="field"><label>Mobile Phone</label><input id="phone" type="tel" placeholder="+1..." /></div>
-        <div class="field"><label>Email</label><input id="email" type="email" placeholder="email@example.com" /></div>
-        <div class="field"><label>Notes</label><textarea id="notes" rows="2" style="width:100%; background:#080808; border:1px solid #333; color:#fff; border-radius:12px; padding:10px; outline:none; font-size:14px;"></textarea></div>
-        <button id="bookBtn" class="primary-btn">Send Reservation Request</button>
+        <input id="fullName" type="text" placeholder="Name" />
+        <input id="phone" type="tel" placeholder="Phone" />
+        <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm</button>
       </div>
     </div>
-
   </div>
 
-  <script>
-    const BACKEND = 'https://jk2424-backend.onrender.com';
-    let currentAmpm = 'AM';
-    let lastQuote = null;
-
-    // GERİ TUŞU VE MENÜ MANTIĞI
-    function goBack() {
-      document.getElementById('sectionStep2').classList.add('hidden');
-      document.getElementById('sectionStep1').classList.remove('hidden');
-      document.getElementById('headerBack').style.visibility = 'hidden';
-    }
-
-    function checkLastBooking() {
-      const id = localStorage.getItem("jk2424_booking_id");
-      if(id) window.location.href = "track.html?id=" + id;
-      else alert("No active booking found.");
-    }
-
-    // TOGGLE & FORMATTERS
-    document.getElementById('amBtn').onclick = () => { currentAmpm = 'AM'; document.getElementById('amBtn').classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); };
-    document.getElementById('pmBtn').onclick = () => { currentAmpm = 'PM'; document.getElementById('pmBtn').classList.add('active'); document.getElementById('amBtn').classList.remove('active'); };
-
-    document.getElementById('rideDate').oninput = (e) => {
-      let v = e.target.value.replace(/\D/g, '');
-      if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
-      if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
-      e.target.value = v.slice(0,10);
-    };
-
-    // HESAPLAMA VE STEP GEÇİŞİ
-    document.getElementById('calcBtn').onclick = async function() {
-      const p = document.getElementById('pickup').value;
-      const d = document.getElementById('dropoff').value;
-      const t = document.getElementById('rideTime').value;
-      if(!p || !d || t.length < 5) return alert("Complete all fields.");
-
-      try {
-        this.innerText = "Processing..."; this.disabled = true;
-        const hr = parseInt(t.split(':')[0]);
-        let finalHr = (currentAmpm === 'PM' && hr !== 12) ? hr + 12 : (currentAmpm === 'AM' && hr === 12) ? 0 : hr;
-        const isNight = (finalHr >= 22 || finalHr < 5);
-
-        const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
-        const data = await res.json();
-        
-        if(data.success) {
-          lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:data.pricing.total, miles:data.pricing.miles };
-          
-          document.getElementById('sumRoute').innerText = `From: ${p} → To: ${d}`;
-          document.getElementById('sumTime').innerText = `At: ${lastQuote.rideDate} @ ${t} ${currentAmpm}`;
-          document.getElementById('sumTotal').innerText = `$${data.pricing.total.toFixed(2)}`;
-          
-          document.getElementById('sectionStep1').classList.add('hidden');
-          document.getElementById('sectionStep2').classList.remove('hidden');
-          document.getElementById('headerBack').style.visibility = 'visible';
-        }
-      } catch (e) { alert("Error."); } finally { this.innerText = "Calculate Price"; this.disabled = false; }
-    };
-
-    // REZERVASYON
-    document.getElementById('bookBtn').onclick = async function() {
-      const name = document.getElementById('fullName').value;
-      const phone = document.getElementById('phone').value;
-      if(!name || !phone) return alert("Missing info.");
-
-      try {
-        this.innerText = "Sending..."; this.disabled = true;
-        const res = await fetch(`${BACKEND}/bookings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...lastQuote, customerName: name, customerPhone: phone, customerEmail: document.getElementById('email').value, notes: document.getElementById('notes').value })
-        });
-        const data = await res.json();
-        if(data.success) {
-          localStorage.setItem("jk2424_booking_id", data.booking.id);
-          window.location.href = "track.html?id=" + data.booking.id;
-        }
-      } catch (e) { alert("Failed."); }
-    };
-  </script>
-
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places" async defer></script>
-  <script>
-    window.onload = () => {
-      const opt = { componentRestrictions: { country: 'us' } };
-      new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
-      new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
-      new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
-    };
-  </script>
+  <script src="app.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places" async defer></script>
 </body>
 </html>
