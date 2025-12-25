@@ -5,6 +5,7 @@
   <title>JK2424 • Private Chauffeur Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* JK2424 Lüks Teması */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background:#000; color:#f5f5f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display:flex; flex-direction:column; align-items:center; padding:24px 12px 48px; }
     .logo { text-align:center; margin-bottom:24px; }
@@ -17,7 +18,7 @@
     .card-header-pill { display:inline-block; padding:5px 10px; border-radius:999px; border:1px solid #444; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#e2e2e2; margin-bottom:14px; background:linear-gradient(135deg, #181818, #101010); }
     .field-group { margin-bottom:10px; }
     label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#aaaaaa; margin-bottom:4px; }
-    input[type="text"], input[type="tel"], input[type="email"], textarea { width:100%; border-radius:8px; border:1px solid #444; background:#050505; color:#f5f5f5; padding:8px 10px; font-size:13px; outline:none; transition:border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+    input[type="text"], input[type="tel"], input[type="email"], textarea { width:100%; border-radius:8px; border:1px solid #444; background:#050505; color:#f5f5f5; padding:8px 10px; font-size:13px; outline:none; transition:0.15s; }
     input:focus, textarea:focus { border-color:#f5d05c; box-shadow:0 0 0 1px rgba(245,208,92,0.3); background:#080808; }
     .row { display:flex; gap:10px; }
     .row > .col { flex:1; }
@@ -25,7 +26,7 @@
     .ampm-btn { flex:1; border-radius:999px; border:1px solid #444; background:#050505; color:#f5f5f5; padding:7px 0; font-size:13px; cursor:pointer; transition:all 0.15s; }
     .ampm-btn.active { background:#f5d05c; border-color:#f5d05c; color:#000; font-weight:600; box-shadow:0 8px 18px rgba(245,208,92,0.35); }
     .primary-btn { width:100%; border-radius:999px; border:none; background:#f5d05c; color:#000; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; font-size:13px; padding:11px 0; cursor:pointer; margin-top:6px; transition:transform 0.1s, box-shadow 0.1s, background 0.15s; box-shadow:0 14px 30px rgba(245,208,92,0.35); }
-    .primary-btn:disabled { background:#444; color:#888; box-shadow:none; }
+    .primary-btn:disabled { background:#444; color:#888; box-shadow:none; cursor:not-allowed; }
     .estimate-title { font-weight:700; color:#f5d05c; margin-bottom:8px; font-size:14px; }
     .estimate-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
     .estimate-total { margin-top:8px; padding-top:8px; border-top:1px solid #333; display:flex; justify-content:space-between; align-items:center; font-size:15px; font-weight:600; }
@@ -33,12 +34,10 @@
     .step2 { display:none; }
     .step2.visible { display:block; }
     .trip-summary-line { font-size:12px; margin-bottom:2px; }
-    .footer { margin-top:14px; text-align:center; font-size:11px; color:#777; }
-    @media (max-width:600px) { body { padding:18px 8px 32px; } .card { padding:16px 14px 18px; } }
-    .pac-container { background:#000 !important; border:1px solid #444 !important; border-radius:8px !important; box-shadow:0 10px 25px rgba(0,0,0,0.7) !important; z-index:9999 !important; }
-    .pac-item { background:#000 !important; color:#f5d05c !important; padding:8px 12px !important; border-top:1px solid #222 !important; cursor: pointer; }
+    .pac-container { background:#000 !important; border:1px solid #444 !important; border-radius:8px !important; z-index:9999 !important; }
+    .pac-item { background:#000 !important; color:#f5d05c !important; border-top:1px solid #222 !important; }
     .pac-item:hover { background:#151515 !important; }
-    .pac-item-query { color:#ffffff !important; font-size: 14px !important; }
+    .pac-item-query { color:#ffffff !important; }
   </style>
 </head>
 <body>
@@ -53,27 +52,12 @@
 
     <div class="card">
       <div class="card-header-pill">Step 1 · Trip details</div>
-      <div class="field-group">
-        <label>Pickup location</label>
-        <input id="pickup" type="text" placeholder="Tysons, VA" />
-      </div>
-      <div class="field-group">
-        <label>Extra stop (optional)</label>
-        <input id="stop" type="text" placeholder="Optional extra stop" />
-      </div>
-      <div class="field-group">
-        <label>Drop-off location</label>
-        <input id="dropoff" type="text" placeholder="Dulles Airport" />
-      </div>
+      <div class="field-group"><label>Pickup location</label><input id="pickup" type="text" placeholder="Tysons, VA" /></div>
+      <div class="field-group"><label>Extra stop (optional)</label><input id="stop" type="text" placeholder="Optional extra stop" /></div>
+      <div class="field-group"><label>Drop-off location</label><input id="dropoff" type="text" placeholder="Dulles Airport" /></div>
       <div class="row">
-        <div class="col field-group">
-          <label>Date</label>
-          <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" />
-        </div>
-        <div class="col field-group">
-          <label>Time</label>
-          <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" />
-        </div>
+        <div class="col field-group"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
+        <div class="col field-group"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
       </div>
       <label>AM / PM</label>
       <div class="ampm-toggle">
@@ -100,22 +84,10 @@
         <div class="trip-summary-line" id="summaryDropoff" style="color:#aaa;"></div>
         <div class="trip-summary-line" id="summaryDateTime" style="color:#f5d05c; font-weight:bold;"></div>
       </div>
-      <div class="field-group">
-        <label>Full name</label>
-        <input id="fullName" type="text" placeholder="John Doe" />
-      </div>
-      <div class="field-group">
-        <label>Mobile phone</label>
-        <input id="mobilePhone" type="tel" placeholder="+1 771 217 3111" />
-      </div>
-      <div class="field-group">
-        <label>Email</label>
-        <input id="email" type="email" placeholder="name@example.com" />
-      </div>
-      <div class="field-group">
-        <label>Notes</label>
-        <textarea id="notes" rows="2" placeholder="Gate codes, luggage..."></textarea>
-      </div>
+      <div class="field-group"><label>Full name</label><input id="fullName" type="text" placeholder="John Doe" /></div>
+      <div class="field-group"><label>Mobile phone</label><input id="mobilePhone" type="tel" placeholder="+1..." /></div>
+      <div class="field-group"><label>Email</label><input id="email" type="email" placeholder="name@example.com" /></div>
+      <div class="field-group"><label>Notes</label><textarea id="notes" rows="2" placeholder="Gate codes, luggage..."></textarea></div>
       <button id="sendBookingBtn" class="primary-btn" type="button">Send reservation request</button>
     </div>
   </div>
@@ -125,28 +97,24 @@
     let currentAmpm = 'AM';
     let lastQuote = null;
 
-    // AM/PM Toggle
-    document.getElementById('amBtn').onclick = function() { 
-        currentAmpm = 'AM'; this.classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); 
-    };
-    document.getElementById('pmBtn').onclick = function() { 
-        currentAmpm = 'PM'; this.classList.add('active'); document.getElementById('amBtn').classList.remove('active'); 
-    };
+    // AM/PM Logic
+    document.getElementById('amBtn').onclick = () => { currentAmpm = 'AM'; document.getElementById('amBtn').classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); };
+    document.getElementById('pmBtn').onclick = () => { currentAmpm = 'PM'; document.getElementById('pmBtn').classList.add('active'); document.getElementById('amBtn').classList.remove('active'); };
 
-    // Formatters
-    document.getElementById('rideDate').oninput = function(e) {
+    // Autoformatters
+    document.getElementById('rideDate').oninput = (e) => {
       let v = e.target.value.replace(/\D/g, '');
       if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
       if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
       e.target.value = v.slice(0,10);
     };
-    document.getElementById('rideTime').oninput = function(e) {
+    document.getElementById('rideTime').oninput = (e) => {
       let v = e.target.value.replace(/\D/g, '');
       if (v.length > 2) v = v.slice(0,2) + ':' + v.slice(2,4);
       e.target.value = v.slice(0,5);
     };
 
-    // Step 1: Calculate Price
+    // CALC PRICE
     document.getElementById('calcPriceBtn').onclick = async function() {
       const pickup = document.getElementById('pickup').value;
       const dropoff = document.getElementById('dropoff').value;
@@ -158,7 +126,7 @@
         const [h] = time.split(':'); let hr = parseInt(h);
         if (currentAmpm === 'PM' && hr !== 12) hr += 12;
         if (currentAmpm === 'AM' && hr === 12) hr = 0;
-        const isNight = (hr >= 22 || hr < 5); // server.js night rule
+        const isNight = (hr >= 22 || hr < 5); // Backend: 22:00-05:00
 
         const res = await fetch(`${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
         const data = await res.json();
@@ -181,14 +149,14 @@
       } catch (e) { alert("Server error."); } finally { this.innerText = "Calculate Price"; this.disabled = false; }
     };
 
-    // Step 2: Send Booking
+    // SEND BOOKING
     document.getElementById('sendBookingBtn').onclick = async function() {
       const name = document.getElementById('fullName').value;
       const phone = document.getElementById('mobilePhone').value;
       if (!name || !phone) { alert("Name and Phone required."); return; }
 
       try {
-        this.innerText = "Sending..."; this.disabled = true;
+        this.innerText = "Sending Request..."; this.disabled = true;
         const res = await fetch(`${BACKEND_BASE}/bookings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -197,7 +165,7 @@
         const data = await res.json();
         if (data.success) {
           localStorage.setItem("jk2424_booking_id", data.booking.id);
-          window.location.href = "track.html?id=" + data.booking.id; // Adım B'ye geçiş
+          window.location.href = "track.html?id=" + data.booking.id; //
         }
       } catch (e) { alert("Error sending request."); } finally { this.innerText = "Send reservation request"; this.disabled = false; }
     };
