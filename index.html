@@ -25,6 +25,7 @@
     .ampm-btn { flex:1; border-radius:999px; border:1px solid #444; background:#050505; color:#f5f5f5; padding:7px 0; font-size:13px; cursor:pointer; transition:all 0.15s; }
     .ampm-btn.active { background:#f5d05c; border-color:#f5d05c; color:#000; font-weight:600; box-shadow:0 8px 18px rgba(245,208,92,0.35); }
     .primary-btn { width:100%; border-radius:999px; border:none; background:#f5d05c; color:#000; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; font-size:13px; padding:11px 0; cursor:pointer; margin-top:6px; transition:transform 0.1s, box-shadow 0.1s, background 0.15s; box-shadow:0 14px 30px rgba(245,208,92,0.35); }
+    .primary-btn:disabled { background:#444; color:#888; box-shadow:none; }
     .estimate-title { font-weight:700; color:#f5d05c; margin-bottom:8px; font-size:14px; }
     .estimate-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
     .estimate-total { margin-top:8px; padding-top:8px; border-top:1px solid #333; display:flex; justify-content:space-between; align-items:center; font-size:15px; font-weight:600; }
@@ -53,24 +54,24 @@
     <div class="card">
       <div class="card-header-pill">Step 1 · Trip details</div>
       <div class="field-group">
-        <label for="pickup">Pickup location</label>
+        <label>Pickup location</label>
         <input id="pickup" type="text" placeholder="Tysons, VA" />
       </div>
       <div class="field-group">
-        <label for="stop">Extra stop (optional)</label>
+        <label>Extra stop (optional)</label>
         <input id="stop" type="text" placeholder="Optional extra stop" />
       </div>
       <div class="field-group">
-        <label for="dropoff">Drop-off location</label>
+        <label>Drop-off location</label>
         <input id="dropoff" type="text" placeholder="Dulles Airport" />
       </div>
       <div class="row">
         <div class="col field-group">
-          <label for="rideDate">Date</label>
+          <label>Date</label>
           <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" />
         </div>
         <div class="col field-group">
-          <label for="rideTime">Time</label>
+          <label>Time</label>
           <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" />
         </div>
       </div>
@@ -80,7 +81,6 @@
         <button id="pmBtn" class="ampm-btn" type="button">PM</button>
       </div>
       <button id="calcPriceBtn" class="primary-btn" type="button">Calculate Price</button>
-      <div id="calcMsg" class="msg"></div>
     </div>
 
     <div class="card" id="estimateCard">
@@ -88,8 +88,6 @@
       <div id="estimateEmptyText" style="color:#aaa; font-size:11px;">Enter details and tap “CALCULATE PRICE”.</div>
       <div id="estimateDetails" style="display:none;">
         <div class="estimate-row"><span>Total Distance:</span><span><strong id="estDistance">–</strong></span></div>
-        <div class="estimate-row"><span>Base Fare (inc. miles):</span><span><strong id="estBaseFare">–</strong></span></div>
-        <div class="estimate-row"><span>Extra Miles Cost:</span><span><strong id="estExtraCost">–</strong></span></div>
         <div class="estimate-row"><span>Night Rate Applied:</span><span><strong id="estNight">–</strong></span></div>
         <div class="estimate-total"><span>Estimated total</span><span class="estimate-total-value" id="estTotal">$0.00</span></div>
       </div>
@@ -97,145 +95,122 @@
 
     <div class="card step2" id="step2Card">
       <div class="card-header-pill">Step 2 · Passenger details</div>
-      <div class="trip-summary-line" id="summaryPickup"></div>
-      <div class="trip-summary-line" id="summaryDropoff"></div>
-      <div class="trip-summary-line" id="summaryDateTime"></div>
-      <div class="trip-summary-line" id="summaryTotal"></div>
-      <div style="height:12px;"></div>
+      <div id="summaryBox" style="margin-bottom:15px; background:#050505; padding:10px; border-radius:10px; border:1px solid #222;">
+        <div class="trip-summary-line" id="summaryPickup" style="color:#aaa;"></div>
+        <div class="trip-summary-line" id="summaryDropoff" style="color:#aaa;"></div>
+        <div class="trip-summary-line" id="summaryDateTime" style="color:#f5d05c; font-weight:bold;"></div>
+      </div>
       <div class="field-group">
-        <label for="fullName">Full name</label>
+        <label>Full name</label>
         <input id="fullName" type="text" placeholder="John Doe" />
       </div>
       <div class="field-group">
-        <label for="mobilePhone">Mobile phone</label>
+        <label>Mobile phone</label>
         <input id="mobilePhone" type="tel" placeholder="+1 771 217 3111" />
       </div>
       <div class="field-group">
-        <label for="email">Email</label>
+        <label>Email</label>
         <input id="email" type="email" placeholder="name@example.com" />
       </div>
       <div class="field-group">
-        <label for="notes">Notes</label>
+        <label>Notes</label>
         <textarea id="notes" rows="2" placeholder="Gate codes, luggage..."></textarea>
       </div>
       <button id="sendBookingBtn" class="primary-btn" type="button">Send reservation request</button>
-      <div id="bookingMsg" class="msg"></div>
     </div>
   </div>
 
   <script>
     const BACKEND_BASE = 'https://jk2424-backend.onrender.com';
-
-    function autoFormatDate(input) {
-      let v = input.value.replace(/[^0-9]/g, '');
-      if (v.length > 2 && v.length <= 4) v = v.slice(0, 2) + '/' + v.slice(2);
-      else if (v.length > 4) v = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4, 8);
-      input.value = v.slice(0, 10);
-    }
-    function autoFormatTime(input) {
-      let v = input.value.replace(/[^0-9]/g, '');
-      if (v.length > 2) v = v.slice(0, 2) + ':' + v.slice(2, 4);
-      input.value = v.slice(0, 5);
-    }
-    document.getElementById('rideDate').addEventListener('input', function() { autoFormatDate(this); });
-    document.getElementById('rideTime').addEventListener('input', function() { autoFormatTime(this); });
-
     let currentAmpm = 'AM';
-    document.getElementById('amBtn').addEventListener('click', function() { 
-        currentAmpm = 'AM'; this.classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); 
-    });
-    document.getElementById('pmBtn').addEventListener('click', function() { 
-        currentAmpm = 'PM'; this.classList.add('active'); document.getElementById('amBtn').classList.remove('active'); 
-    });
-
     let lastQuote = null;
 
-    document.getElementById('calcPriceBtn').addEventListener('click', async () => {
-      const pickup = document.getElementById('pickup').value.trim();
-      const stop = document.getElementById('stop').value.trim();
-      const dropoff = document.getElementById('dropoff').value.trim();
-      const rideDate = document.getElementById('rideDate').value.trim();
-      const rideTime = document.getElementById('rideTime').value.trim();
+    // AM/PM Toggle
+    document.getElementById('amBtn').onclick = function() { 
+        currentAmpm = 'AM'; this.classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); 
+    };
+    document.getElementById('pmBtn').onclick = function() { 
+        currentAmpm = 'PM'; this.classList.add('active'); document.getElementById('amBtn').classList.remove('active'); 
+    };
 
-      if(!pickup || !dropoff || !rideDate || !rideTime) { alert("Please complete Step 1"); return; }
+    // Formatters
+    document.getElementById('rideDate').oninput = function(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+      if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
+      e.target.value = v.slice(0,10);
+    };
+    document.getElementById('rideTime').oninput = function(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 2) v = v.slice(0,2) + ':' + v.slice(2,4);
+      e.target.value = v.slice(0,5);
+    };
 
-      const [hStr] = rideTime.split(':');
-      let h = parseInt(hStr);
-      if (currentAmpm === 'PM' && h !== 12) h += 12;
-      if (currentAmpm === 'AM' && h === 12) h = 0;
-      const isNight = (h >= 22 || h < 5);
+    // Step 1: Calculate Price
+    document.getElementById('calcPriceBtn').onclick = async function() {
+      const pickup = document.getElementById('pickup').value;
+      const dropoff = document.getElementById('dropoff').value;
+      const time = document.getElementById('rideTime').value;
+      if (!pickup || !dropoff || time.length < 5) { alert("Please complete trip info."); return; }
 
       try {
-        const url = `${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&stop=${encodeURIComponent(stop)}&dropoff=${encodeURIComponent(dropoff)}&isNight=${isNight}`;
-        const res = await fetch(url);
+        this.innerText = "Calculating..."; this.disabled = true;
+        const [h] = time.split(':'); let hr = parseInt(h);
+        if (currentAmpm === 'PM' && hr !== 12) hr += 12;
+        if (currentAmpm === 'AM' && hr === 12) hr = 0;
+        const isNight = (hr >= 22 || hr < 5); // server.js night rule
+
+        const res = await fetch(`${BACKEND_BASE}/calc?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}&stop=${encodeURIComponent(document.getElementById('stop').value)}&isNight=${isNight}`);
         const data = await res.json();
         
-        if(data.success && data.pricing) {
+        if (data.success) {
           const p = data.pricing;
-
           document.getElementById('estimateEmptyText').style.display = 'none';
           document.getElementById('estimateDetails').style.display = 'block';
-          
-          document.getElementById('estDistance').innerText = p.miles + " miles";
-          document.getElementById('estBaseFare').innerText = `$${p.baseFare} (inc. ${p.includedMiles} mi)`;
-          
-          // ✅ GÜNCELLENEN ŞEFFAF SATIR
-          document.getElementById('estExtraCost').innerText = `$${p.extraCost.toFixed(2)} (${p.extraMiles} mi x $${p.extraRate.toFixed(2)})`;
-
-          document.getElementById('estNight').innerText = p.nightApplied ? `Yes (x${p.nightMultiplier})` : "No";
+          document.getElementById('estDistance').innerText = p.miles + " mi";
+          document.getElementById('estNight').innerText = p.nightApplied ? "Yes (x" + p.nightMultiplier + ")" : "No";
           document.getElementById('estTotal').innerText = "$" + p.total.toFixed(2);
           
           document.getElementById('summaryPickup').innerText = "From: " + pickup;
           document.getElementById('summaryDropoff').innerText = "To: " + dropoff;
-          document.getElementById('summaryDateTime').innerText = `At: ${rideDate} ${rideTime} ${currentAmpm}`;
-          document.getElementById('summaryTotal').innerText = "Price: $" + p.total.toFixed(2);
+          document.getElementById('summaryDateTime').innerText = "At: " + document.getElementById('rideDate').value + " @ " + time + " " + currentAmpm;
           
           document.getElementById('step2Card').classList.add('visible');
-          lastQuote = { pickup, stop, dropoff, rideDate, rideTime, ampm: currentAmpm, total: p.total, miles: p.miles };
+          lastQuote = { pickup, stop: document.getElementById('stop').value, dropoff, rideDate: document.getElementById('rideDate').value, rideTime: time, ampm: currentAmpm, miles: p.miles, total: p.total };
         }
-      } catch (e) { alert("Calc error."); }
-    });
+      } catch (e) { alert("Server error."); } finally { this.innerText = "Calculate Price"; this.disabled = false; }
+    };
 
-    document.getElementById('sendBookingBtn').addEventListener('click', async () => {
-      const name = document.getElementById('fullName').value.trim();
-      const phone = document.getElementById('mobilePhone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const notes = document.getElementById('notes').value.trim();
-
-      if(!name || !phone || !email) { alert("Missing info"); return; }
-
-      localStorage.setItem("jk2424_last_quote", JSON.stringify({
-        ...lastQuote, customerName: name, customerPhone: phone, customerEmail: email, notes: notes
-      }));
+    // Step 2: Send Booking
+    document.getElementById('sendBookingBtn').onclick = async function() {
+      const name = document.getElementById('fullName').value;
+      const phone = document.getElementById('mobilePhone').value;
+      if (!name || !phone) { alert("Name and Phone required."); return; }
 
       try {
+        this.innerText = "Sending..."; this.disabled = true;
         const res = await fetch(`${BACKEND_BASE}/bookings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...lastQuote, customerName: name, customerPhone: phone, customerEmail: email, notes })
+          body: JSON.stringify({ ...lastQuote, customerName: name, customerPhone: phone, customerEmail: document.getElementById('email').value, notes: document.getElementById('notes').value })
         });
         const data = await res.json();
-
-        if (data.success && data.booking && data.booking.id) {
+        if (data.success) {
           localStorage.setItem("jk2424_booking_id", data.booking.id);
-          window.location.href = "track.html?id=" + data.booking.id;
-        } else {
-          alert("Booking failed.");
+          window.location.href = "track.html?id=" + data.booking.id; // Adım B'ye geçiş
         }
-      } catch (e) { alert("Server error."); }
-    });
+      } catch (e) { alert("Error sending request."); } finally { this.innerText = "Send reservation request"; this.disabled = false; }
+    };
   </script>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places" async defer></script>
   <script>
-    function initAutocomplete() {
-      const options = { componentRestrictions: { country: 'us' } };
-      ['pickup', 'stop', 'dropoff'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) new google.maps.places.Autocomplete(el, options);
-      });
-    }
-    window.onload = () => { setTimeout(initAutocomplete, 500); };
+    window.onload = () => {
+      const opt = { componentRestrictions: { country: 'us' } };
+      new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
+      new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
+      new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+    };
   </script>
 </body>
 </html>
