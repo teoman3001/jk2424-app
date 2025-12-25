@@ -1,11 +1,14 @@
+// app.js
 const BACKEND = 'https://jk2424-backend.onrender.com';
 let currentAmpm = 'AM';
 let lastQuote = null;
 
 window.addEventListener('DOMContentLoaded', () => {
+    // AM/PM Butonlarını Bağla
     document.getElementById('amBtn').onclick = () => { currentAmpm = 'AM'; document.getElementById('amBtn').classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); };
     document.getElementById('pmBtn').onclick = () => { currentAmpm = 'PM'; document.getElementById('pmBtn').classList.add('active'); document.getElementById('amBtn').classList.remove('active'); };
 
+    // Google Autocomplete'i Başlat
     if (typeof google !== 'undefined') {
         const opt = { componentRestrictions: { country: 'us' } };
         new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
@@ -14,6 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Tarih Formatlayıcı
 document.getElementById('rideDate').oninput = (e) => {
     let v = e.target.value.replace(/\D/g, '');
     if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
@@ -25,6 +29,7 @@ function goBack() {
     document.getElementById('sectionStep2').classList.add('hidden');
     document.getElementById('sectionStep1').classList.remove('hidden');
     document.getElementById('headerBack').style.visibility = 'hidden';
+    window.scrollTo(0,0);
 }
 
 function checkLastBooking() {
@@ -54,25 +59,25 @@ async function calculatePrice() {
         if(data.success) {
             lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:date, rideTime:t, ampm:currentAmpm, total:data.pricing.total, miles:data.pricing.miles };
             
-            // Step 2 Özetini Doldur
-            document.getElementById('sumRoute').innerText = `Pickup: ${p} \nDrop-off: ${d}`;
+            // Step 2 Özetini Güncelle
+            document.getElementById('sumRoute').innerText = `Pickup: ${p}\nDrop-off: ${d}`;
             document.getElementById('sumTime').innerText = `Schedule: ${date} @ ${t} ${currentAmpm}`;
             document.getElementById('sumTotal').innerText = `$${data.pricing.total.toFixed(2)}`;
             
-            // Geçiş Yap
+            // Ekranları Değiştir
             document.getElementById('sectionStep1').classList.add('hidden');
             document.getElementById('sectionStep2').classList.remove('hidden');
             document.getElementById('headerBack').style.visibility = 'visible';
             window.scrollTo(0,0);
         }
-    } catch (e) { alert("Error connecting to server."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
+    } catch (e) { alert("Server error."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
 
 async function sendBooking() {
     const btn = document.getElementById('bookBtn');
     const name = document.getElementById('fullName').value;
     const phone = document.getElementById('phone').value;
-    if(!name || !phone) return alert("Name and Phone are required.");
+    if(!name || !phone) return alert("Name and Phone required.");
 
     try {
         btn.innerText = "Sending..."; btn.disabled = true;
@@ -86,5 +91,5 @@ async function sendBooking() {
             localStorage.setItem("jk2424_booking_id", data.booking.id);
             window.location.href = "track.html?id=" + data.booking.id;
         }
-    } catch (e) { alert("Failed to send reservation."); } finally { btn.innerText = "Confirm Booking"; btn.disabled = false; }
+    } catch (e) { alert("Failed."); } finally { btn.innerText = "Confirm Booking"; btn.disabled = false; }
 }
