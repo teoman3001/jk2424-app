@@ -11,7 +11,6 @@
   .card { background:#111; border:1px solid #333; border-radius:18px; padding:20px; margin-bottom:18px; }
   .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
   .act-btn { border:none; padding:12px; border-radius:10px; font-weight:800; cursor:pointer; font-size:11px; text-transform:uppercase; color:#fff; }
-  input { width:100%; background:#050505; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; }
 </style>
 </head>
 <body>
@@ -34,9 +33,13 @@ async function loadBookings() {
     const data = await res.json();
     document.getElementById('bookingList').innerHTML = data.bookings.map(b => `
       <div class="card">
-        <div style="color:#f5d05c; font-weight:bold; margin-bottom:10px;">${b.customerName} - ${b.rideDate} @ ${b.rideTime}</div>
+        <div style="color:#f5d05c; font-weight:bold; margin-bottom:10px;">
+          ${b.customerName || 'No Name'} - ${b.rideDate || 'No Date'} @ ${b.rideTime || ''} ${b.ampm || ''}
+        </div>
         <div style="font-size:12px; color:#aaa;">${b.pickup} ➔ ${b.dropoff}</div>
-        <div style="background:#050505; padding:10px; border-radius:10px; margin:10px 0; font-size:11px; color:#f5d05c;">NOTE: ${b.notes || 'No note'}</div>
+        <div style="background:#050505; padding:10px; border-radius:10px; margin:10px 0; font-size:11px; color:#f5d05c;">
+          NOTE: ${b.notes || 'No note'}
+        </div>
         <div style="font-weight:bold;">Status: ${b.status.toUpperCase()} | Total: $${b.total}</div>
         <div class="action-grid">
           ${ACTIONS.map(a => `<button class="act-btn" onclick="updateStatus('${b.id}', '${a.id}')" style="background:${a.color}; color:${a.id==='PaymentRequested'?'#000':'#fff'}">${a.label}</button>`).join('')}
@@ -48,16 +51,17 @@ async function loadBookings() {
 
 async function updateStatus(id, newStatus) {
   try {
-    await fetch(`${API_BASE}/update-booking`, {
+    const res = await fetch(`${API_BASE}/update-booking`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: id, status: newStatus })
     });
-    loadBookings();
+    if (res.ok) loadBookings();
   } catch (e) {}
 }
+
 loadBookings();
-setInterval(loadBookings, 10000);
+setInterval(loadBookings, 8000);
 </script>
 </body>
 </html>
