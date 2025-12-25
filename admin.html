@@ -37,9 +37,7 @@ async function loadBookings() {
           ${b.customerName || 'Client'} - ${b.rideDate || 'No Date'} @ ${b.rideTime || ''} ${b.ampm || ''}
         </div>
         <div style="font-size:12px; color:#aaa;">${b.pickup} ➔ ${b.dropoff}</div>
-        <div style="background:#050505; padding:10px; border-radius:10px; margin:10px 0; font-size:11px; color:#f5d05c;">
-          NOTE: ${b.notes || 'No note'}
-        </div>
+        <div style="background:#050505; padding:10px; border-radius:10px; margin:10px 0; font-size:11px; color:#f5d05c;">NOTE: ${b.notes || 'No note'}</div>
         <div style="font-weight:bold;">Status: ${b.status.toUpperCase()} | Total: $${b.total}</div>
         <div class="action-grid">
           ${ACTIONS.map(a => `<button class="act-btn" onclick="updateStatus('${b.id}', '${a.id}')" style="background:${a.color}; color:${a.id==='PaymentRequested'?'#000':'#fff'}">${a.label}</button>`).join('')}
@@ -51,7 +49,7 @@ async function loadBookings() {
 
 async function updateStatus(id, newStatus) {
   try {
-    // 404 hatasını gidermek için backend ile tam uyumlu metod ve yol
+    // 404 hatasını gidermek için update-booking yolu backend ile tam uyumlu yapıldı
     await fetch(`${API_BASE}/update-booking`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
