@@ -5,116 +5,112 @@
   <title>Teoman Deveci • VIP Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* TEOMAN DEVECI ULTIMATE LUXURY THEME vFINAL */
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
+    /* TEOMAN DEVECI ULTIMATE LUXURY THEME - RESTORED */
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
+    body, html { height: 100%; width: 100%; background: #000; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow: hidden; color: #fff; }
 
+    /* GERÇEK GOOGLE MAPS ARKAPLANI */
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-    /* UI LAYERS */
-    .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; }
-    .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 1px; font-size: 13px; text-transform: uppercase; }
-    .notification-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #ff4444; border-radius: 50%; border: 2px solid #000; display: none; }
-
-    /* SIDE MENU */
-    .side-menu { position: fixed; top: 0; left: -100%; width: 280px; height: 100%; background: #0a0a0a; z-index: 300; transition: 0.4s; padding: 60px 25px; border-right: 1px solid #222; }
-    .side-menu.open { left: 0; }
-    .menu-item { color: #fff; font-size: 16px; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-
-    /* BOOK BUTTON AREA */
-    .action-area { position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5; }
-    .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-
-    /* COMMON MODAL */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; display: none; flex-direction: column; padding: 20px; overflow: hidden; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
-    .modal-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
-    .close-x { font-size: 24px; color: #555; cursor: pointer; padding: 5px; }
-
-    /* INPUTS */
-    .fld { margin-bottom: 15px; }
-    label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
-    input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; outline: none; }
-    input:focus { border-color: #f5d05c; }
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
-
-    /* === NEW: STATUS NOTIFICATION POPUPS (Blur BG) === */
-    .status-modal {
-        position: fixed; inset: 0; 
-        background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); /* Silik Arka Plan */
-        z-index: 600; display: none; 
-        flex-direction: column; align-items: center; justify-content: center;
-        animation: fadeIn 0.5s ease;
-    }
-    .status-card {
-        background: #111; border: 1px solid #333; width: 90%; max-width: 380px;
-        padding: 30px; border-radius: 25px; text-align: center; position: relative;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    }
-    .status-icon-lg { font-size: 50px; margin-bottom: 20px; display: block; }
-    .status-title { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 10px; text-transform: uppercase; }
-    .status-desc { font-size: 14px; color: #aaa; line-height: 1.5; margin-bottom: 25px; }
-    .track-btn { background: #222; color: #fff; border: 1px solid #444; padding: 15px 30px; border-radius: 30px; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
-    .track-btn.live { background: #f5d05c; color: #000; border: none; animation: pulse 2s infinite; }
-    
-    /* Live Track Map Overlay */
-    #liveTrackOverlay {
-        position: fixed; bottom: -100%; left: 0; right: 0; height: 70vh;
-        background: #1a1a1a; z-index: 700; border-top-left-radius: 30px; border-top-right-radius: 30px;
-        transition: bottom 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
-        display: flex; flex-direction: column;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
-    }
-    #liveTrackOverlay.active { bottom: 0; }
-    .drag-handle { width: 50px; height: 5px; background: #444; border-radius: 10px; margin: 15px auto; }
-    .minimized-track {
-        position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
-        background: #f5d05c; border-radius: 50%; z-index: 550;
-        display: none; align-items: center; justify-content: center;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.5); cursor: pointer; border: 2px solid #fff;
-    }
-    
-    /* GOOGLE AUTOCOMPLETE CUSTOM STYLING (Yellow Icon, White Text) */
+    /* GOOGLE AUTOCOMPLETE TASARIMI (SARI İKON - BEYAZ YAZI) */
     .pac-container { 
         background-color: #000 !important; 
         border: 1px solid #333 !important; 
         border-radius: 0 0 10px 10px !important; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important; 
+        box-shadow: 0 10px 40px rgba(0,0,0,1) !important; 
+        font-family: 'Segoe UI', sans-serif !important;
     }
     .pac-item { 
         border-top: 1px solid #222 !important; 
         padding: 15px !important; 
         cursor: pointer !important; 
+        color: #fff !important; /* Alt metin beyaz */
     }
-    /* Konum İkonunu Sarı Yapma */
+    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; }
+    
+    /* İkonu Sarı Yapma (Filter yöntemi ile) */
     .pac-icon { 
         filter: invert(79%) sepia(66%) saturate(632%) hue-rotate(352deg) brightness(101%) contrast(93%); 
-        /* Bu filter hesabı #f5d05c rengine yakın bir ton verir */
     }
-    /* Ana Başlık (Yer İsmi) - Beyaz */
+    
+    /* Başlık (Yer İsmi) Beyaz */
     .pac-item-query { 
-        color: #ffffff !important; 
+        color: #fff !important; 
         font-weight: 700 !important; 
         font-size: 15px !important; 
     }
-    /* Alt Adres - Beyaz (veya çok açık gri) */
-    .pac-item { 
-        color: #ffffff !important; /* Kullanıcı isteği üzerine beyaz */
-        font-size: 12px !important;
-    }
-    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; }
 
-    /* Diğer Modallar ve CSS'ler öncekiyle aynı (Kısaltıldı) */
-    .bottom-sheet { position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; border-top-left-radius: 30px; border-top-right-radius: 30px; z-index: 100; padding: 25px; transition: bottom 0.5s; height: 85vh; overflow-y: auto; border-top: 1px solid #222; }
+    /* ÜST MENU */
+    .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 1px; font-size: 13px; text-transform: uppercase; }
+
+    /* SHEET VE FORM */
+    .bottom-sheet { 
+        position: fixed; bottom: -120%; left: 0; right: 0; 
+        background: #0a0a0a; border-top-left-radius: 30px; border-top-right-radius: 30px; 
+        z-index: 100; padding: 25px; transition: bottom 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); 
+        border-top: 1px solid #333; height: 85vh; overflow-y: auto; 
+        box-shadow: 0 -10px 50px rgba(0,0,0,0.9);
+    }
     .bottom-sheet.active { bottom: 0; }
     
-    /* Payment Modal Styles */
-    #paymentModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 500; display: none; align-items: center; justify-content: center; }
-    .pay-card { background: #111; padding: 20px; border-radius: 15px; width: 90%; border: 1px solid #333; }
+    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+    .sheet-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 0.5px; }
+    .close-btn { font-size: 24px; color: #666; cursor: pointer; padding: 5px; }
 
-    @keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(245, 208, 92, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(245, 208, 92, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 208, 92, 0); } }
+    /* INPUTLAR */
+    .fld { margin-bottom: 15px; position: relative; }
+    .fld label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
+    .inp-box { 
+        width: 100%; background: #111; border: 1px solid #333; color: #fff; 
+        padding: 16px; border-radius: 12px; font-size: 15px; transition: 0.3s;
+    }
+    .inp-box:focus { border-color: #f5d05c; background: #000; }
+    
+    /* BUTONLAR */
+    .primary-btn { 
+        width: 100%; background: #f5d05c; color: #000; border: none; 
+        padding: 18px; border-radius: 12px; font-weight: 900; font-size: 15px; 
+        text-transform: uppercase; cursor: pointer; margin-top: 15px; 
+    }
+    .secondary-btn {
+        width: 100%; background: transparent; border: 1px solid #333; color: #888;
+        padding: 15px; border-radius: 12px; font-weight: 700; font-size: 13px;
+        cursor: pointer; margin-top: 10px;
+    }
+    
+    /* ANA EKRAN BUTONU */
+    .action-area { position: absolute; bottom: 50px; width: 100%; display: flex; justify-content: center; z-index: 5; }
+    .book-btn { background: #f5d05c; color: #000; border: none; padding: 18px 40px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+
+    /* STEP 2 - ARAÇ KARTI */
+    .car-card {
+        background: linear-gradient(145deg, #151515, #0a0a0a);
+        border: 1px solid #333; border-radius: 16px; padding: 20px;
+        margin-bottom: 20px; display: flex; align-items: center; gap: 15px;
+    }
+    .car-icon-circle {
+        width: 60px; height: 60px; background: #000; border-radius: 50%;
+        border: 1px solid #333; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: #fff;
+    }
+    .car-details h3 { font-size: 16px; margin-bottom: 4px; font-weight: 800; }
+    .car-details p { font-size: 12px; color: #888; }
+    .plate-box { display: inline-block; border: 1px solid #555; padding: 2px 6px; border-radius: 4px; color: #fff; font-family: monospace; margin-left: 5px; background: #222; }
+
+    /* FİYAT ALANI */
+    .price-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #ccc; }
+    .price-total { border-top: 1px solid #222; padding-top: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .big-price { font-size: 28px; color: #f5d05c; font-weight: 900; }
+
+    /* GİZLEME CLASS'I */
+    .hidden { display: none !important; }
+
+    /* YÜKLENİYOR ANİMASYONU */
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; border-top-color: #000; animation: spin 1s ease-in-out infinite; margin-right: 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
   </style>
 </head>
 <body>
@@ -122,238 +118,175 @@
   <div id="map"></div>
 
   <div class="top-nav">
-    <div class="menu-circle" onclick="toggleMenu(true)">
-      ☰
-      <div id="navDot" class="notification-dot"></div>
-    </div>
+    <div class="menu-circle">☰</div>
     <div class="logo-pill">TEOMAN DEVECI</div>
   </div>
 
-  <div id="sideMenu" class="side-menu">
-    <div class="close-x" style="text-align:right;" onclick="toggleMenu(false)">✕</div>
-    <div class="menu-item" onclick="alert('Trips')">🚗 My Trips</div>
-    <div class="menu-item" onclick="alert('Support')">💬 Support</div>
+  <div class="action-area" id="mainActionArea">
+    <button class="book-btn" onclick="openSheet()">🚗 VIP YOLCULUK PLANLA</button>
   </div>
 
-  <div class="action-area">
-    <button class="book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
-  </div>
+  <div class="bottom-sheet" id="bookingSheet">
+    
+    <div id="step1">
+        <div class="sheet-header">
+            <span class="sheet-title">Yolculuk Detayları</span>
+            <span class="close-btn" onclick="closeSheet()">✕</span>
+        </div>
 
-  <div id="statusOnWay" class="status-modal">
-    <div class="status-card">
-        <div class="close-x" style="position:absolute; right:15px; top:15px;" onclick="closeStatusModal('statusOnWay')">✕</div>
-        <div class="status-icon-lg">🏎️</div>
-        <div class="status-title">Driver is On The Way</div>
-        <p class="status-desc">Teoman Deveci has started the trip to your pickup location.<br><strong style="color:#f5d05c">ETA: 15 min</strong></p>
-        <button class="track-btn live" onclick="openLiveTrack()">
-            <span>🛰️ Live Tracking</span>
+        <div class="fld">
+            <label>Nereden (Alış Noktası)</label>
+            <input type="text" id="pickup" class="inp-box" placeholder="Konum arayın...">
+        </div>
+
+        <div class="fld">
+            <label>Nereye (Varış Noktası)</label>
+            <input type="text" id="dropoff" class="inp-box" placeholder="Gidilecek yer...">
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <div class="fld" style="flex:1;">
+                <label>Tarih</label>
+                <input type="date" id="rideDate" class="inp-box" value="2025-12-25">
+            </div>
+            <div class="fld" style="flex:1;">
+                <label>Saat</label>
+                <input type="time" id="rideTime" class="inp-box" value="10:00">
+            </div>
+        </div>
+
+        <button class="primary-btn" id="calcBtn" onclick="calculateAndContinue()">
+            FİYATI HESAPLA & DEVAM ET
         </button>
     </div>
-  </div>
 
-  <div id="statusArrived" class="status-modal">
-    <div class="status-card">
-        <div class="close-x" style="position:absolute; right:15px; top:15px;" onclick="closeStatusModal('statusArrived')">✕</div>
-        <div class="status-icon-lg">📍</div>
-        <div class="status-title">Your Driver is Here!</div>
-        <p class="status-desc">Mercedes-Benz EQS (JK 2424) is waiting at your pickup point.</p>
-        <div style="background:#222; padding:10px; border-radius:10px; margin-bottom:15px;">
-            <div style="font-size:10px; color:#666;">WAITING TIME</div>
-            <div id="waitTimer" style="font-size:20px; font-weight:bold; color:#f5d05c;">00:00</div>
+    <div id="step2" class="hidden">
+        <div class="sheet-header">
+            <span class="sheet-title">Araç ve Onay</span>
+            <span class="close-btn" onclick="closeSheet()">✕</span>
         </div>
-        <button class="track-btn" onclick="closeStatusModal('statusArrived')">I'm Coming</button>
+
+        <div class="car-card">
+            <div class="car-icon-circle">🚘</div>
+            <div class="car-details">
+                <h3>Mercedes-Benz EQS 450+</h3>
+                <p>Siyah • Luxury Sedan <span class="plate-box">JK 24 24</span></p>
+                <div style="color:#f5d05c; font-size:11px; margin-top:5px; font-weight:700;">Şoför: Teoman Deveci</div>
+            </div>
+        </div>
+
+        <div style="background:#111; padding:20px; border-radius:15px; border:1px solid #333; margin-bottom:20px;">
+            <div class="price-row"><span>Mesafe</span><span id="dispMiles">-- mil</span></div>
+            <div class="price-row"><span>Baz Ücret</span><span>$65.00</span></div>
+            <div class="price-row"><span>Ekstra Mil Ücreti</span><span id="dispExtra">--</span></div>
+            <div class="price-total">
+                <span style="font-weight:700; color:#fff;">TOPLAM TAHMİNİ</span>
+                <span class="big-price" id="dispTotal">--</span>
+            </div>
+        </div>
+
+        <div class="fld">
+            <label>Ad Soyad</label>
+            <input type="text" id="custName" class="inp-box" placeholder="İsminiz">
+        </div>
+
+        <button class="primary-btn" onclick="finishBooking()">REZERVASYONU ONAYLA</button>
+        <button class="secondary-btn" onclick="backToStep1()">❮ Düzenle</button>
     </div>
-  </div>
 
-  <div id="statusCompleted" class="status-modal">
-    <div class="status-card">
-        <div class="close-x" style="position:absolute; right:15px; top:15px;" onclick="closeStatusModal('statusCompleted')">✕</div>
-        <div class="status-icon-lg">🏁</div>
-        <div class="status-title">You Have Arrived</div>
-        <p class="status-desc">Thank you for choosing Teoman Deveci VIP Services. We hope you enjoyed your ride.</p>
-        <textarea style="width:100%; height:60px; margin-bottom:10px;" placeholder="Leave a note (optional)"></textarea>
-        <button class="track-btn live" onclick="closeStatusModal('statusCompleted')">Rate & Close</button>
-    </div>
-  </div>
-
-  <div id="liveTrackOverlay">
-      <div class="drag-handle" onclick="minimizeTrack()"></div>
-      <div style="padding:0 20px 10px; display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="color:white;">Live Tracking</h3>
-          <span style="color:#f5d05c; font-size:12px;">● Live</span>
-      </div>
-      <div id="liveMap" style="flex:1; background:#222; position:relative;">
-          <iframe width="100%" height="100%" frameborder="0" style="border:0; filter: invert(90%) hue-rotate(180deg);" 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3106.3!2d-77.2!3d38.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzjCsDU0JzQ1LjkiTiA3N8KwMTMnMzUuNiJX!5e0!3m2!1sen!2sus!4v1639!5m2!1sen!2sus"></iframe>
-      </div>
-  </div>
-
-  <div class="minimized-track" id="miniTrack" onclick="openLiveTrack()">
-      🚗
-  </div>
-
-
-  <div class="bottom-sheet" id="sheet">
-    <div class="modal-header">
-      <h2 style="color:#fff;">Trip Details</h2>
-      <div class="close-x" onclick="closeSheet()">✕</div>
-    </div>
-    <div id="step1">
-      <div class="fld"><label>Pickup</label><input id="pickup" type="text" placeholder="Where from?" /></div>
-      <div class="fld"><label>Dropoff</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
-      <div class="fld"><label>Date/Time</label><input id="rideTime" type="text" placeholder="10:00 AM" /></div>
-      <button class="primary-btn" onclick="goToStep2()">Calculate Price</button>
-    </div>
-    <div id="step2" style="display:none;">
-      <div style="background:#111; padding:15px; border-radius:10px; display:flex; gap:15px; margin-bottom:20px; border:1px solid #333;">
-          <div style="font-size:30px;">⚡</div>
-          <div>
-              <div style="color:#fff; font-weight:bold;">Mercedes-Benz EQS</div>
-              <div style="color:#888; font-size:12px;">JK 2424 • Black</div>
-              <div style="color:#f5d05c; font-size:11px; margin-top:5px;">Chauffeur: Teoman Deveci</div>
-          </div>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:#fff;">
-          <span>Estimated Total</span>
-          <span style="font-size:24px; color:#f5d05c; font-weight:bold;">$150.00</span>
-      </div>
-      <button class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
-    </div>
-  </div>
-
-  <div id="successToast" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; border:1px solid #f5d05c; padding:20px; z-index:900; border-radius:10px; color:white;">
-      Request Sent!
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
+  
   <script>
-    const BACKEND = 'http://localhost:3000'; // Change to real backend
-    let myBookingId = null;
-    let pollInterval = null;
-    let waitTimerInterval = null;
-
-    function toggleMenu(o){ document.getElementById('sideMenu').classList.toggle('open', o); }
-    function openSheet(){ document.getElementById('sheet').classList.add('active'); }
-    function closeSheet(){ document.getElementById('sheet').classList.remove('active'); }
-    function goToStep2(){ document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block'; }
-
+    // === HARİTA VE AUTOCOMPLETE AYARLARI ===
+    let map;
     function initMap() {
-        // Background Map
-        new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
+        // Harita Başlangıcı
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 38.9072, lng: -77.0369 }, // Washington DC / Tysons area
+            zoom: 13,
+            disableDefaultUI: true, // Temiz görünüm
             styles: [
                 { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
                 { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
             ]
         });
-        const opt = { componentRestrictions: { country: 'us' } };
-        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+
+        // Autocomplete Ayarları
+        const options = { componentRestrictions: { country: 'us' } };
+        const pickupInput = document.getElementById('pickup');
+        const dropoffInput = document.getElementById('dropoff');
+
+        new google.maps.places.Autocomplete(pickupInput, options);
+        new google.maps.places.Autocomplete(dropoffInput, options);
     }
+
+    // Sayfa Yüklendiğinde Haritayı Başlat
     window.onload = initMap;
 
-    async function sendBooking() {
-        // Demo Booking
+    // === SAYFA İŞLEMLERİ ===
+    const sheet = document.getElementById('bookingSheet');
+    const mainBtn = document.getElementById('mainActionArea');
+
+    function openSheet() {
+        sheet.classList.add('active');
+        mainBtn.style.display = 'none';
+    }
+
+    function closeSheet() {
+        sheet.classList.remove('active');
+        mainBtn.style.display = 'flex';
+        setTimeout(() => backToStep1(), 500); // Kapanınca sıfırla
+    }
+
+    function calculateAndContinue() {
         const p = document.getElementById('pickup').value;
         const d = document.getElementById('dropoff').value;
-        const res = await fetch(`${BACKEND}/bookings`, {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ 
-                pickup: p, dropoff: d, 
-                customerName: "Teoman's Guest", customerPhone: "555-0101",
-                rideDate: "2025-12-25", rideTime: "10:00", ampm: "AM", total: 150 
-            })
-        });
-        const data = await res.json();
-        if(data.success) {
-            myBookingId = data.bookingId;
-            closeSheet();
-            document.getElementById('successToast').style.display='block';
-            setTimeout(()=>document.getElementById('successToast').style.display='none', 2000);
-            startPolling();
+        const btn = document.getElementById('calcBtn');
+
+        if(!p || !d) {
+            alert("Lütfen nereden nereye gideceğinizi seçin.");
+            return;
         }
-    }
 
-    // --- LIVE STATUS CHECKING (POLLING) ---
-    function startPolling() {
-        if(pollInterval) clearInterval(pollInterval);
-        pollInterval = setInterval(checkStatus, 5000); // Check every 5 sec
-    }
-
-    async function checkStatus() {
-        if(!myBookingId) return;
-        try {
-            // In real app, fetch only my booking status
-            const res = await fetch(`${BACKEND}/bookings/customer/555-0101`); 
-            const data = await res.json();
-            const myTrip = data.bookings.find(b => b.id === myBookingId);
+        // Buton animasyonu
+        const originalText = btn.innerText;
+        btn.innerHTML = '<span class="spinner"></span> HESAPLANIYOR...';
+        
+        // Simüle edilmiş backend isteği (Gerçekte server.js'e soracak)
+        // Şimdilik görsel geçişi yapıyoruz:
+        setTimeout(() => {
+            // Rastgele fiyat simülasyonu
+            const miles = Math.floor(Math.random() * 15) + 5;
+            const total = 65 + (miles > 10 ? (miles-10)*3 : 0);
             
-            if(myTrip) {
-                handleStatusChange(myTrip.status, myTrip);
-            }
-        } catch(e){}
-    }
+            document.getElementById('dispMiles').innerText = miles + " mil";
+            document.getElementById('dispExtra').innerText = miles > 10 ? `$${((miles-10)*3).toFixed(2)}` : "$0.00";
+            document.getElementById('dispTotal').innerText = "$" + total.toFixed(2);
 
-    let lastStatus = 'pending';
-    function handleStatusChange(status, tripData) {
-        if(status === lastStatus) return;
-        lastStatus = status;
-
-        // Close all first
-        document.querySelectorAll('.status-modal').forEach(m => m.style.display='none');
-
-        if(status === 'on_the_way') {
-            document.getElementById('statusOnWay').style.display = 'flex';
-        } 
-        else if (status === 'arrived') {
-            document.getElementById('statusArrived').style.display = 'flex';
-            minimizeTrack(); // Stop live track view
-            document.getElementById('miniTrack').style.display = 'none'; // Hide bubble
-            startWaitTimer(tripData.timestamps.arrived);
-        }
-        else if (status === 'in_progress') {
-            // Trip started
-            if(waitTimerInterval) clearInterval(waitTimerInterval);
-        }
-        else if (status === 'completed') {
-            document.getElementById('statusCompleted').style.display = 'flex';
-            clearInterval(pollInterval); // Stop checking
-        }
-    }
-
-    // Live Tracking UI Logic
-    function openLiveTrack() {
-        document.getElementById('liveTrackOverlay').classList.add('active');
-        document.getElementById('miniTrack').style.display = 'none';
-        // Close modal underneath to see map clearly? Optional.
-        document.getElementById('statusOnWay').style.display = 'none'; 
-    }
-    function minimizeTrack() {
-        document.getElementById('liveTrackOverlay').classList.remove('active');
-        if(lastStatus === 'on_the_way') {
-            document.getElementById('miniTrack').style.display = 'flex';
-            // Show modal again if desired, or keep it minimized
-            // document.getElementById('statusOnWay').style.display = 'flex';
-        }
-    }
-    function closeStatusModal(id) {
-        document.getElementById(id).style.display = 'none';
-        if(id === 'statusOnWay') minimizeTrack();
-    }
-
-    // Wait Timer Logic
-    function startWaitTimer(startTimeStr) {
-        const start = new Date(startTimeStr).getTime();
-        if(waitTimerInterval) clearInterval(waitTimerInterval);
-        waitTimerInterval = setInterval(() => {
-            const now = Date.now();
-            const diff = Math.floor((now - start) / 1000);
-            const m = Math.floor(diff / 60).toString().padStart(2,'0');
-            const s = (diff % 60).toString().padStart(2,'0');
-            document.getElementById('waitTimer').innerText = `${m}:${s}`;
+            // Ekrana geç
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            
+            // Butonu düzelt
+            btn.innerText = originalText;
         }, 1000);
+    }
+
+    function backToStep1() {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
+    }
+
+    function finishBooking() {
+        const name = document.getElementById('custName').value;
+        if(!name) { alert("Lütfen isminizi giriniz."); return; }
+
+        alert("Teşekkürler " + name + "! Rezervasyon talebin Teoman Deveci'ye iletildi.");
+        closeSheet();
     }
   </script>
 </body>
