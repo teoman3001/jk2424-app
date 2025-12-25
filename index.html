@@ -1,662 +1,298 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>JK2424 • Premium Private Service</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <style>
-    /* JK2424 ULTIMATE LUXURY THEME v4.0 FINAL NIGHT */
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
-
-    #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-
-    /* TOP NAV */
-    .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; }
-    .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teoman Deveci - VIP Transfer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    .notification-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #ff4444; border-radius: 50%; border: 2px solid #000; display: none; }
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #050505; /* Çok koyu siyah */
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    /* SIDE MENU */
-    .side-menu { position: fixed; top: 0; left: -100%; width: 280px; height: 100%; background: #0a0a0a; z-index: 300; transition: 0.4s; padding: 60px 25px; border-right: 1px solid #222; }
-    .side-menu.open { left: 0; }
-    .menu-item { color: #fff; font-size: 16px; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        /* Cam Efekti (Glassmorphism) */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .action-area { position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5; }
-    .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
 
-    /* COMMON MODAL */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; display: none; flex-direction: column; padding: 20px; overflow: hidden; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
-    .modal-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
-    .close-x { font-size: 24px; color: #555; cursor: pointer; padding: 5px; }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #afbec9;
+            outline: none;
+        }
 
-    /* FORMS */
-    .fld { margin-bottom: 15px; }
-    label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
-    input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; outline: none; }
-    input:focus { border-color: #f5d05c; }
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+        /* AM/PM Butonları */
+        .time-selector-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 4px;
+            height: 56px;
+        }
 
-    /* PAYMENT MODAL - CORPORATE STYLE */
-    #paymentModal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-      z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
-      animation: fadeIn 0.4s ease;
-    }
-    .pay-card {
-      background: #101010; border: 1px solid #222; width: 100%; max-width: 400px;
-      border-radius: 20px; padding: 30px; position: relative;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column;
-    }
-    .pay-close-btn { position: absolute; top: 15px; right: 15px; color: #555; font-size: 20px; cursor: pointer; }
-    .pay-header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-    .pay-title-text { color: #fff; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-    .pay-amount { color: #f5d05c; font-size: 28px; font-weight: 900; margin-top: 5px; }
+        .ampm-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    /* PAYMENT METHODS */
-    .pay-method { border: 1px solid #333; border-radius: 10px; margin-bottom: 12px; overflow: hidden; background: #050505; transition: 0.3s; }
-    .pay-method.active { border-color: #f5d05c; background: #111; }
-    .pay-method-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; color: #ccc; font-size: 13px; }
-    .pay-method-body { padding: 16px; display: none; border-top: 1px solid #222; background: #0a0a0a; }
-    .pay-method.active .pay-method-body { display: block; }
-    .pay-btn-action { background: #f5d05c; color: #000; width: 100%; padding: 16px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; margin-top: 10px; font-size: 14px; text-transform: uppercase; }
-    
-    .cancel-link { text-align: center; margin-top: 20px; color: #444; font-size: 11px; cursor: pointer; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700; }
+        .ampm-btn.active {
+            background: white;
+            color: #000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
 
-    /* MY TRIPS LIST - PREMIUM REDESIGN */
-    .tab-bar { display: flex; background: #111; padding: 4px; border-radius: 30px; margin-bottom: 25px; border: 1px solid #222; }
-    .tab { flex: 1; padding: 10px; text-align: center; border-radius: 25px; color: #666; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
-    .tab.active { background: #f5d05c; color: #000; }
-    
-    .trip-list { flex: 1; overflow-y: auto; padding-bottom: 40px; }
-    
-    .trip-card { background: #121212; border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; position: relative; }
-    .trip-card-header { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #1a1a1a; }
-    .trip-date { color: #888; font-size: 12px; font-weight: 600; }
-    .trip-status-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
-    .st-pending { color: #f5d05c; border: 1px solid #f5d05c; }
-    .st-active { color: #4CAF50; border: 1px solid #4CAF50; }
-    .st-cancel { color: #ff4444; border: 1px solid #ff4444; }
+        /* Ana Aksiyon Butonu */
+        .action-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #afbec9 100%);
+            color: #000;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    .trip-route-section { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-    .route-point { font-size: 14px; color: #fff; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-    .route-point::before { content: ''; width: 6px; height: 6px; background: #f5d05c; border-radius: 50%; }
-    
-    .trip-footer { display: flex; justify-content: space-between; align-items: center; }
-    .trip-price { font-size: 18px; color: #fff; font-weight: 700; }
-    
-    .trip-actions { display: flex; gap: 10px; }
-    .btn-trip { padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; }
-    .btn-pay { background: #f5d05c; color: #000; }
-    .btn-view { background: #222; color: #ccc; border: 1px solid #333; }
+        .action-btn:active {
+            transform: scale(0.98);
+        }
 
-    /* SUCCESS TOAST */
-    #successToast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); border: 2px solid #f5d05c; padding: 35px; border-radius: 25px; z-index: 500; width: 85%; text-align: center; display: none; backdrop-filter: blur(10px); }
+        /* Araç Kartı Tasarımı */
+        .car-card {
+            background: linear-gradient(180deg, rgba(30,30,30,0.5) 0%, rgba(10,10,10,0.8) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .plate-badge {
+            background: white;
+            color: black;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid black;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
 
-    /* GOOGLE AUTOCOMPLETE RESTORED STYLE */
-    .pac-container { background-color: #000 !important; border: 1px solid #333 !important; border-radius: 0 0 8px 8px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important; margin-top: 5px !important; }
-    .pac-item { border-top: 1px solid #222 !important; padding: 12px 10px !important; color: #aaa !important; cursor: pointer !important; }
-    .pac-item-query { color: #fff !important; font-weight: 600 !important; font-size: 14px !important; }
-    .pac-matched { color: #f5d05c !important; }
-    .pac-icon { filter: invert(1) grayscale(100%); opacity: 0.7; }
-    .pac-item:hover, .pac-item-selected { background-color: #111 !important; }
+        /* Adım Geçiş Animasyonları */
+        .step-container {
+            display: none; /* Varsayılan olarak gizli */
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
 
-    /* INBOX */
-    .msg-card { background: #111; padding: 15px; border-bottom: 1px solid #222; cursor: pointer; }
-    .msg-card.unread .msg-title { font-weight: 900; color: #fff; }
-    .msg-card.unread .msg-dot { display: inline-block; }
-    .msg-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
-    .msg-title { color: #ccc; font-size: 14px; font-weight: 500; }
-    .msg-date { color: #555; font-size: 10px; }
-    .msg-body { color: #888; font-size: 12px; line-height: 1.4; }
-    .msg-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; margin-right: 5px; display: none; }
-
-    /* BOOKING SHEET */
-    .bottom-sheet { position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; border-top-left-radius: 30px; border-top-right-radius: 30px; z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid #222; height: 85vh; overflow-y: auto; }
-    .bottom-sheet.active { bottom: 0; }
-    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    
-    .est-card { background: #080808; border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 25px; }
-    .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 9px; }
-    .est-total-line { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-    .total-val { font-size: 26px; color: #f5d05c; font-weight: 900; }
-    
-    .toggle-row { display: flex; gap: 10px; margin: 15px 0 20px; }
-    .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
-    .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
-
-    .hidden { display: none !important; }
-    #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
-    #routePopup { position: fixed; inset: 0; background: #000; z-index: 600; display: none; flex-direction: column; }
-    #popupMap { flex: 1; width: 100%; }
-    
-    @keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-  </style>
+        .step-container.active {
+            display: flex;
+            opacity: 1;
+        }
+    </style>
 </head>
-<body>
+<body class="flex flex-col h-full max-w-md mx-auto relative p-4">
 
-  <div id="map"></div>
-
-  <div class="top-nav">
-    <div class="menu-circle" onclick="toggleMenu(true)">
-      ☰
-      <div id="navDot" class="notification-dot"></div>
-    </div>
-    <div class="logo-pill">JK2424</div>
-  </div>
-
-  <div id="sideMenu" class="side-menu">
-    <div class="close-x" style="text-align:right;" onclick="toggleMenu(false)">✕</div>
-    <div class="menu-item" onclick="openTrips()">🚗 My Trips</div>
-    <div class="menu-item" onclick="openInbox()">
-      📩 Inbox
-      <div id="menuDot" class="notification-dot" style="position:relative; display:none;"></div>
-    </div>
-    <div class="menu-item" onclick="alert('Support connected')">💬 Support</div>
-  </div>
-
-  <div class="action-area">
-    <button class="book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
-  </div>
-
-  <div id="successToast">
-    <h3 style="color:#f5d05c; margin-bottom:12px; font-size:20px;">Request Submitted</h3>
-    <p style="color:#fff; font-size:14px; line-height:1.5;">Availability is being checked, and your chauffeur will get back to you as quickly as possible.</p>
-  </div>
-
-  <div id="paymentModal">
-    <div class="pay-card">
-      <div class="pay-close-btn" onclick="closePaymentModal()">✕</div>
-      <div class="pay-header">
-        <div class="pay-title-text">Secure Checkout</div>
-        <div class="pay-amount" id="payAmountDisp">--</div>
-      </div>
-      
-      <div class="pay-method active" onclick="togglePayMethod(this)">
-        <div class="pay-method-header">💳 Credit / Debit Card <span>▼</span></div>
-        <div class="pay-method-body" onclick="event.stopPropagation()">
-          <div class="fld"><input type="text" placeholder="Card Number" /></div>
-          <div style="display:flex; gap:10px;">
-            <div class="fld"><input type="text" placeholder="MM/YY" /></div>
-            <div class="fld"><input type="text" placeholder="CVC" /></div>
-          </div>
-          <button class="pay-btn-action" onclick="processCardPayment()">COMPLETE PAYMENT</button>
+    <div class="fixed top-0 left-0 w-full z-50 p-4 bg-black/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-bold tracking-wider text-white">TEOMAN DEVECI</h1>
+                <p class="text-[10px] text-gray-400 tracking-[0.2em] uppercase">VIP Chauffeur</p>
+            </div>
+            <button id="backBtn" onclick="goBack()" class="hidden text-white/70 hover:text-white">
+                <i class="fas fa-chevron-left text-xl"></i>
+            </button>
         </div>
-      </div>
+    </div>
 
-      <div class="pay-method" onclick="togglePayMethod(this)">
-        <div class="pay-method-header">🏛 Zelle / Corporate Transfer <span>▼</span></div>
-        <div class="pay-method-body" onclick="event.stopPropagation()">
-          <p style="color:#ccc; font-size:12px; margin-bottom:10px;">Please initiate transfer to our verified Bank of America account:</p>
-          <div style="background:#151515; padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:15px;">
-             <div style="color:#666; font-size:10px; text-transform:uppercase;">Recipient</div>
-             <div style="color:#fff; font-size:14px; font-weight:700;">JK2424 Enterprise LLC</div>
-             <div style="color:#666; font-size:10px; text-transform:uppercase; margin-top:8px;">Zelle / Mobile Number</div>
-             <div id="zellePhoneDisp" style="color:#f5d05c; font-size:16px; font-weight:700;">--</div>
-             <div style="color:#444; font-size:10px; margin-top:5px;">Bank of America</div>
-          </div>
-          <button class="pay-btn-action" style="background:#222; color:#fff; border:1px solid #444;" onclick="processZellePayment()">I SENT THE MONEY</button>
+    <div class="h-20"></div>
+
+    <div id="step1" class="step-container active flex-col h-full">
+        <div class="mb-6">
+            <h2 class="text-2xl font-light mb-1">Yolculuğunu</h2>
+            <h2 class="text-2xl font-bold">Planla</h2>
         </div>
-      </div>
 
-      <div class="cancel-link" onclick="cancelFromPopup()">Cancel Reservation</div>
-    </div>
-  </div>
-
-  <div id="inboxModal" class="modal-overlay">
-    <div class="modal-header">
-      <div class="modal-title">INBOX</div>
-      <div class="close-x" onclick="document.getElementById('inboxModal').style.display='none'">✕</div>
-    </div>
-    <div id="inboxList" style="overflow-y:auto;"></div>
-  </div>
-
-  <div id="tripsModal" class="modal-overlay">
-    <div class="modal-header">
-      <div class="modal-title">MY TRIPS</div>
-      <div class="close-x" onclick="document.getElementById('tripsModal').style.display='none'">✕</div>
-    </div>
-    <div class="tab-bar">
-      <div class="tab active" onclick="switchTab('pending')">Pending</div>
-      <div class="tab" onclick="switchTab('active')">Active</div>
-      <div class="tab" onclick="switchTab('history')">History</div>
-    </div>
-    <div id="tripListContainer" class="trip-list"></div>
-  </div>
-
-  <div id="routePopup">
-    <div style="padding:15px; background:#111; display:flex; justify-content:space-between; align-items:center;">
-      <span style="color:#fff; font-weight:bold;">Trip Route</span>
-      <span style="color:#fff; cursor:pointer;" onclick="closeRoutePopup()">✕ Close</span>
-    </div>
-    <div id="popupMap"></div>
-  </div>
-
-  <div id="profileModal">
-    <div style="background: #0a0a0a; padding: 35px; border-radius: 25px; border: 1px solid #222; width: 100%; max-width: 360px;">
-      <h2 style="color:#fff; margin-bottom:10px; font-weight:900;">Welcome</h2>
-      <p style="color:#666; font-size:12px; margin-bottom:25px;">Required for premium service.</p>
-      <div class="fld"><input id="profName" type="text" placeholder="Full Name" /></div>
-      <div class="fld"><input id="profPhone" type="tel" placeholder="Mobile Phone" /></div>
-      <button class="primary-btn" onclick="saveProfile()">Continue</button>
-    </div>
-  </div>
-
-  <div class="bottom-sheet" id="sheet">
-    <div class="sheet-header">
-      <h2 id="sheetTitle" style="color:#fff; font-size:18px; font-weight:900;">Step 1 · Trip Details</h2>
-      <div class="close-x" onclick="closeSheet()">✕</div>
-    </div>
-    
-    <div id="step1">
-      <div class="fld"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Enter pickup" /></div>
-      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add stop (optional)" /></div>
-      <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Enter destination" /></div>
-      <div style="display:flex; gap:12px;">
-        <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" /></div>
-        <div class="fld" style="flex:1;"><label>Time (12h)</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" onblur="validateHour(this)" /></div>
-      </div>
-      <div class="toggle-row">
-        <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
-        <button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button>
-      </div>
-      <button class="primary-btn" id="calcBtn" onclick="calculatePrice()">Calculate Price</button>
-    </div>
-
-    <div id="step2" class="hidden">
-      <div class="est-card">
-        <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
-        <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span id="resBase">--</span></div>
-        <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
-        <div class="est-row"><span>Night Rate:</span><span id="resNight">--</span></div>
-        <div class="est-total-line">
-          <span style="font-weight:800; color:#fff;">Estimated total</span>
-          <span id="resTotal" class="total-val">--</span>
-        </div>
-        <p style="color:#666; font-size:10px; margin-top:10px; text-align:center;">* Night rates apply between 11:00 PM - 06:00 AM</p>
-      </div>
-      <div class="fld"><label>Ride Notes</label><textarea id="notes" rows="3" placeholder="Luggage, child seat requests..."></textarea></div>
-      <button class="primary-btn" id="bookBtn" onclick="sendBooking()">Confirm Booking</button>
-      <button style="width:100%; background:transparent; border:none; color:#555; font-size:12px; margin-top:20px; cursor:pointer;" onclick="toggleStep(1)">❮ Edit details</button>
-    </div>
-  </div>
-
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
-  <script>
-    const BACKEND = 'https://jk2424-backend.onrender.com';
-    let currentAmpm = 'AM';
-    let lastQuote = null;
-    let myBookings = [];
-    let currentTab = 'pending';
-    let pendingInterval = null;
-    let activeBookingIdForPay = null;
-    let mapObject = null;
-    let routeRenderer = null;
-    // Zelle phone number config
-    const MY_ZELLE_PHONE = "571-337-3377"; // Example place holder, replace with yours if dynamic
-
-    function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
-    function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
-    function validateHour(i) {
-        if(!i.value) return;
-        let [h, m] = i.value.split(':');
-        if(parseInt(h) > 12 || parseInt(h) === 0) { alert("Please use 12-hour format (01-12)."); i.value = ""; }
-    }
-
-    function toggleMenu(open) { document.getElementById('sideMenu').classList.toggle('open', open); }
-
-    function initMap() {
-        // Main Background Map
-        const map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
-            styles: [
-                { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
-                { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
-                { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
-            ]
-        });
-        const opt = { componentRestrictions: { country: 'us' } };
-        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
-    }
-
-    window.addEventListener('load', () => {
-        initMap();
-        if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
-        else {
-            // Set Zelle Phone from local user data if you want, or keep static
-            // document.getElementById('zellePhoneDisp').innerText = JSON.parse(localStorage.getItem('jk_user')).phone; 
-            // For now using the logic that it's YOUR corporate number:
-            document.getElementById('zellePhoneDisp').innerText = "Use Corporate Phone"; 
-            checkPendingStatus(); 
-        }
-    });
-
-    function saveProfile() {
-        const n = document.getElementById('profName').value;
-        const p = document.getElementById('profPhone').value;
-        if(n && p) { localStorage.setItem('jk_user', JSON.stringify({name:n, phone:p})); document.getElementById('profileModal').style.display = 'none'; }
-    }
-
-    // --- DATA SYNC & NOTIFICATIONS ---
-    function checkPendingStatus() {
-        if(pendingInterval) clearInterval(pendingInterval);
-        
-        pendingInterval = setInterval(async () => {
-            const u = JSON.parse(localStorage.getItem('jk_user'));
-            if(!u) return;
-
-            // Update Zelle Phone Display with Admin's preferred if needed, for now just placeholder
-            // Ideally this comes from backend config, but we hardcode for safety now:
-            // document.getElementById('zellePhoneDisp').innerText = "..."; 
-
-            try {
-                const res = await fetch(`${BACKEND}/bookings/customer/${u.phone}`);
-                const data = await res.json();
-                if(data.success) {
-                    myBookings = data.bookings;
-                    
-                    // 1. Check for Popup Trigger (Confirmed but not seen)
-                    const confirmedBooking = myBookings.find(b => b.status === 'confirmed' && !localStorage.getItem(`seen_${b.id}`));
-                    if(confirmedBooking) {
-                        openPaymentModal(confirmedBooking);
-                        localStorage.setItem(`seen_${confirmedBooking.id}`, 'true');
-                    }
-
-                    // 2. Check Unread Messages
-                    let unreadCount = 0;
-                    myBookings.forEach(b => {
-                        if(b.messages) {
-                            b.messages.forEach(m => { if(!m.read) unreadCount++; });
-                        }
-                    });
-
-                    const dots = document.querySelectorAll('.notification-dot');
-                    dots.forEach(d => {
-                        if(unreadCount > 0) d.style.display = 'block';
-                        else d.style.display = 'none';
-                    });
-                }
-            } catch(e) {}
-        }, 5000);
-    }
-
-    // --- MESSAGES INBOX ---
-    function openInbox() {
-        toggleMenu(false);
-        const container = document.getElementById('inboxList');
-        container.innerHTML = '';
-        
-        let allMsgs = [];
-        myBookings.forEach(b => {
-            if(b.messages) {
-                b.messages.forEach(m => {
-                    allMsgs.push({ ...m, bookingId: b.id });
-                });
-            }
-        });
-
-        // Sort by date desc
-        allMsgs.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-        if(allMsgs.length === 0) {
-            container.innerHTML = '<div style="padding:20px; color:#666; text-align:center;">No messages.</div>';
-        } else {
-            allMsgs.forEach(m => {
-                const div = document.createElement('div');
-                div.className = `msg-card ${!m.read ? 'unread' : ''}`;
-                div.innerHTML = `
-                    <div class="msg-header">
-                        <div class="msg-title"><span class="msg-dot"></span>${m.title}</div>
-                        <div class="msg-date">${new Date(m.date).toLocaleDateString()} ${new Date(m.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-                    </div>
-                    <div class="msg-body">${m.body}</div>
-                `;
-                div.onclick = () => markRead(m.bookingId, m.id, div);
-                container.appendChild(div);
-            });
-        }
-        document.getElementById('inboxModal').style.display = 'flex';
-    }
-
-    async function markRead(bid, mid, el) {
-        if(el.classList.contains('unread')) {
-            el.classList.remove('unread');
-            try {
-                await fetch(`${BACKEND}/bookings/${bid}/messages/read`, {
-                    method: 'PATCH',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ messageId: mid })
-                });
-            } catch(e){}
-        }
-    }
-
-    // --- TRIPS & PAYMENT ---
-    function openTrips() {
-        toggleMenu(false);
-        document.getElementById('tripsModal').style.display = 'flex';
-        renderTrips();
-    }
-
-    function switchTab(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => { if(t.innerText.toLowerCase() === tab) t.classList.add('active'); });
-        renderTrips();
-    }
-
-    function renderTrips() {
-        const container = document.getElementById('tripListContainer');
-        let filtered = [];
-        
-        if (currentTab === 'pending') {
-            filtered = myBookings.filter(b => b.status === 'pending');
-        } else if (currentTab === 'active') {
-            filtered = myBookings.filter(b => ['confirmed','payment_sent','paid','on_the_way','arrived','in_progress'].includes(b.status));
-        } else {
-            filtered = myBookings.filter(b => ['completed','cancelled'].includes(b.status));
-        }
-
-        if (filtered.length === 0) {
-            container.innerHTML = '<div style="color:#444; text-align:center; margin-top:50px; font-size:12px;">No trips found.</div>';
-            return;
-        }
-
-        container.innerHTML = filtered.map(b => {
-            let badgeClass = 'st-pending';
-            if(b.status === 'cancelled') badgeClass = 'st-cancel';
-            else if(b.status !== 'pending') badgeClass = 'st-active';
-
-            const showPay = (b.status === 'confirmed');
+        <div class="space-y-4 mb-6">
+            <div class="relative">
+                <i class="fas fa-circle text-[10px] text-green-400 absolute left-5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="pickup" placeholder="Alınacak Konum" class="glass-input w-full pl-10 pr-4 py-4 rounded-xl">
+            </div>
             
-            return `
-            <div class="trip-card">
-                <div class="trip-card-header">
-                    <span class="trip-date">${b.rideDate} @ ${b.rideTime} ${b.ampm}</span>
-                    <span class="trip-status-badge ${badgeClass}">${b.status.replace('_',' ')}</span>
-                </div>
-                
-                <div class="trip-route-section">
-                    <div class="route-point">${b.pickup.split(',')[0]}</div>
-                    <div class="route-point" style="color:#888;">${b.dropoff.split(',')[0]}</div>
-                </div>
+            <div class="h-4 border-l border-dashed border-gray-600 ml-5 -my-2"></div>
 
-                <div class="trip-footer">
-                    <div class="trip-price">$${Number(b.total).toFixed(0)}</div>
-                    <div class="trip-actions">
-                        <button class="btn-trip btn-view" onclick='openRoute("${b.pickup}", "${b.dropoff}")'>VIEW ROUTE</button>
-                        ${showPay ? `<button class="btn-trip btn-pay" onclick='openPaymentModal(${JSON.stringify(b)})'>PAY NOW</button>` : ''}
+            <div class="relative">
+                <i class="fas fa-square text-[10px] text-red-400 absolute left-5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="dropoff" placeholder="Varış Konumu" class="glass-input w-full pl-10 pr-4 py-4 rounded-xl">
+            </div>
+        </div>
+
+        <div class="bg-white/5 rounded-xl p-4 mb-8 border border-white/5">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-2 ml-1">TARİH</label>
+                    <input type="date" class="glass-input w-full px-2 py-3 rounded-lg text-sm text-center" value="2025-12-25">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-2 ml-1">SAAT</label>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="10:00" class="glass-input w-16 text-center rounded-lg font-bold">
+                        <div class="time-selector-container flex-1">
+                            <button class="ampm-btn active" onclick="toggleAmPm(this)">AM</button>
+                            <button class="ampm-btn" onclick="toggleAmPm(this)">PM</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        `}).join('');
-    }
+        </div>
 
-    // --- PAYMENT MODAL LOGIC ---
-    function openPaymentModal(booking) {
-        activeBookingIdForPay = booking.id;
-        document.getElementById('payAmountDisp').innerText = `$${Number(booking.total).toFixed(2)}`;
-        
-        // Zelle Phone update to corporate
-        // Using static for now as requested, or your user phone. 
-        // Logic: You want them to send money to YOU. 
-        // So I will put a placeholder "571..." or whatever. 
-        // Let's use the local user phone as placeholder or generic
-        // document.getElementById('zellePhoneDisp').innerText = "571-337-XXXX"; 
-        // Since I don't know your Zelle, I leave it as "Ask Admin" or similar in real life, 
-        // but here I put your user phone as a placeholder or just "571-..."
-        document.getElementById('zellePhoneDisp').innerText = "571-337-3377"; 
+        <button onclick="goToStep(2)" class="action-btn w-full py-4 rounded-xl text-lg flex items-center justify-center gap-3 mt-auto shadow-lg shadow-white/10">
+            <span>Araç Seçimi</span>
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
 
-        document.getElementById('paymentModal').style.display = 'flex';
-    }
-    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+    <div id="step2" class="step-container flex-col h-full">
+        <div class="mb-6">
+            <h2 class="text-2xl font-light mb-1">Araç</h2>
+            <h2 class="text-2xl font-bold">Detayları</h2>
+        </div>
 
-    function togglePayMethod(el) {
-        document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
-        el.classList.add('active');
-    }
+        <div class="car-card p-4 mb-6 relative">
+            <div class="w-full h-48 bg-gray-800 rounded-lg mb-4 overflow-hidden flex items-center justify-center relative">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Mercedes-Benz_V297_IMG_6421.jpg/1200px-Mercedes-Benz_V297_IMG_6421.jpg" 
+                     class="w-full h-full object-cover opacity-80" alt="Mercedes EQS">
+                <div class="absolute bottom-2 right-2 plate-badge text-xs">JK 24 24</div>
+            </div>
 
-    async function processCardPayment() {
-        if(!activeBookingIdForPay) return;
-        if(!confirm("Complete transaction?")) return;
-        try {
-            await updateStatusAPI(activeBookingIdForPay, 'paid');
-            alert("Payment Verified.");
-            closePaymentModal();
-            openTrips();
-        } catch(e) { alert("Error processing payment"); }
-    }
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Mercedes-Benz EQS 450+</h3>
+                    <p class="text-sm text-gray-400">Elektrikli Lüks Sedan • Siyah</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-2xl font-bold text-white">€150</span>
+                    <span class="text-xs text-gray-500">Tahmini Fiyat</span>
+                </div>
+            </div>
 
-    async function processZellePayment() {
-        if(!activeBookingIdForPay) return;
-        try {
-            await updateStatusAPI(activeBookingIdForPay, 'payment_sent');
-            alert("Notification sent. Verification pending.");
-            closePaymentModal();
-            openTrips();
-        } catch(e) { alert("Error sending notification"); }
-    }
-    
-    async function updateStatusAPI(id, status) {
-        await fetch(`${BACKEND}/bookings/${id}/status`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ status: status })
-        });
-    }
+            <div class="flex gap-3 mt-4 text-xs text-gray-300">
+                <span class="bg-white/10 px-3 py-1 rounded-full"><i class="fas fa-user mr-1"></i> Şoför: Teoman D.</span>
+                <span class="bg-white/10 px-3 py-1 rounded-full"><i class="fas fa-wifi mr-1"></i> Free WiFi</span>
+            </div>
+        </div>
 
-    async function cancelFromPopup() {
-        if(!activeBookingIdForPay) return;
-        if(!confirm("Cancel this reservation?")) return;
-        await updateStatusAPI(activeBookingIdForPay, 'cancelled');
-        closePaymentModal();
-        openTrips();
-    }
+        <div class="bg-blue-900/20 border border-blue-500/20 p-4 rounded-xl mb-6">
+            <div class="flex items-start gap-3">
+                <i class="fas fa-info-circle text-blue-400 mt-1"></i>
+                <p class="text-sm text-blue-100/80">Bu araç kişisel hizmetinize özeldir. Başka bir şoför veya araç yönlendirilmez.</p>
+            </div>
+        </div>
 
-    // --- ROUTE MAP POPUP ---
-    function openRoute(pickup, dropoff) {
-        document.getElementById('routePopup').style.display = 'flex';
-        
-        setTimeout(() => {
-            if(!mapObject) {
-                 mapObject = new google.maps.Map(document.getElementById("popupMap"), {
-                    zoom: 10, center: {lat:0, lng:0}, disableDefaultUI: true,
-                    styles: [ { "elementType": "geometry", "stylers": [{ "color": "#212121" }] } ]
-                });
-                routeRenderer = new google.maps.DirectionsRenderer({ map: mapObject });
-            }
-            google.maps.event.trigger(mapObject, 'resize');
-            
-            const ds = new google.maps.DirectionsService();
-            ds.route({
-                origin: pickup, destination: dropoff, travelMode: 'DRIVING'
-            }, (res, status) => {
-                if(status === 'OK') routeRenderer.setDirections(res);
-            });
-        }, 100);
-    }
-    function closeRoutePopup() { document.getElementById('routePopup').style.display = 'none'; }
+        <button onclick="goToStep(3)" class="action-btn w-full py-4 rounded-xl text-lg flex items-center justify-center gap-3 mt-auto shadow-lg shadow-white/10">
+            <span>Bilgileri Gir</span>
+            <i class="fas fa-check"></i>
+        </button>
+    </div>
 
-    // --- BOOKING ---
-    function openSheet() { document.getElementById('sheet').classList.add('active'); }
-    function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
-    function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
-    
-    function toggleStep(s) {
-        document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
-        document.getElementById('step2').classList.toggle('hidden', s === 1);
-        document.getElementById('sheetTitle').innerText = s === 1 ? "Step 1 · Trip Details" : "Step 2 · Confirmation";
-    }
+    <div id="step3" class="step-container flex-col h-full">
+        <div class="mb-6">
+            <h2 class="text-2xl font-light mb-1">Son</h2>
+            <h2 class="text-2xl font-bold">Adım</h2>
+        </div>
 
-    function checkIsNight(timeStr, ampm) {
-        if (!timeStr || timeStr.length < 5) return false;
-        let [h, m] = timeStr.split(':').map(Number);
-        if (ampm === 'PM' && h !== 12) h += 12;
-        if (ampm === 'AM' && h === 12) h = 0;
-        return (h >= 23 || h < 6); 
-    }
+        <div class="glass-panel p-6 rounded-2xl space-y-5 mb-6">
+            <div>
+                <label class="block text-xs text-gray-400 mb-2 ml-1">AD SOYAD</label>
+                <input type="text" class="glass-input w-full px-4 py-3 rounded-xl" placeholder="İsminiz">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-2 ml-1">TELEFON</label>
+                <input type="tel" class="glass-input w-full px-4 py-3 rounded-xl" placeholder="+90 5XX XXX XX XX">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-2 ml-1">NOTLAR (Opsiyonel)</label>
+                <textarea class="glass-input w-full px-4 py-3 rounded-xl h-24" placeholder="Özel istekleriniz..."></textarea>
+            </div>
+        </div>
 
-    async function calculatePrice() {
-        const p = document.getElementById('pickup').value;
-        const d = document.getElementById('dropoff').value;
-        const timeVal = document.getElementById('rideTime').value;
-        const b = document.getElementById('calcBtn');
+        <div class="flex justify-between items-center text-sm text-gray-400 px-2 mb-6">
+            <span>Araç: <strong>EQS 450+ (JK2424)</strong></span>
+            <span>Tutar: <strong class="text-white">€150</strong></span>
+        </div>
 
-        if(!p || !d) return alert("Select locations.");
-        if(timeVal.length !== 5) return alert("Please enter time as HH:MM");
-        let [th, tm] = timeVal.split(':');
-        if(parseInt(th) > 12 || parseInt(th) === 0) return alert("Please use 12-hour format.");
+        <button onclick="finishBooking()" class="action-btn w-full py-4 rounded-xl text-lg font-bold shadow-lg shadow-green-500/20 bg-gradient-to-r from-green-400 to-emerald-600 border-none text-black">
+            REZERVASYONU ONAYLA
+        </button>
+    </div>
 
-        const isNight = checkIsNight(timeVal, currentAmpm);
+    <script>
+        let currentStep = 1;
 
-        try {
-            b.innerText = "Connecting..."; b.disabled = true;
-            const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${isNight}`);
-            const data = await res.json();
-            if(data.success) {
-                lastQuote = { ...data.pricing, pickup:p, dropoff:d, ampm:currentAmpm, rideTime: timeVal, rideDate: document.getElementById('rideDate').value };
+        // Adımlar arası geçiş
+        function goToStep(step) {
+            // Önceki adımı gizle
+            document.querySelector(`#step${currentStep}`).classList.remove('active');
+            setTimeout(() => {
+                document.querySelector(`#step${currentStep}`).style.display = 'none';
                 
-                document.getElementById('resDist').innerText = (data.pricing.miles || 0) + " miles";
-                document.getElementById('resBase').innerText = "$65.00"; 
-                document.getElementById('resExtra').innerText = `$${(data.pricing.extraCost || 0).toFixed(2)} (${data.pricing.extraMiles || 0} mi)`;
-                document.getElementById('resNight').innerText = data.pricing.nightApplied ? `Yes (x${data.pricing.nightMultiplier})` : "No";
-                document.getElementById('resTotal').innerText = "$" + (data.pricing.total || 0).toFixed(2);
-                toggleStep(2);
-            }
-        } catch (e) { alert("Server starting... try again."); }
-        finally { b.innerText = "Calculate Price"; b.disabled = false; }
-    }
+                // Yeni adımı göster
+                currentStep = step;
+                const nextEl = document.querySelector(`#step${currentStep}`);
+                nextEl.style.display = 'flex';
+                // Küçük bir gecikme ile opacity'i 1 yap (animasyon için)
+                setTimeout(() => nextEl.classList.add('active'), 50);
 
-    async function sendBooking() {
-        const u = JSON.parse(localStorage.getItem('jk_user'));
-        const b = document.getElementById('bookBtn');
-        try {
-            b.innerText = "Sending..."; b.disabled = true;
-            const res = await fetch(`${BACKEND}/bookings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...lastQuote, customerName: u.name, customerPhone: u.phone, notes: document.getElementById('notes').value })
-            });
-            const data = await res.json();
+                // Geri butonunu yönet
+                const backBtn = document.getElementById('backBtn');
+                if(currentStep > 1) {
+                    backBtn.classList.remove('hidden');
+                } else {
+                    backBtn.classList.add('hidden');
+                }
+            }, 400); // CSS transition süresiyle eşleşmeli
+        }
 
-            if(res.ok) {
-                closeSheet();
-                // Show Toast
-                const toast = document.getElementById('successToast');
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 4000); // 4 seconds
-            } else {
-                alert(data.message || "Error occurred.");
+        // Geri gitme fonksiyonu
+        function goBack() {
+            if (currentStep > 1) {
+                goToStep(currentStep - 1);
             }
-        } catch (e) { alert("Connection Error."); }
-        finally { b.innerText = "Confirm Booking"; b.disabled = false; }
-    }
-  </script>
+        }
+
+        // AM/PM Seçimi
+        function toggleAmPm(btn) {
+            const container = btn.parentElement;
+            const buttons = container.getElementsByClassName('ampm-btn');
+            Array.from(buttons).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Rezervasyonu Bitir
+        function finishBooking() {
+            // Şimdilik sadece alert veriyoruz. İleride burası veritabanına kayıt yapacak.
+            alert("Teşekkürler! Rezervasyon talebiniz Teoman Deveci'ye iletildi. Sizinle iletişime geçilecektir.");
+            location.reload(); // Sayfayı başa sar
+        }
+    </script>
 </body>
 </html>
