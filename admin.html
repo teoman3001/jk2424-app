@@ -38,7 +38,7 @@
 
 <header>
   <h1>JK2424 ADMIN CENTER</h1>
-  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v2.0 FREEDOM OPS</div>
+  <div style="font-size:10px; color:#f5d05c; font-weight:bold;">v2.0 OPS</div>
 </header>
 
 <div class="wrap">
@@ -58,7 +58,6 @@
 <script>
 const API_BASE = 'https://jk2424-backend.onrender.com';
 
-// TÜM STATÜLER LİSTESİ (Kısıtlama yok)
 const ALL_STATUSES = [
   "pending", "confirmed", "payment_sent", "paid", 
   "on_the_way", "arrived", "in_progress", "completed", "cancelled"
@@ -84,7 +83,7 @@ async function savePricing() {
     includedMiles: Number(document.getElementById('includedMiles').value),
     extraPerMile: Number(document.getElementById('extraPerMile').value),
     nightMultiplier: Number(document.getElementById('nightMultiplier').value),
-    minimumFare: Number(document.getElementById('baseFare').value) // Min fare = Base fare for now
+    minimumFare: Number(document.getElementById('baseFare').value)
   };
   try {
     const res = await fetch(`${API_BASE}/pricing`, {
@@ -110,7 +109,6 @@ async function loadBookings() {
     container.innerHTML = data.bookings.map(b => {
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(b.pickup)}&destination=${encodeURIComponent(b.dropoff)}${b.stop ? `&waypoints=${encodeURIComponent(b.stop)}` : ''}`;
 
-      // Dropdown için seçenekleri oluştur (Mevcut olanı seçili yap)
       const optionsHtml = ALL_STATUSES.map(st => 
         `<option value="${st}" ${b.status === st ? 'selected' : ''}>${st.toUpperCase().replace('_', ' ')}</option>`
       ).join('');
@@ -162,14 +160,10 @@ async function updateStatus(id, newStatus) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
     });
-    
     if (!res.ok) alert("Error updating status");
-    // Listeyi yenilemeden sadece log düşebiliriz veya yenileyebiliriz
-    // loadBookings(); // Seçim bozulmasın diye hemen yenilemiyorum, gerekirse açılabilir
   } catch (e) { alert("Connection Failed"); }
 }
 
-// Başlangıç Yüklemeleri
 loadPricing();
 loadBookings();
 setInterval(loadBookings, 15000); 
