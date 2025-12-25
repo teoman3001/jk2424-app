@@ -2,54 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium App</title>
+  <title>JK2424 • Premium EQS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* MERCEDES EQS BLACK & SILVER DESIGN */
+    /* EQS BLACK & SILVER DESIGN */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; }
 
-    #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: #111; }
+    #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-    /* BİLDİRİM ROZETLİ MENÜ */
+    /* TOP NAV */
     .top-nav { position: absolute; top: 50px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
     .menu-wrapper { position: relative; }
     .menu-circle { width: 50px; height: 50px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #000; cursor: pointer; }
-    .notification-badge { position: absolute; top: -2px; right: -2px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: 800; padding: 4px 7px; border-radius: 10px; border: 2px solid #000; display: none; }
     .logo-pill { background: rgba(0,0,0,0.85); border: 1.5px solid #c0c0c0; padding: 10px 25px; border-radius: 30px; color: #fff; font-weight: 900; letter-spacing: 2px; font-size: 14px; }
 
+    /* SAFE ZONE TRIGGER */
     .action-area { position: absolute; bottom: 85px; width: 100%; display: flex; justify-content: center; z-index: 5; }
     .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
 
-    /* EQS BOTTOM SHEET */
+    /* UNIFORM BOTTOM SHEET */
     .bottom-sheet { 
         position: fixed; bottom: -110%; left: 0; right: 0; background: #0c0c0c; 
         border-top-left-radius: 35px; border-top-right-radius: 35px; 
         z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-        border-top: 1px solid #333; max-height: 95vh; overflow-y: auto;
+        border-top: 1px solid #333; height: 85vh; overflow-y: auto;
     }
     .bottom-sheet.active { bottom: 0; }
-    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .close-x { font-size: 24px; color: #666; cursor: pointer; padding: 5px; }
+    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .close-x { font-size: 24px; color: #666; cursor: pointer; }
 
-    .fld { margin-bottom: 18px; }
-    label { display: block; font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
-    input, textarea { width: 100%; background: #151515; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 14px; font-size: 14px; outline: none; }
-    
-    .t-btn { flex: 1; padding: 16px; border-radius: 14px; border: 1px solid #222; background: #111; color: #fff; font-weight: 700; cursor: pointer; }
+    /* FORM STYLES */
+    .fld { margin-bottom: 15px; }
+    label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+    input, textarea { width: 100%; background: #151515; border: 1px solid #222; color: #fff; padding: 15px; border-radius: 12px; font-size: 14px; outline: none; }
+    input:focus { border-color: #f5d05c; }
+
+    .t-btn { flex: 1; padding: 15px; border-radius: 12px; border: 1px solid #222; background: #111; color: #fff; font-weight: 700; cursor: pointer; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
 
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 18px; font-weight: 900; font-size: 14px; text-transform: uppercase; cursor: pointer; }
-    .secondary-btn { width: 100%; background: transparent; color: #888; border: 1px solid #333; padding: 15px; border-radius: 15px; font-size: 13px; margin-top: 10px; cursor: pointer; }
+    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 14px; text-transform: uppercase; cursor: pointer; }
+    .secondary-btn { width: 100%; background: transparent; color: #666; border: 1px solid #222; padding: 12px; border-radius: 12px; font-size: 12px; margin-top: 10px; cursor: pointer; }
 
-    .est-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 5px solid #f5d05c; }
-    .est-total { font-size: 28px; color: #f5d05c; font-weight: 900; margin-top: 10px; display: block; }
-    
-    /* MODAL FOR FIRST-TIME INFO */
-    #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
-    .modal-content { background: #111; padding: 30px; border-radius: 25px; border: 1px solid #333; width: 100%; max-width: 400px; }
+    /* REFERANS DETAY KARTI */
+    .est-card { background: #080808; border: 1px solid #222; border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+    .est-title { color: #f5d05c; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+    .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #f5f5f5; margin-bottom: 8px; }
+    .est-row span:last-child { font-weight: 700; }
+    .est-total-line { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+    .total-val { font-size: 24px; color: #f5d05c; font-weight: 900; }
 
-    .hidden { display: none; }
+    /* GOOGLE AUTOCOMPLETE FIX */
+    .pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 12px !important; z-index: 9999 !important; margin-top: 5px !important; }
+    .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; font-family: inherit; }
+    .pac-item-query { color: #fff !important; }
+    .pac-item:hover { background-color: #1a1a1a !important; }
+
+    /* MODAL */
+    #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-content { background: #111; padding: 30px; border-radius: 25px; border: 1px solid #333; width: 100%; max-width: 380px; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -57,10 +70,7 @@
   <div id="map"></div>
 
   <div class="top-nav">
-    <div class="menu-wrapper" onclick="toggleMenu()">
-      <div class="menu-circle">☰</div>
-      <div id="notifBadge" class="notification-badge">1</div>
-    </div>
+    <div class="menu-circle" onclick="toggleMenu()">☰</div>
     <div class="logo-pill">JK2424</div>
   </div>
 
@@ -70,12 +80,11 @@
 
   <div id="profileModal">
     <div class="modal-content">
-      <h2 style="color:#fff; margin-bottom:15px;">Welcome to JK2424</h2>
-      <p style="color:#888; font-size:13px; margin-bottom:20px;">Please enter your details to continue. You only need to do this once.</p>
-      <input id="profName" type="text" placeholder="Full Name" style="margin-bottom:10px;">
-      <input id="profPhone" type="tel" placeholder="Mobile Phone" style="margin-bottom:10px;">
-      <input id="profEmail" type="email" placeholder="Email Address" style="margin-bottom:20px;">
-      <button class="primary-btn" onclick="saveProfile()">Save & Continue</button>
+      <h2 style="color:#fff; margin-bottom:15px; font-weight:900;">Profile Setup</h2>
+      <p style="color:#888; font-size:13px; margin-bottom:20px;">Required once for premium service.</p>
+      <input id="profName" type="text" placeholder="Full Name" style="margin-bottom:12px;">
+      <input id="profPhone" type="tel" placeholder="Mobile Phone" style="margin-bottom:20px;">
+      <button class="primary-btn" onclick="saveProfile()">Save Profile</button>
     </div>
   </div>
 
@@ -86,9 +95,9 @@
     </div>
     
     <div id="step1">
-      <div class="fld"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Tysons Corner, VA" /></div>
-      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add a stop (optional)" /></div>
-      <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Dulles Airport (IAD)" /></div>
+      <div class="fld"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Where from?" /></div>
+      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add stop (optional)" /></div>
+      <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
       <div style="display:flex; gap:10px;">
         <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
         <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
@@ -102,15 +111,28 @@
 
     <div id="step2" class="hidden">
       <div class="est-card">
-        <div id="resDist" style="color:#aaa; font-size:13px;"></div>
-        <span id="resTotal" class="est-total">--</span>
+        <div class="est-title">Estimate Details</div>
+        <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
+        <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span>$65.00</span></div>
+        <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
+        <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
+        <div class="est-total-line">
+          <span style="font-weight:700; color:#fff;">Estimated total</span>
+          <span id="resTotal" class="total-val">--</span>
+        </div>
       </div>
+      
       <div class="fld">
         <label>Ride Notes</label>
-        <textarea id="notes" rows="4" placeholder="Gate codes, luggage count, or special requests..."></textarea>
+        <textarea id="notes" rows="3" placeholder="Notes for your EQS chauffeur..."></textarea>
       </div>
-      <button class="primary-btn" onclick="sendBooking()">Confirm Reservation</button>
-      <button class="secondary-btn" onclick="toggleStep(1)">❮ Back to Details</button>
+
+      <button class="primary-btn" onclick="sendBooking()">Confirm & Send Request</button>
+      
+      <div style="display:flex; gap:10px;">
+        <button class="secondary-btn" style="flex:1" onclick="toggleStep(1)">❮ Edit Trip</button>
+        <button class="secondary-btn" style="flex:1" id="routeBtn" onclick="viewRoute()">🗺 View Route</button>
+      </div>
     </div>
   </div>
 
@@ -120,22 +142,16 @@
     let currentAmpm = 'AM';
     let lastQuote = null;
 
-    // PROFILE MANAGEMENT
     window.addEventListener('load', () => {
         initMap();
-        if(!localStorage.getItem('jk_user')) {
-            document.getElementById('profileModal').style.display = 'flex';
-        }
+        if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
     });
 
     function saveProfile() {
-        const user = {
-            name: document.getElementById('profName').value,
-            phone: document.getElementById('profPhone').value,
-            email: document.getElementById('profEmail').value
-        };
-        if(!user.name || !user.phone) return alert("Name and Phone are mandatory.");
-        localStorage.setItem('jk_user', JSON.stringify(user));
+        const n = document.getElementById('profName').value;
+        const p = document.getElementById('profPhone').value;
+        if(!n || !p) return alert("All fields mandatory.");
+        localStorage.setItem('jk_user', JSON.stringify({name: n, phone: p}));
         document.getElementById('profileModal').style.display = 'none';
     }
 
@@ -152,57 +168,59 @@
 
     function openSheet() { document.getElementById('sheet').classList.add('active'); }
     function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
-    function toggleStep(s) {
-        document.getElementById('step1').classList.toggle('hidden', s === 2);
-        document.getElementById('step2').classList.toggle('hidden', s === 1);
-        document.getElementById('sheetTitle').innerText = s === 1 ? "Step 1 · Trip Details" : "Step 2 · Price Confirmation";
-    }
+    function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
 
-    function setAmpm(val) {
-        currentAmpm = val;
-        document.getElementById('amBtn').classList.toggle('active', val === 'AM');
-        document.getElementById('pmBtn').classList.toggle('active', val === 'PM');
+    function toggleStep(s) {
+        document.getElementById('step1').classList.toggle('hidden', s===2);
+        document.getElementById('step2').classList.toggle('hidden', s===1);
+        document.getElementById('sheetTitle').innerText = s===1 ? "Step 1 · Trip Details" : "Step 2 · Estimate Confirmation";
     }
 
     async function calculatePrice() {
         const p = document.getElementById('pickup').value;
         const d = document.getElementById('dropoff').value;
-        if(!p || !d) return alert("Enter locations.");
+        if(!p || !d) return alert("Locations required.");
+        
         try {
+            document.getElementById('calcBtn').innerText = "Calculating...";
             const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
             const data = await res.json();
+            
             if(data.success) {
-                lastQuote = { ...data.pricing, pickup:p, dropoff:d, ampm:currentAmpm };
-                document.getElementById('resDist').innerText = data.pricing.miles + " miles total distance";
-                document.getElementById('resTotal').innerText = "$" + data.pricing.total.toFixed(2);
+                const pr = data.pricing;
+                lastQuote = { ...pr, pickup:p, dropoff:d, ampm:currentAmpm };
+                
+                // DETAY DÖKÜMÜ
+                document.getElementById('resDist').innerText = pr.miles + " miles";
+                document.getElementById('resExtra').innerText = `$${pr.extraCost.toFixed(2)} (${pr.extraMiles} mi x $2.00)`;
+                document.getElementById('resNight').innerText = pr.nightApplied ? "Yes (x1.25)" : "No";
+                document.getElementById('resTotal').innerText = "$" + pr.total.toFixed(2);
+                
                 toggleStep(2);
             }
-        } catch (e) { alert("Error connecting server."); }
+        } catch (e) { alert("Server error."); }
+        finally { document.getElementById('calcBtn').innerText = "Calculate Price"; }
+    }
+
+    function viewRoute() {
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(document.getElementById('pickup').value)}&destination=${encodeURIComponent(document.getElementById('dropoff').value)}&travelmode=driving`;
+        window.open(url, '_blank');
     }
 
     async function sendBooking() {
-        const user = JSON.parse(localStorage.getItem('jk_user'));
+        const u = JSON.parse(localStorage.getItem('jk_user'));
         try {
             const res = await fetch(`${BACKEND}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    ...lastQuote, 
-                    customerName: user.name,
-                    customerPhone: user.phone,
-                    customerEmail: user.email,
-                    notes: document.getElementById('notes').value
-                })
+                body: JSON.stringify({ ...lastQuote, customerName: u.name, customerPhone: u.phone, notes: document.getElementById('notes').value })
             });
             const data = await res.json();
             if(data.success) {
-                localStorage.setItem('jk2424_booking_id', data.booking.id);
-                alert("Reservation Sent! You can track it in 'My Trips'.");
+                alert("Request Sent Successfully!");
                 closeSheet();
-                // Bildirim Badge Simülasyonu
-                document.getElementById('notifBadge').style.display = 'block';
             }
-        } catch (e) { alert("Booking failed."); }
+        } catch (e) { alert("Failed."); }
     }
   </script>
 </body>
