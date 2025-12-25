@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium Journey Management</title>
+  <title>JK2424 • Premium Experience</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
     /* JK2424 SIGNATURE DESIGN - CRYSTAL BLACK */
@@ -15,7 +15,7 @@
     .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
 
-    /* STATE-BASED INDEPENDENT SCREENS */
+    /* PHASE OVERLAYS */
     .full-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; backdrop-filter: blur(10px); }
     .state-card { background: #0a0a0a; border: 1.5px solid #f5d05c; padding: 35px 25px; border-radius: 30px; width: 100%; max-width: 400px; }
 
@@ -23,17 +23,16 @@
     .bottom-sheet { position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; border-top-left-radius: 35px; border-top-right-radius: 35px; z-index: 100; padding: 25px; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); height: 85vh; border-top: 1px solid #222; overflow-y: auto; }
     .bottom-sheet.active { bottom: 0; }
 
-    /* INPUTS & BUTTONS - BROAD & LUXURY */
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 18px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+    /* INPUTS & BUTTONS */
+    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 18px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; }
     .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; margin-top: 5px; outline: none; }
 
-    /* GOOGLE AUTOCOMPLETE FIX */
+    /* PAC AUTOCOMPLETE FIX */
     .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
     .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
     .pac-item-query { color: #fff !important; }
-    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; }
 
     .hidden { display: none !important; }
   </style>
@@ -54,41 +53,45 @@
   <div id="screenPending" class="full-overlay">
     <div class="state-card">
       <h2 style="color:#f5d05c; margin-bottom:15px; font-weight:900;">REQUEST SENT</h2>
-      <p style="color:#fff; font-size:14px; line-height:1.6;">Your ride request is being reviewed by our team. Please wait for approval.</p>
+      <p style="color:#fff; font-size:14px; line-height:1.6;">Reviewing your ride request. Please stay tuned for chauffeur approval.</p>
       <button class="primary-btn" style="margin-top:25px; background:#222; color:#fff;" onclick="hideAllScreens()">CLOSE</button>
     </div>
   </div>
 
-  <div id="screenPayment" class="full-overlay">
+  <div id="screenPaymentSelection" class="full-overlay">
     <div class="state-card">
       <h2 style="color:#f5d05c; margin-bottom:15px; font-weight:900;">APPROVED</h2>
-      <p style="color:#fff; font-size:14px;">Your trip is approved! Please complete the Zelle transfer to finalize your booking.</p>
-      <div style="background:#111; padding:20px; border-radius:15px; margin:20px 0; text-align:left; border:1px dashed #444;">
-        <label style="color:#f5d05c; font-size:10px; font-weight:800;">ZELLE RECIPIENT:</label>
-        <div style="color:#fff; font-weight:900; margin-bottom:10px;">jk2424vip@email.com</div>
-        <div style="display:flex; justify-content:space-between;">
-            <span style="color:#888;">Amount:</span>
-            <span id="payAmount" style="color:#f5d05c; font-weight:900; font-size:20px;">$0.00</span>
-        </div>
+      <p style="color:#fff; font-size:14px; margin-bottom:20px;">Your trip is approved! Choose a payment method to secure your booking.</p>
+      <div style="background:#111; border:1px solid #333; padding:15px; border-radius:15px; margin-bottom:10px; opacity:0.6; text-align:left; display:flex; align-items:center; gap:15px;">
+          <span style="font-size:24px;">💳</span><div><div style="font-weight:700;">Credit Card</div><div style="color:#f5d05c; font-size:10px;">Coming Soon...</div></div>
       </div>
-      <button class="primary-btn" onclick="notifyPayment()">I HAVE SENT THE PAYMENT</button>
+      <div onclick="showZellePage()" style="background:#111; border:1.5px solid #f5d05c; padding:15px; border-radius:15px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:15px;">
+          <span style="font-size:24px;">💜</span><div><div style="font-weight:700;">Zelle Transfer</div><div style="color:#f5d05c; font-size:10px;">Instant Verification</div></div>
+      </div>
     </div>
   </div>
 
-  <div id="screenConfirmed" class="full-overlay">
-    <div class="state-card">
-      <h2 style="color:#28a745; margin-bottom:15px; font-weight:900;">CONFIRMED</h2>
-      <p style="color:#fff; font-size:14px;">Payment verified! Your chauffeur is scheduled. See you soon!</p>
-      <button class="primary-btn" style="margin-top:20px;" onclick="hideAllScreens()">VIEW MAP</button>
-    </div>
+  <div id="screenZelleDetails" class="full-overlay">
+      <div class="state-card">
+        <h2 style="color:#f5d05c; margin-bottom:10px; font-weight:900;">ZELLE PAYMENT</h2>
+        <div style="background:#080808; padding:20px; border-radius:15px; margin:20px 0; text-align:left; border:1px dashed #444;">
+          <label style="color:#f5d05c; font-size:10px; font-weight:800;">SEND TO:</label>
+          <div style="color:#fff; font-weight:900; font-size:16px;">jk2424vip@email.com</div>
+          <div style="display:flex; justify-content:space-between; margin-top:15px; border-top:1px solid #222; padding-top:15px;">
+              <span>Total:</span><span id="payVal" style="color:#f5d05c; font-weight:900; font-size:22px;">$0.00</span>
+          </div>
+        </div>
+        <button class="primary-btn" onclick="notifyPayment()">I HAVE SENT THE PAYMENT</button>
+        <button style="background:transparent; border:none; color:#555; margin-top:15px; font-size:12px;" onclick="backToSelection()">❮ BACK</button>
+      </div>
   </div>
 
   <div class="bottom-sheet" id="sheet">
     <div id="step1">
-      <h2 style="color:#fff; margin-bottom:20px; font-weight:900;">Step 1 · Trip Details</h2>
+      <h2 style="color:#fff; margin-bottom:20px; font-weight:900;">Step 1 · Details</h2>
       <input id="pickup" type="text" placeholder="Pickup location" />
       <input id="dropoff" type="text" placeholder="Destination" />
-      <div style="display:flex; gap:12px; margin-top:10px;">
+      <div style="display:flex; gap:10px; margin-top:10px;">
         <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" />
         <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" />
       </div>
@@ -98,32 +101,23 @@
       </div>
       <button class="primary-btn" id="calcBtn" onclick="calculatePrice()">Calculate Price</button>
     </div>
-
     <div id="step2" class="hidden">
       <div id="quoteDisplay" style="margin-bottom:20px;"></div>
       <textarea id="notes" rows="3" placeholder="Additional notes..."></textarea>
       <button class="primary-btn" id="submitBtn" onclick="sendBooking()">Confirm Booking</button>
-      <button style="width:100%; background:transparent; border:none; color:#555; font-size:12px; margin-top:15px; cursor:pointer;" onclick="toggleStep(1)">❮ Edit details</button>
+      <button style="width:100%; background:transparent; border:none; color:#555; font-size:12px; margin-top:15px; cursor:pointer;" onclick="toggleStep(1)">❮ Edit</button>
     </div>
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
   <script>
     const BACKEND = 'https://jk2424-backend.onrender.com';
-    let currentAmpm = 'AM';
-    let lastQuote = null;
-    let activeId = null;
+    let currentAmpm = 'AM', lastQuote = null, activeId = null;
 
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
-            styles: [
-                { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
-                { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
-                { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
-            ]
+            styles: [{ "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] }, { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] }, { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }]
         });
         const opt = { componentRestrictions: { country: 'us' } };
         new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
@@ -131,31 +125,23 @@
     }
 
     async function calculatePrice() {
-        const p = document.getElementById('pickup').value;
-        const d = document.getElementById('dropoff').value;
-        if(!p || !d) return alert("Missing info.");
+        const p = document.getElementById('pickup').value, d = document.getElementById('dropoff').value;
+        if(!p || !d) return alert("Select locations.");
         try {
             document.getElementById('calcBtn').innerText = "Connecting...";
             const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
             const data = await res.json();
             if(data.success) {
                 lastQuote = data.pricing;
-                document.getElementById('quoteDisplay').innerHTML = `
-                    <div style="background:#080808; border:1px solid #222; padding:20px; border-radius:15px;">
-                        <div style="display:flex; justify-content:space-between; color:#888; font-size:12px;"><span>Distance:</span><span>${data.pricing.miles} mi</span></div>
-                        <div style="display:flex; justify-content:space-between; margin-top:15px; border-top:1px solid #222; padding-top:15px;">
-                            <span style="font-weight:800; color:#fff;">ESTIMATED TOTAL:</span>
-                            <span style="color:#f5d05c; font-weight:900; font-size:24px;">$${data.pricing.total.toFixed(2)}</span>
-                        </div>
-                    </div>`;
+                document.getElementById('quoteDisplay').innerHTML = `<div style="background:#080808; border:1px solid #222; padding:20px; border-radius:15px;"><div style="display:flex; justify-content:space-between; color:#888; font-size:12px;"><span>Distance:</span><span>${data.pricing.miles} mi</span></div><div style="display:flex; justify-content:space-between; margin-top:15px; border-top:1px solid #222; padding-top:15px;"><span style="font-weight:800; color:#fff;">TOTAL:</span><span style="color:#f5d05c; font-weight:900; font-size:24px;">$${data.pricing.total.toFixed(2)}</span></div></div>`;
                 toggleStep(2);
             }
-        } catch (e) { alert("Server is starting..."); }
+        } catch (e) { alert("Server error."); }
         finally { document.getElementById('calcBtn').innerText = "Calculate Price"; }
     }
 
     async function sendBooking() {
-        const u = JSON.parse(localStorage.getItem('jk_user') || '{"name":"Guest","phone":"000"}');
+        const u = JSON.parse(localStorage.getItem('jk_user') || '{"name":"Guest"}');
         try {
             document.getElementById('submitBtn').innerText = "Sending...";
             const res = await fetch(`${BACKEND}/bookings`, {
@@ -167,40 +153,39 @@
             if(data.success) {
                 activeId = data.booking.id;
                 document.getElementById('sheet').classList.remove('active');
+                hideAllScreens();
                 document.getElementById('screenPending').style.display = 'flex';
                 startStatusCheck(data.booking.id);
             }
         } catch (e) { alert("Error."); }
     }
 
-    // ZİNCİRİ KIRAN BAĞIMSIZ DURUM KONTROLÜ
     async function startStatusCheck(id) {
         setInterval(async () => {
             try {
                 const res = await fetch(`${BACKEND}/booking-status/${id}`);
                 const data = await res.json();
-                hideAllScreens(); // Her adımda ekranı temizle
                 if(data.status === 'Approved') {
-                    document.getElementById('payAmount').innerText = "$" + data.total.toFixed(2);
-                    document.getElementById('screenPayment').style.display = 'flex';
-                } else if(data.status === 'Confirmed') {
-                    document.getElementById('screenConfirmed').style.display = 'flex';
-                } else {
-                    document.getElementById('screenPending').style.display = 'flex';
+                    hideAllScreens();
+                    document.getElementById('payVal').innerText = "$" + data.total.toFixed(2);
+                    document.getElementById('screenPaymentSelection').style.display = 'flex';
+                } else if(data.status === 'PaymentRequested') {
+                    showZellePage();
                 }
             } catch(e) {}
         }, 5000);
     }
 
-    // UTILS
-    window.onload = initMap;
+    function showZellePage() { hideAllScreens(); document.getElementById('screenZelleDetails').style.display = 'flex'; }
+    function backToSelection() { hideAllScreens(); document.getElementById('screenPaymentSelection').style.display = 'flex'; }
     function hideAllScreens() { document.querySelectorAll('.full-overlay').forEach(el => el.style.display='none'); }
     function toggleStep(s) { document.getElementById('step1').classList.toggle('hidden', s===2); document.getElementById('step2').classList.toggle('hidden', s===1); }
     function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
     function handleStart() { if(activeId) document.getElementById('screenPending').style.display='flex'; else document.getElementById('sheet').classList.add('active'); }
-    function notifyPayment() { alert("Payment notification sent to admin."); hideAllScreens(); }
+    function notifyPayment() { alert("Notification sent!"); hideAllScreens(); document.getElementById('screenPending').style.display='flex'; }
+    window.onload = initMap;
   </script>
 </body>
 </html>
