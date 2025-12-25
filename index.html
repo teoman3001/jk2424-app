@@ -2,27 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • VIP Private Service</title>
+  <title>JK2424 • Premium Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* ANA TASARIM VE RENKLER */
+    /* JK2424 SIGNATURE LUXURY STYLE */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
 
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-    /* ÜST NAVİGASYON VE MENÜ */
+    /* UI ELEMENTS */
     .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
     .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
 
-    /* YAN MENÜ TASARIMI */
+    /* SIDE MENU */
     .side-menu { position: fixed; top: 0; left: -100%; width: 280px; height: 100%; background: #0a0a0a; z-index: 300; transition: 0.4s; padding: 60px 25px; border-right: 1px solid #222; }
     .side-menu.open { left: 0; }
-    .menu-item { color: #fff; font-size: 16px; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-    .menu-item:hover { color: #f5d05c; }
+    .menu-item { color: #fff; font-size: 16px; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
 
-    /* REZERVASYON PANELİ */
+    .action-area { position: absolute; bottom: 60px; width: 100%; display: flex; justify-content: center; z-index: 5; }
+    .book-btn { background: #f5d05c; color: #000; border: none; padding: 18px 40px; border-radius: 40px; font-weight: 900; font-size: 15px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+
+    /* SUCCESS TOAST */
+    #successToast { 
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        background: rgba(10, 10, 10, 0.98); border: 1.5px solid #f5d05c; 
+        padding: 30px; border-radius: 25px; z-index: 500; width: 85%; 
+        text-align: center; display: none; backdrop-filter: blur(10px);
+    }
+
+    /* PANEL & FORM */
     .bottom-sheet { 
         position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; 
         border-top-left-radius: 30px; border-top-right-radius: 30px; 
@@ -31,38 +41,29 @@
     }
     .bottom-sheet.active { bottom: 0; }
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .close-x { font-size: 22px; color: #555; cursor: pointer; padding: 5px; }
+    .close-x { font-size: 22px; color: #555; cursor: pointer; }
 
-    /* FORM ELEMANLARI */
     .fld { margin-bottom: 15px; }
     label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; }
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 12px; font-size: 14px; outline: none; }
     input:focus { border-color: #f5d05c; }
+
+    .t-btn { flex: 1; padding: 14px; border-radius: 10px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 700; cursor: pointer; }
+    .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
     .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 14px; text-transform: uppercase; cursor: pointer; }
 
-    /* FİYAT DETAY KARTI */
+    /* ESTIMATE UI */
     .est-card { background: #050505; border: 1px solid #222; border-radius: 18px; padding: 20px; margin-bottom: 20px; }
     .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #ddd; margin-bottom: 7px; }
     .total-val { font-size: 24px; color: #f5d05c; font-weight: 900; }
 
-    /* BAŞARI BİLDİRİM PENCERESİ (3-5 SANİYELİK) */
-    #successToast { 
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-        background: rgba(10, 10, 10, 0.95); border: 1.5px solid #f5d05c; 
-        padding: 30px; border-radius: 25px; z-index: 500; width: 85%; 
-        text-align: center; display: none; backdrop-filter: blur(10px);
-    }
-    #successToast h3 { color: #f5d05c; margin-bottom: 10px; font-size: 18px; }
-    #successToast p { color: #fff; font-size: 14px; line-height: 1.5; }
-
-    .action-area { position: absolute; bottom: 60px; width: 100%; display: flex; justify-content: center; z-index: 5; }
-    .book-btn { background: #f5d05c; color: #000; border: none; padding: 18px 40px; border-radius: 40px; font-weight: 900; font-size: 15px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-
-    /* GOOGLE AUTOCOMPLETE */
+    /* GOOGLE AUTOCOMPLETE FIX */
     .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
     .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
     .pac-item-query { color: #fff !important; }
+    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; }
 
+    #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -88,7 +89,17 @@
 
   <div id="successToast">
     <h3>Talebiniz İletilmiştir</h3>
-    <p>Müsaitlik kontrol edilip şoförünüz en hızlı şekilde size dönüş yapacaktır.</p>
+    <p style="color:#fff; margin-top:10px;">Müsaitlik kontrol edilip şoförünüz en hızlı şekilde size dönüş yapacaktır.</p>
+  </div>
+
+  <div id="profileModal">
+    <div style="background: #0a0a0a; padding: 30px; border-radius: 25px; border: 1px solid #222; width: 100%; max-width: 360px;">
+      <h2 style="color:#fff; margin-bottom:10px; font-weight:900;">Welcome</h2>
+      <p style="color:#666; font-size:12px; margin-bottom:20px;">Enter your details once to start.</p>
+      <div class="fld"><input id="profName" type="text" placeholder="Full Name" /></div>
+      <div class="fld"><input id="profPhone" type="tel" placeholder="Mobile Phone" /></div>
+      <button class="primary-btn" onclick="saveProfile()">Start Application</button>
+    </div>
   </div>
 
   <div class="bottom-sheet" id="sheet">
@@ -105,110 +116,121 @@
         <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" /></div>
         <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" /></div>
       </div>
-      <button class="primary-btn" onclick="calculatePrice()">Calculate Price</button>
+      <div class="toggle-row">
+        <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
+        <button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button>
+      </div>
+      <button class="primary-btn" id="calcBtn" onclick="calculatePrice()">Calculate Price</button>
     </div>
 
     <div id="step2" class="hidden">
       <div class="est-card">
         <div class="est-row"><span>Distance:</span><span id="resDist">--</span></div>
-        <div class="est-row"><span>Base Fare:</span><span>$65.00</span></div>
-        <div class="est-row"><span>Extra Miles:</span><span id="resExtra">--</span></div>
-        <div class="est-total-line" style="margin-top:10px; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
-          <span style="color:#fff; font-weight:800;">Estimated total</span>
+        <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span>$65.00</span></div>
+        <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
+        <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
+        <div class="est-total-line" style="margin-top:12px; padding-top:12px; border-top:1px solid #222; display:flex; justify-content:space-between;">
+          <span style="font-weight:800; color:#fff;">Estimated total</span>
           <span id="resTotal" class="total-val">--</span>
         </div>
       </div>
-      <div class="fld"><label>Ride Notes (Optional)</label><textarea id="notes" rows="3" placeholder="Luggage, child seat..."></textarea></div>
-      <button class="primary-btn" id="confirmBtn" onclick="sendBooking()">Confirm Booking</button>
+      <div class="fld"><label>Special Notes</label><textarea id="notes" rows="3" placeholder="Luggage, gate codes..."></textarea></div>
+      <button class="primary-btn" id="bookBtn" onclick="sendBooking()">Confirm Booking</button>
+      <button style="width:100%; background:transparent; border:none; color:#555; font-size:12px; margin-top:15px; cursor:pointer;" onclick="toggleStep(1)">❮ Edit details</button>
     </div>
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbHskisKfYgRuNTcVm6pTnFy_iDlWf0bc&libraries=places"></script>
   <script>
     const BACKEND = 'https://jk2424-backend.onrender.com';
+    let currentAmpm = 'AM';
     let lastQuote = null;
 
-    // OTOMATİK FORMATLAYICILAR
+    // FORMATTERS
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
 
-    // MENÜ FONKSİYONLARI
     function toggleMenu(open) { document.getElementById('sideMenu').classList.toggle('open', open); }
-    
-    function openTrips() {
-        const trips = JSON.parse(localStorage.getItem('jk_trips') || '[]');
-        if(trips.length === 0) alert("Henüz bir yolculuğunuz bulunmuyor.");
-        else alert(trips.length + " aktif yolculuk talebiniz inceleniyor.");
-    }
+    function openTrips() { alert("Yolculuklarım yakında burada listelenecek."); }
 
-    // MAP BAŞLATMA
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
-            styles: [{ "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] }, { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] }]
+            styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
+            ]
         });
         const opt = { componentRestrictions: { country: 'us' } };
         new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
         new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+    }
+
+    window.addEventListener('load', () => {
+        initMap();
+        if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
+    });
+
+    function saveProfile() {
+        const n = document.getElementById('profName').value;
+        const p = document.getElementById('profPhone').value;
+        if(n && p) { localStorage.setItem('jk_user', JSON.stringify({name:n, phone:p})); document.getElementById('profileModal').style.display = 'none'; }
     }
 
     function openSheet() { document.getElementById('sheet').classList.add('active'); }
     function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
+    function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
+
+    function toggleStep(s) {
+        document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
+        document.getElementById('step2').classList.toggle('hidden', s === 1);
+        document.getElementById('sheetTitle').innerText = s === 1 ? "Step 1 · Trip Details" : "Step 2 · Confirmation";
+    }
 
     async function calculatePrice() {
         const p = document.getElementById('pickup').value;
         const d = document.getElementById('dropoff').value;
-        if(!p || !d) return alert("Locations required.");
-        
-        const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}`);
-        const data = await res.json();
-        if(data.success) {
-            lastQuote = data.pricing;
-            document.getElementById('resDist').innerText = data.pricing.miles + " miles";
-            document.getElementById('resTotal').innerText = "$" + data.pricing.total.toFixed(2);
-            document.getElementById('step1').classList.add('hidden');
-            document.getElementById('step2').classList.remove('hidden');
-        }
+        const b = document.getElementById('calcBtn');
+        if(!p || !d) return alert("Select locations.");
+        try {
+            b.innerText = "Connecting..."; b.disabled = true;
+            const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
+            const data = await res.json();
+            if(data.success) {
+                lastQuote = { ...data.pricing, pickup:p, dropoff:d, ampm:currentAmpm };
+                document.getElementById('resDist').innerText = data.pricing.miles + " miles";
+                document.getElementById('resExtra').innerText = `$${data.pricing.extraCost.toFixed(2)} (${data.pricing.extraMiles} mi x $2.00)`;
+                document.getElementById('resNight').innerText = data.pricing.nightApplied ? "Yes (x1.25)" : "No";
+                document.getElementById('resTotal').innerText = "$" + data.pricing.total.toFixed(2);
+                toggleStep(2);
+            }
+        } catch (e) { alert("Server is waking up. Try again."); }
+        finally { b.innerText = "Calculate Price"; b.disabled = false; }
     }
 
     async function sendBooking() {
-        const btn = document.getElementById('confirmBtn');
-        const user = JSON.parse(localStorage.getItem('jk_user') || '{"name":"Guest"}');
-        
-        btn.innerText = "Processing..."; btn.disabled = true;
-
+        const u = JSON.parse(localStorage.getItem('jk_user'));
+        const b = document.getElementById('bookBtn');
         try {
+            b.innerText = "Sending..."; b.disabled = true;
             const res = await fetch(`${BACKEND}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    ...lastQuote, 
-                    pickup: document.getElementById('pickup').value,
-                    dropoff: document.getElementById('dropoff').value,
-                    customerName: user.name,
-                    notes: document.getElementById('notes').value 
-                })
+                body: JSON.stringify({ ...lastQuote, customerName: u.name, customerPhone: u.phone, notes: document.getElementById('notes').value })
             });
-
             if(res.ok) {
-                // 1. Paneli kapat
                 closeSheet();
-                
-                // 2. LocalStorage'a (My Trips) kaydet
-                const trips = JSON.parse(localStorage.getItem('jk_trips') || '[]');
-                trips.push({ date: new Date().toLocaleDateString(), status: 'Pending', total: lastQuote.total });
-                localStorage.setItem('jk_trips', JSON.stringify(trips));
-
-                // 3. Başarı toast mesajını göster (4 saniye)
                 const toast = document.getElementById('successToast');
                 toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 4000);
+                setTimeout(() => { toast.style.display = 'none'; }, 4500);
             }
-        } catch(e) { alert("Sistem yoğun, lütfen tekrar deneyin."); }
-        finally { btn.innerText = "Confirm Booking"; btn.disabled = false; }
+        } catch (e) { alert("Error."); }
+        finally { b.innerText = "Confirm Booking"; b.disabled = false; }
     }
-
-    window.onload = initMap;
   </script>
 </body>
 </html>
