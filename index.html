@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium Chauffeur</title>
+  <title>JK2424 • Premium App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="style.css">
 </head>
@@ -20,19 +20,16 @@
     </header>
 
     <div id="sectionStep1">
-      <h2 style="font-size: 24px; margin-bottom: 5px;">Book Your Ride</h2>
-      <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Premium service at your fingertips. Enter trip details.</p>
-      
+      <h2 style="font-size: 24px; margin-bottom: 20px;">Book Your Ride</h2>
       <div class="card">
         <div class="step-pill">Step 1 · Trip Details</div>
-        <div class="field"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Tysons, VA" autocomplete="off" /></div>
-        <div class="field"><label>Extra Stop (Optional)</label><input id="stop" type="text" placeholder="Optional extra stop" autocomplete="off" /></div>
-        <div class="field"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Dulles Airport" autocomplete="off" /></div>
+        <input id="pickup" type="text" placeholder="Pickup Location" />
+        <input id="stop" type="text" placeholder="Extra Stop (Optional)" />
+        <input id="dropoff" type="text" placeholder="Drop-off Location" />
         <div style="display:flex; gap:10px;">
-          <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
-          <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
+          <input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" />
+          <input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" />
         </div>
-        <label>AM / PM</label>
         <div class="toggle-row">
           <button id="amBtn" class="t-btn active">AM</button>
           <button id="pmBtn" class="t-btn">PM</button>
@@ -41,19 +38,29 @@
       </div>
     </div>
 
+    <div id="estimateResultArea" class="hidden">
+      <div class="estimate-details-card">
+        <div class="est-title">Estimate Details</div>
+        <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
+        <div class="est-row"><span>Base Fare (inc. miles):</span><span id="resBase">--</span></div>
+        <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
+        <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
+        <div class="est-total-line">
+          <span class="est-total-label">Estimated total</span>
+          <span class="est-total-val" id="resTotal">--</span>
+        </div>
+      </div>
+    </div>
+
     <div id="sectionStep2" class="hidden">
-      <h2 style="font-size: 24px; margin-bottom: 5px;">Passenger Info</h2>
+      <h2 style="font-size: 24px; margin-bottom: 20px;">Passenger Info</h2>
       <div class="card">
         <div class="step-pill">Step 2 · Passenger Details</div>
-        <div class="summary-box">
-          <div id="sumRoute" style="font-size:13px; color:#ccc; line-height:1.4;"></div>
-          <div id="sumTime" style="font-size:13px; color:#ccc; margin-top:5px;"></div>
-          <span id="sumTotal" class="sum-total"></span>
+        <div class="field" style="background:#050505; padding:15px; border-radius:12px; border:1px dashed #333; margin-bottom:15px;">
+           <div id="sumTripInfo" style="font-size:12px; color:#aaa; line-height:1.4;"></div>
         </div>
-        <div class="field"><label>Full Name</label><input id="fullName" type="text" placeholder="John Doe" /></div>
-        <div class="field"><label>Mobile Phone</label><input id="phone" type="tel" placeholder="+1..." /></div>
-        <div class="field"><label>Email</label><input id="email" type="email" placeholder="name@example.com" /></div>
-        <div class="field"><label>Notes</label><textarea id="notes" rows="2" placeholder="Gate codes, luggage..."></textarea></div>
+        <input id="fullName" type="text" placeholder="Full Name" />
+        <input id="phone" type="tel" placeholder="Mobile Phone" />
         <button id="bookBtn" class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
       </div>
     </div>
