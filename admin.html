@@ -3,40 +3,32 @@
 <head>
 <meta charset="UTF-8" /><title>JK2424 • Admin</title>
 <style>
-  * { box-sizing: border-box; }
-  body { margin:0; background:#000; color:#f5f5f5; font-family:sans-serif; }
-  header { position:sticky; top:0; background:rgba(0,0,0,0.9); padding:16px; border-bottom:1px solid #333; }
-  h1 { margin:0; font-size:18px; color:#f5d05c; }
-  .wrap { padding:12px; max-width:850px; margin:0 auto; }
-  .card { background:#111; border:1px solid #333; border-radius:18px; padding:20px; margin-bottom:18px; }
-  .act-btn { border:none; padding:12px; border-radius:10px; font-weight:800; cursor:pointer; text-transform:uppercase; margin-right:5px; }
+  body { background:#000; color:#fff; font-family:sans-serif; padding:20px; }
+  .card { background:#111; border:1px solid #333; padding:20px; border-radius:15px; margin-bottom:15px; }
+  button { background:#f5d05c; color:#000; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-weight:bold; }
 </style>
 </head>
 <body>
-<header><h1>JK2424 ADMIN CENTER</h1></header>
-<div class="wrap"><div id="bookingList"></div></div>
+<h1>JK2424 ADMIN - ON-SITE</h1>
+<div id="list"></div>
 <script>
-const API_BASE = 'https://jk2424-backend.onrender.com';
-async function loadBookings() {
-  const res = await fetch(`${API_BASE}/bookings`);
-  const data = await res.json();
-  document.getElementById('bookingList').innerHTML = data.bookings.map(b => `
-    <div class="card">
-      <div style="color:#f5d05c; font-weight:bold;">${b.customerName || 'Client'} - ${b.rideDate || 'No Date'}</div>
-      <div style="font-size:12px; margin:10px 0;">${b.pickup} ➔ ${b.dropoff}</div>
-      <div style="font-weight:bold;">Status: ${b.status} | Total: $${b.total}</div>
-      <div style="margin-top:15px;">
-        <button class="act-btn" style="background:#28a745; color:#fff;" onclick="updateStatus('${b.id}', 'Approved')">Approve</button>
-        <button class="act-btn" style="background:#dc3545; color:#fff;" onclick="updateStatus('${b.id}', 'cancelled')">Cancel</button>
+  const API = 'https://jk2424-backend.onrender.com';
+  async function load() {
+    const res = await fetch(`${API}/bookings`);
+    const data = await res.json();
+    document.getElementById('list').innerHTML = data.bookings.map(b => `
+      <div class="card">
+        <p>Pickup: ${b.pickup}</p>
+        <p>Status: <b>${b.status.toUpperCase()}</b></p>
+        <button onclick="approve('${b.id}')">APPROVE RIDE</button>
       </div>
-    </div>
-  `).join('');
-}
-async function updateStatus(id, s) {
-  await fetch(`${API_BASE}/update-booking`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: s }) });
-  loadBookings();
-}
-loadBookings(); setInterval(loadBookings, 8000);
+    `).join('');
+  }
+  async function approve(id) {
+    await fetch(`${API}/update-booking`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: 'Approved' }) });
+    load();
+  }
+  load(); setInterval(load, 5000);
 </script>
 </body>
 </html>
