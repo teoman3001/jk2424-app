@@ -5,108 +5,122 @@
   <title>JK2424 • Premium Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* JK2424 ULTIMATE LUXURY THEME */
+    /* JK2424 ULTIMATE LUXURY THEME v3.0 */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
 
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-    /* UI ELEMENTS */
+    /* TOP NAV */
     .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; }
     .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
+    
+    .notification-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #ff4444; border-radius: 50%; border: 2px solid #000; display: none; }
 
+    /* SIDE MENU */
     .side-menu { position: fixed; top: 0; left: -100%; width: 280px; height: 100%; background: #0a0a0a; z-index: 300; transition: 0.4s; padding: 60px 25px; border-right: 1px solid #222; }
     .side-menu.open { left: 0; }
-    .menu-item { color: #fff; font-size: 16px; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
+    .menu-item { color: #fff; font-size: 16px; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 
     .action-area { position: absolute; bottom: 65px; width: 100%; display: flex; justify-content: center; z-index: 5; }
     .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
 
-    /* BOTTOM SHEET */
-    .bottom-sheet { 
-        position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; 
-        border-top-left-radius: 30px; border-top-right-radius: 30px; 
-        z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-        border-top: 1px solid #222; height: 85vh; overflow-y: auto;
-    }
-    .bottom-sheet.active { bottom: 0; }
-    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    /* COMMON MODAL STYLES */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; display: none; flex-direction: column; padding: 20px; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+    .modal-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
     .close-x { font-size: 24px; color: #555; cursor: pointer; padding: 5px; }
 
+    /* FORMS & INPUTS */
     .fld { margin-bottom: 15px; }
     label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
     input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; outline: none; }
     input:focus { border-color: #f5d05c; }
+    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
 
-    /* AM/PM BUTTONS */
-    .toggle-row { display: flex; gap: 10px; margin: 15px 0 20px; }
-    .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
-    .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
-
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; }
-
-    /* ESTIMATE DETAILS */
-    .est-card { background: #080808; border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 25px; }
-    .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 9px; }
-    .est-total-line { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-    .total-val { font-size: 26px; color: #f5d05c; font-weight: 900; }
-
-    /* CONFIRMATION / PAYMENT MODAL (POPUP) */
+    /* PAYMENT MODAL (POPUP) */
     #paymentModal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
       z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
       animation: fadeIn 0.4s ease;
     }
     .pay-card {
-      background: #111; border: 1px solid #333; width: 100%; max-width: 380px;
-      border-radius: 24px; padding: 30px 20px; text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative;
+      background: #111; border: 1px solid #333; width: 100%; max-width: 400px;
+      border-radius: 24px; padding: 25px; position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7); display: flex; flex-direction: column; max-height: 80vh; overflow-y: auto;
     }
-    .pay-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-    .pay-title { color: #f5d05c; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-    .pay-desc { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 25px; padding: 0 10px; }
-    .pay-time { background: #1a1a1a; padding: 10px; border-radius: 8px; color: #fff; font-weight: 700; margin-bottom: 25px; display: inline-block; font-size: 13px; }
-    
-    .pay-btn-main { background: #f5d05c; color: #000; width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; border: none; font-size: 15px; cursor: pointer; margin-bottom: 15px; }
-    .pay-btn-cancel { background: transparent; color: #666; width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; border: 1px solid #333; font-size: 13px; cursor: pointer; }
+    .pay-close-btn { position: absolute; top: 15px; right: 15px; color: #555; font-size: 20px; cursor: pointer; }
+    .pay-header { text-align: center; margin-bottom: 20px; }
+    .pay-title-text { color: #f5d05c; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+    .pay-subtitle { color: #ccc; font-size: 13px; line-height: 1.4; }
 
-    /* MY TRIPS MODAL - REDESIGNED */
-    #tripsModal { position: fixed; inset: 0; background: #080808; z-index: 400; display: none; flex-direction: column; padding: 20px; }
-    .trips-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
-    .trips-title { color: #fff; font-size: 20px; font-weight: 900; letter-spacing: 0.5px; }
+    /* PAYMENT METHODS ACCORDION */
+    .pay-method { border: 1px solid #333; border-radius: 12px; margin-bottom: 10px; overflow: hidden; background: #080808; }
+    .pay-method-header { padding: 15px; background: #151515; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: #fff; font-size: 14px; }
+    .pay-method-body { padding: 15px; display: none; border-top: 1px solid #333; }
+    .pay-method.active .pay-method-body { display: block; }
+    .pay-btn-action { background: #f5d05c; color: #000; width: 100%; padding: 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; margin-top: 10px; }
     
-    .tab-bar { display: flex; gap: 8px; margin-bottom: 25px; background: #111; padding: 5px; border-radius: 12px; }
+    .cancel-link { text-align: center; margin-top: 15px; color: #666; font-size: 12px; text-decoration: underline; cursor: pointer; }
+
+    /* MY TRIPS LIST */
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 20px; background: #111; padding: 5px; border-radius: 12px; }
     .tab { flex: 1; padding: 10px; text-align: center; border-radius: 8px; color: #666; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
     .tab.active { background: #222; color: #f5d05c; }
-    
     .trip-list { flex: 1; overflow-y: auto; padding-bottom: 40px; }
     
-    /* APP STYLE CARD */
-    .trip-card { 
-      background: #111; border-radius: 16px; padding: 20px; margin-bottom: 15px; 
-      border: 1px solid #222; position: relative; display: flex; flex-direction: column; gap: 8px;
-    }
-    .trip-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .trip-status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .st-pending { background: rgba(245, 208, 92, 0.15); color: #f5d05c; }
-    .st-active { background: rgba(76, 175, 80, 0.15); color: #4CAF50; }
-    .st-cancel { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+    .trip-card { background: #111; border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; }
+    .trip-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .trip-status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .st-pending { color: #f5d05c; background: rgba(245, 208, 92, 0.1); }
+    .st-active { color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
+    .st-cancel { color: #ff4444; background: rgba(255, 68, 68, 0.1); }
     
-    .trip-route-line { font-size: 14px; color: #fff; font-weight: 600; line-height: 1.4; }
-    .trip-meta { font-size: 12px; color: #666; display: flex; gap: 10px; margin-top: 5px; }
+    .trip-route-line { font-size: 14px; color: #fff; font-weight: 600; line-height: 1.4; margin-bottom: 5px; }
+    .trip-detail-row { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 3px; }
+    .night-badge { color: #9c27b0; font-size: 10px; font-weight: 700; display: block; margin-top: 5px; }
 
-    /* GOOGLE AUTOCOMPLETE DARK MODE FIX */
+    .trip-actions { margin-top: 15px; display: flex; gap: 10px; }
+    .btn-small { flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; text-align: center; }
+    .btn-pay { background: #f5d05c; color: #000; }
+    .btn-route { background: #222; color: #fff; border: 1px solid #333; }
+
+    /* MESSAGES INBOX */
+    .msg-card { background: #111; padding: 15px; border-bottom: 1px solid #222; cursor: pointer; }
+    .msg-card.unread .msg-title { font-weight: 900; color: #fff; }
+    .msg-card.unread .msg-dot { display: inline-block; }
+    .msg-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .msg-title { color: #ccc; font-size: 14px; font-weight: 500; }
+    .msg-date { color: #555; font-size: 10px; }
+    .msg-body { color: #888; font-size: 12px; line-height: 1.4; }
+    .msg-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; margin-right: 5px; display: none; }
+
+    /* BOOKING SHEET & MAP FIXES */
+    .bottom-sheet { position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; border-top-left-radius: 30px; border-top-right-radius: 30px; z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid #222; height: 85vh; overflow-y: auto; }
+    .bottom-sheet.active { bottom: 0; }
+    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    
+    .est-card { background: #080808; border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 25px; }
+    .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 9px; }
+    .est-total-line { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+    .total-val { font-size: 26px; color: #f5d05c; font-weight: 900; }
+    
+    .toggle-row { display: flex; gap: 10px; margin: 15px 0 20px; }
+    .t-btn { flex: 1; padding: 18px; border-radius: 12px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 800; cursor: pointer; font-size: 15px; }
+    .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
+
+    /* Google Autocomplete Dark Mode Fix */
     .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important; }
     .pac-item { color: #888 !important; border-top: 1px solid #222 !important; padding: 12px !important; cursor: pointer !important; }
-    .pac-item-query { color: #fff !important; font-weight: 600 !important; }
-    
-    /* HOVER & SELECTED STATE FIX */
     .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; color: #f5d05c !important; }
-    .pac-item:hover .pac-item-query, .pac-item-selected .pac-item-query { color: #f5d05c !important; }
+    .pac-item-query { color: #fff !important; font-weight: 600 !important; }
+    .pac-item:hover .pac-item-query { color: #f5d05c !important; }
 
     .hidden { display: none !important; }
     #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    #routePopup { position: fixed; inset: 0; background: #000; z-index: 600; display: none; flex-direction: column; }
+    #popupMap { flex: 1; width: 100%; }
     
     @keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
   </style>
@@ -116,13 +130,20 @@
   <div id="map"></div>
 
   <div class="top-nav">
-    <div class="menu-circle" onclick="toggleMenu(true)">☰</div>
+    <div class="menu-circle" onclick="toggleMenu(true)">
+      ☰
+      <div id="navDot" class="notification-dot"></div>
+    </div>
     <div class="logo-pill">JK2424</div>
   </div>
 
   <div id="sideMenu" class="side-menu">
     <div class="close-x" style="text-align:right;" onclick="toggleMenu(false)">✕</div>
     <div class="menu-item" onclick="openTrips()">🚗 My Trips</div>
+    <div class="menu-item" onclick="openInbox()">
+      📩 Inbox
+      <div id="menuDot" class="notification-dot" style="position:relative; display:none;"></div>
+    </div>
     <div class="menu-item" onclick="alert('Support connected')">💬 Support</div>
   </div>
 
@@ -132,14 +153,67 @@
 
   <div id="paymentModal">
     <div class="pay-card">
-      <span class="pay-icon">✨</span>
-      <div class="pay-title">Reservation Confirmed</div>
-      <div class="pay-desc">Your chauffeur is available. Please finalize your booking to secure this slot.</div>
-      <div id="payTimeDisplay" class="pay-time">--</div>
+      <div class="pay-close-btn" onclick="closePaymentModal()">✕</div>
+      <div class="pay-header">
+        <div class="pay-title-text">Reservation Confirmed</div>
+        <div class="pay-subtitle">Secure your ride now.</div>
+      </div>
       
-      <button class="pay-btn-main" onclick="alert('Payment Gateway Loading...')">MAKE PAYMENT</button>
-      <button class="pay-btn-cancel" onclick="cancelFromPopup()">CANCEL REQUEST</button>
+      <div class="pay-method active" onclick="togglePayMethod(this)">
+        <div class="pay-method-header">💳 Credit / Debit Card <span>▼</span></div>
+        <div class="pay-method-body" onclick="event.stopPropagation()">
+          <div class="fld"><input type="text" placeholder="Card Number" /></div>
+          <div style="display:flex; gap:10px;">
+            <div class="fld"><input type="text" placeholder="MM/YY" /></div>
+            <div class="fld"><input type="text" placeholder="CVC" /></div>
+          </div>
+          <button class="pay-btn-action" onclick="processCardPayment()">PAY NOW</button>
+        </div>
+      </div>
+
+      <div class="pay-method" onclick="togglePayMethod(this)">
+        <div class="pay-method-header">📱 Zelle Transfer <span>▼</span></div>
+        <div class="pay-method-body" onclick="event.stopPropagation()">
+          <p style="color:#ccc; font-size:12px; margin-bottom:10px;">Send total amount to:</p>
+          <div style="background:#222; padding:10px; border-radius:8px; color:#f5d05c; font-weight:bold; text-align:center; margin-bottom:15px; font-size:14px;">
+            pay@jk2424.com
+          </div>
+          <p style="color:#666; font-size:11px; margin-bottom:10px;">Once sent, click below. Admin will verify.</p>
+          <button class="pay-btn-action" style="background:#222; color:#fff; border:1px solid #444;" onclick="processZellePayment()">I SENT THE MONEY</button>
+        </div>
+      </div>
+
+      <div class="cancel-link" onclick="cancelFromPopup()">Cancel Request</div>
     </div>
+  </div>
+
+  <div id="inboxModal" class="modal-overlay">
+    <div class="modal-header">
+      <div class="modal-title">INBOX</div>
+      <div class="close-x" onclick="document.getElementById('inboxModal').style.display='none'">✕</div>
+    </div>
+    <div id="inboxList" style="overflow-y:auto;"></div>
+  </div>
+
+  <div id="tripsModal" class="modal-overlay">
+    <div class="modal-header">
+      <div class="modal-title">MY TRIPS</div>
+      <div class="close-x" onclick="document.getElementById('tripsModal').style.display='none'">✕</div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('pending')">Pending</div>
+      <div class="tab" onclick="switchTab('active')">Active</div>
+      <div class="tab" onclick="switchTab('history')">History</div>
+    </div>
+    <div id="tripListContainer" class="trip-list"></div>
+  </div>
+
+  <div id="routePopup">
+    <div style="padding:15px; background:#111; display:flex; justify-content:space-between; align-items:center;">
+      <span style="color:#fff; font-weight:bold;">Trip Route</span>
+      <span style="color:#fff; cursor:pointer;" onclick="closeRoutePopup()">✕ Close</span>
+    </div>
+    <div id="popupMap"></div>
   </div>
 
   <div id="profileModal">
@@ -150,19 +224,6 @@
       <div class="fld"><input id="profPhone" type="tel" placeholder="Mobile Phone" /></div>
       <button class="primary-btn" onclick="saveProfile()">Continue</button>
     </div>
-  </div>
-
-  <div id="tripsModal">
-    <div class="trips-header">
-      <div class="trips-title">My Trips</div>
-      <div class="close-x" onclick="closeTrips()">✕</div>
-    </div>
-    <div class="tab-bar">
-      <div class="tab active" onclick="switchTab('pending')">Pending</div>
-      <div class="tab" onclick="switchTab('active')">Active</div>
-      <div class="tab" onclick="switchTab('history')">History</div>
-    </div>
-    <div id="tripListContainer" class="trip-list"></div>
   </div>
 
   <div class="bottom-sheet" id="sheet">
@@ -196,6 +257,7 @@
           <span style="font-weight:800; color:#fff;">Estimated total</span>
           <span id="resTotal" class="total-val">--</span>
         </div>
+        <p style="color:#666; font-size:10px; margin-top:10px; text-align:center;">* Night rates apply between 11:00 PM - 06:00 AM</p>
       </div>
       <div class="fld"><label>Ride Notes</label><textarea id="notes" rows="3" placeholder="Luggage, child seat requests..."></textarea></div>
       <button class="primary-btn" id="bookBtn" onclick="sendBooking()">Confirm Booking</button>
@@ -211,11 +273,12 @@
     let myBookings = [];
     let currentTab = 'pending';
     let pendingInterval = null;
-    let currentPendingId = null;
+    let activeBookingIdForPay = null;
+    let mapObject = null;
+    let routeRenderer = null;
 
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
-    
     function validateHour(i) {
         if(!i.value) return;
         let [h, m] = i.value.split(':');
@@ -225,6 +288,7 @@
     function toggleMenu(open) { document.getElementById('sideMenu').classList.toggle('open', open); }
 
     function initMap() {
+        // Main Background Map
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
             styles: [
@@ -244,7 +308,7 @@
     window.addEventListener('load', () => {
         initMap();
         if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
-        else checkPendingStatus(); // Check on load if we have pending
+        else checkPendingStatus(); 
     });
 
     function saveProfile() {
@@ -253,24 +317,102 @@
         if(n && p) { localStorage.setItem('jk_user', JSON.stringify({name:n, phone:p})); document.getElementById('profileModal').style.display = 'none'; }
     }
 
-    // --- MY TRIPS LOGIC ---
-    async function openTrips() {
-        toggleMenu(false);
-        const u = JSON.parse(localStorage.getItem('jk_user'));
-        if(!u) return;
-        document.getElementById('tripsModal').style.display = 'flex';
-        document.getElementById('tripListContainer').innerHTML = '<div style="color:#666; text-align:center; margin-top:50px;">Loading trips...</div>';
-        try {
-            const res = await fetch(`${BACKEND}/bookings/customer/${u.phone}`);
-            const data = await res.json();
-            if(data.success) {
-                myBookings = data.bookings;
-                renderTrips();
-            }
-        } catch(e) { alert("Network Error"); }
+    // --- DATA SYNC & NOTIFICATIONS ---
+    function checkPendingStatus() {
+        if(pendingInterval) clearInterval(pendingInterval);
+        
+        pendingInterval = setInterval(async () => {
+            const u = JSON.parse(localStorage.getItem('jk_user'));
+            if(!u) return;
+
+            try {
+                const res = await fetch(`${BACKEND}/bookings/customer/${u.phone}`);
+                const data = await res.json();
+                if(data.success) {
+                    myBookings = data.bookings;
+                    
+                    // 1. Check for Popup Trigger (Confirmed but not seen)
+                    const confirmedBooking = myBookings.find(b => b.status === 'confirmed' && !localStorage.getItem(`seen_${b.id}`));
+                    if(confirmedBooking) {
+                        openPaymentModal(confirmedBooking);
+                        localStorage.setItem(`seen_${confirmedBooking.id}`, 'true');
+                    }
+
+                    // 2. Check Unread Messages
+                    let unreadCount = 0;
+                    myBookings.forEach(b => {
+                        if(b.messages) {
+                            b.messages.forEach(m => { if(!m.read) unreadCount++; });
+                        }
+                    });
+
+                    const dots = document.querySelectorAll('.notification-dot');
+                    dots.forEach(d => {
+                        if(unreadCount > 0) d.style.display = 'block';
+                        else d.style.display = 'none';
+                    });
+                }
+            } catch(e) {}
+        }, 5000);
     }
 
-    function closeTrips() { document.getElementById('tripsModal').style.display = 'none'; }
+    // --- MESSAGES INBOX ---
+    function openInbox() {
+        toggleMenu(false);
+        const container = document.getElementById('inboxList');
+        container.innerHTML = '';
+        
+        let allMsgs = [];
+        myBookings.forEach(b => {
+            if(b.messages) {
+                b.messages.forEach(m => {
+                    allMsgs.push({ ...m, bookingId: b.id });
+                });
+            }
+        });
+
+        // Sort by date desc
+        allMsgs.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        if(allMsgs.length === 0) {
+            container.innerHTML = '<div style="padding:20px; color:#666; text-align:center;">No messages.</div>';
+        } else {
+            allMsgs.forEach(m => {
+                const div = document.createElement('div');
+                div.className = `msg-card ${!m.read ? 'unread' : ''}`;
+                div.innerHTML = `
+                    <div class="msg-header">
+                        <div class="msg-title"><span class="msg-dot"></span>${m.title}</div>
+                        <div class="msg-date">${new Date(m.date).toLocaleDateString()} ${new Date(m.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                    </div>
+                    <div class="msg-body">${m.body}</div>
+                `;
+                div.onclick = () => markRead(m.bookingId, m.id, div);
+                container.appendChild(div);
+            });
+        }
+        document.getElementById('inboxModal').style.display = 'flex';
+    }
+
+    async function markRead(bid, mid, el) {
+        if(el.classList.contains('unread')) {
+            el.classList.remove('unread');
+            try {
+                await fetch(`${BACKEND}/bookings/${bid}/messages/read`, {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ messageId: mid })
+                });
+            } catch(e){}
+        }
+    }
+
+    // --- TRIPS & PAYMENT ---
+    function openTrips() {
+        toggleMenu(false);
+        document.getElementById('tripsModal').style.display = 'flex';
+        renderTrips();
+    }
 
     function switchTab(tab) {
         currentTab = tab;
@@ -292,16 +434,18 @@
         }
 
         if (filtered.length === 0) {
-            container.innerHTML = '<div style="color:#444; text-align:center; margin-top:50px; font-size:12px;">No trips found in this category.</div>';
+            container.innerHTML = '<div style="color:#444; text-align:center; margin-top:50px; font-size:12px;">No trips found.</div>';
             return;
         }
 
-        // NO CLICK FUNCTION (READ ONLY)
         container.innerHTML = filtered.map(b => {
             let badgeClass = 'st-pending';
             if(b.status === 'cancelled') badgeClass = 'st-cancel';
             else if(b.status !== 'pending') badgeClass = 'st-active';
 
+            // Show PAY button only if confirmed
+            const showPay = (b.status === 'confirmed');
+            
             return `
             <div class="trip-card">
                 <div class="trip-top">
@@ -309,15 +453,93 @@
                     <span style="color:#f5d05c; font-weight:700;">$${Number(b.total).toFixed(0)}</span>
                 </div>
                 <div class="trip-route-line">${b.pickup.split(',')[0]} ➝ ${b.dropoff.split(',')[0]}</div>
-                <div class="trip-meta">
-                   <span>📅 ${b.rideDate}</span>
-                   <span>⏰ ${b.rideTime} ${b.ampm}</span>
+                <div class="trip-detail-row">
+                   <span>📅 ${b.rideDate} @ ${b.rideTime} ${b.ampm}</span>
+                   <span>${b.miles} mi</span>
+                </div>
+                ${b.nightApplied ? '<span class="night-badge">☾ Night Rate Applied</span>' : ''}
+                
+                <div class="trip-actions">
+                    <button class="btn-small btn-route" onclick='openRoute("${b.pickup}", "${b.dropoff}")'>View Route</button>
+                    ${showPay ? `<button class="btn-small btn-pay" onclick='openPaymentModal(${JSON.stringify(b)})'>PAY NOW</button>` : ''}
                 </div>
             </div>
         `}).join('');
     }
 
-    // --- BOOKING LOGIC ---
+    // --- PAYMENT MODAL LOGIC ---
+    function openPaymentModal(booking) {
+        activeBookingIdForPay = booking.id;
+        document.querySelector('.pay-subtitle').innerText = `${booking.rideDate} - $${booking.total}`;
+        document.getElementById('paymentModal').style.display = 'flex';
+    }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+
+    function togglePayMethod(el) {
+        document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    async function processCardPayment() {
+        if(!activeBookingIdForPay) return;
+        if(!confirm("Process payment of full amount?")) return;
+        // API CALL
+        try {
+            await updateStatusAPI(activeBookingIdForPay, 'paid');
+            alert("Payment Successful!");
+            closePaymentModal();
+            renderTrips();
+        } catch(e) { alert("Error processing payment"); }
+    }
+
+    async function processZellePayment() {
+        if(!activeBookingIdForPay) return;
+        try {
+            await updateStatusAPI(activeBookingIdForPay, 'payment_sent');
+            alert("Notification sent to Admin. We will verify shortly.");
+            closePaymentModal();
+            renderTrips();
+        } catch(e) { alert("Error sending notification"); }
+    }
+    
+    async function updateStatusAPI(id, status) {
+        await fetch(`${BACKEND}/bookings/${id}/status`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ status: status })
+        });
+    }
+
+    async function cancelFromPopup() {
+        if(!activeBookingIdForPay) return;
+        if(!confirm("Cancel this reservation?")) return;
+        await updateStatusAPI(activeBookingIdForPay, 'cancelled');
+        closePaymentModal();
+        renderTrips();
+    }
+
+    // --- ROUTE MAP POPUP ---
+    function openRoute(pickup, dropoff) {
+        document.getElementById('routePopup').style.display = 'flex';
+        // Initialize map if needed
+        if(!mapObject) {
+             mapObject = new google.maps.Map(document.getElementById("popupMap"), {
+                zoom: 10, center: {lat:0, lng:0}, disableDefaultUI: true,
+                styles: [ { "elementType": "geometry", "stylers": [{ "color": "#212121" }] } ]
+            });
+            routeRenderer = new google.maps.DirectionsRenderer({ map: mapObject });
+        }
+        
+        const ds = new google.maps.DirectionsService();
+        ds.route({
+            origin: pickup, destination: dropoff, travelMode: 'DRIVING'
+        }, (res, status) => {
+            if(status === 'OK') routeRenderer.setDirections(res);
+        });
+    }
+    function closeRoutePopup() { document.getElementById('routePopup').style.display = 'none'; }
+
+    // --- BOOKING ---
     function openSheet() { document.getElementById('sheet').classList.add('active'); }
     function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
     function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
@@ -333,7 +555,7 @@
         let [h, m] = timeStr.split(':').map(Number);
         if (ampm === 'PM' && h !== 12) h += 12;
         if (ampm === 'AM' && h === 12) h = 0;
-        return (h >= 23 || h < 6); // 11 PM to 6 AM
+        return (h >= 23 || h < 6); 
     }
 
     async function calculatePrice() {
@@ -381,64 +603,13 @@
 
             if(res.ok) {
                 closeSheet();
-                // Start polling for confirmation
-                currentPendingId = data.booking.id;
-                localStorage.setItem('pendingId', currentPendingId);
-                checkPendingStatus();
-                openTrips(); 
+                // Instead of toast, open Inbox or Trips immediately
+                setTimeout(() => { openTrips(); }, 1000);
             } else {
                 alert(data.message || "Error occurred.");
             }
         } catch (e) { alert("Connection Error."); }
         finally { b.innerText = "Confirm Booking"; b.disabled = false; }
-    }
-
-    // --- POLLING FOR CONFIRMATION POPUP ---
-    function checkPendingStatus() {
-        if(pendingInterval) clearInterval(pendingInterval);
-        const storedId = localStorage.getItem('pendingId');
-        if(!storedId) return;
-        currentPendingId = storedId;
-
-        pendingInterval = setInterval(async () => {
-            try {
-                const res = await fetch(`${BACKEND}/bookings/${currentPendingId}`);
-                const data = await res.json();
-                if(data.success && data.booking) {
-                    if (data.booking.status === 'confirmed') {
-                        // BINGO! Show popup
-                        showPaymentModal(data.booking);
-                        clearInterval(pendingInterval);
-                        localStorage.removeItem('pendingId');
-                        // Refresh trips list if open
-                        if(document.getElementById('tripsModal').style.display === 'flex') openTrips();
-                    } else if (data.booking.status === 'cancelled') {
-                        clearInterval(pendingInterval);
-                        localStorage.removeItem('pendingId');
-                    }
-                }
-            } catch(e) { console.log("Syncing..."); }
-        }, 5000); // Check every 5 seconds
-    }
-
-    function showPaymentModal(booking) {
-        document.getElementById('payTimeDisplay').innerText = `${booking.rideDate} @ ${booking.rideTime} ${booking.ampm}`;
-        document.getElementById('paymentModal').style.display = 'flex';
-    }
-
-    async function cancelFromPopup() {
-        if(!confirm("Are you sure you want to cancel?")) return;
-        if(!currentPendingId) return;
-
-        try {
-            await fetch(`${BACKEND}/bookings/${currentPendingId}/status`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ status: 'cancelled' })
-            });
-            document.getElementById('paymentModal').style.display = 'none';
-            openTrips(); // Refresh list to show history
-        } catch(e) { alert("Error cancelling."); }
     }
   </script>
 </body>
