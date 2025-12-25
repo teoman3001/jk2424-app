@@ -2,67 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JK2424 • Premium EQS</title>
+  <title>JK2424 • Premium Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* EQS BLACK & SILVER DESIGN */
+    /* JK2424 LUXURY SIGNATURE STYLE */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body, html { height: 100%; width: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; }
+    body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', -apple-system, sans-serif; overflow: hidden; }
 
+    /* CLEAN & SHARP MAP */
     #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
     /* TOP NAV */
-    .top-nav { position: absolute; top: 50px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-    .menu-wrapper { position: relative; }
-    .menu-circle { width: 50px; height: 50px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #000; cursor: pointer; }
-    .logo-pill { background: rgba(0,0,0,0.85); border: 1.5px solid #c0c0c0; padding: 10px 25px; border-radius: 30px; color: #fff; font-weight: 900; letter-spacing: 2px; font-size: 14px; }
+    .top-nav { position: absolute; top: 40px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .menu-circle { width: 45px; height: 45px; background: #f5d05c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .logo-pill { background: rgba(0,0,0,0.9); border: 1.5px solid #f5d05c; padding: 8px 20px; border-radius: 30px; color: #fff; font-weight: 800; letter-spacing: 2px; font-size: 13px; }
 
-    /* SAFE ZONE TRIGGER */
-    .action-area { position: absolute; bottom: 85px; width: 100%; display: flex; justify-content: center; z-index: 5; }
-    .book-btn { background: #f5d05c; color: #000; border: none; padding: 20px 45px; border-radius: 40px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+    /* BOOKING TRIGGER */
+    .action-area { position: absolute; bottom: 60px; width: 100%; display: flex; justify-content: center; z-index: 5; }
+    .book-btn { background: #f5d05c; color: #000; border: none; padding: 18px 40px; border-radius: 40px; font-weight: 900; font-size: 15px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.6); letter-spacing: 0.5px; }
 
-    /* UNIFORM BOTTOM SHEET */
+    /* STEP SHEET */
     .bottom-sheet { 
-        position: fixed; bottom: -110%; left: 0; right: 0; background: #0c0c0c; 
-        border-top-left-radius: 35px; border-top-right-radius: 35px; 
+        position: fixed; bottom: -110%; left: 0; right: 0; background: #0a0a0a; 
+        border-top-left-radius: 30px; border-top-right-radius: 30px; 
         z-index: 100; padding: 25px; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-        border-top: 1px solid #333; height: 85vh; overflow-y: auto;
+        border-top: 1px solid #222; max-height: 90vh; overflow-y: auto;
     }
     .bottom-sheet.active { bottom: 0; }
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .close-x { font-size: 24px; color: #666; cursor: pointer; }
+    .close-x { font-size: 22px; color: #555; cursor: pointer; padding: 5px; }
 
-    /* FORM STYLES */
     .fld { margin-bottom: 15px; }
-    label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
-    input, textarea { width: 100%; background: #151515; border: 1px solid #222; color: #fff; padding: 15px; border-radius: 12px; font-size: 14px; outline: none; }
+    label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 1px; }
+    input, textarea { width: 100%; background: #050505; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 12px; font-size: 14px; outline: none; }
     input:focus { border-color: #f5d05c; }
 
-    .t-btn { flex: 1; padding: 15px; border-radius: 12px; border: 1px solid #222; background: #111; color: #fff; font-weight: 700; cursor: pointer; }
+    .toggle-row { display: flex; gap: 8px; margin: 15px 0; }
+    .t-btn { flex: 1; padding: 14px; border-radius: 10px; border: 1px solid #222; background: #050505; color: #fff; font-weight: 700; cursor: pointer; }
     .t-btn.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
 
-    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 14px; text-transform: uppercase; cursor: pointer; }
-    .secondary-btn { width: 100%; background: transparent; color: #666; border: 1px solid #222; padding: 12px; border-radius: 12px; font-size: 12px; margin-top: 10px; cursor: pointer; }
+    .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 14px; text-transform: uppercase; cursor: pointer; margin-top: 5px; }
 
-    /* REFERANS DETAY KARTI */
-    .est-card { background: #080808; border: 1px solid #222; border-radius: 18px; padding: 20px; margin-bottom: 20px; }
-    .est-title { color: #f5d05c; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
-    .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #f5f5f5; margin-bottom: 8px; }
-    .est-row span:last-child { font-weight: 700; }
-    .est-total-line { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+    /* ESTIMATE DETAILS */
+    .est-card { background: #050505; border: 1px solid #222; border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+    .est-title { color: #f5d05c; font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+    .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #ddd; margin-bottom: 7px; }
+    .est-row span:last-child { font-weight: 700; color: #fff; }
+    .est-total-line { margin-top: 12px; padding-top: 12px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
     .total-val { font-size: 24px; color: #f5d05c; font-weight: 900; }
 
-    /* GOOGLE AUTOCOMPLETE FIX */
-    .pac-container { background-color: #111 !important; border: 1px solid #333 !important; border-radius: 12px !important; z-index: 9999 !important; margin-top: 5px !important; }
-    .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; font-family: inherit; }
-    .pac-item-query { color: #fff !important; }
-    .pac-item:hover { background-color: #1a1a1a !important; }
-
-    /* MODAL */
-    #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
-    .modal-content { background: #111; padding: 30px; border-radius: 25px; border: 1px solid #333; width: 100%; max-width: 380px; }
-
     .hidden { display: none !important; }
+    #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-content { background: #0a0a0a; padding: 30px; border-radius: 25px; border: 1px solid #222; width: 100%; max-width: 360px; }
+
+    /* GOOGLE AUTOCOMPLETE FIX */
+    .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; margin-top: 5px !important; z-index: 9999 !important; }
+    .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
+    .pac-item-query { color: #fff !important; }
   </style>
 </head>
 <body>
@@ -80,29 +76,29 @@
 
   <div id="profileModal">
     <div class="modal-content">
-      <h2 style="color:#fff; margin-bottom:15px; font-weight:900;">Profile Setup</h2>
-      <p style="color:#888; font-size:13px; margin-bottom:20px;">Required once for premium service.</p>
-      <input id="profName" type="text" placeholder="Full Name" style="margin-bottom:12px;">
-      <input id="profPhone" type="tel" placeholder="Mobile Phone" style="margin-bottom:20px;">
-      <button class="primary-btn" onclick="saveProfile()">Save Profile</button>
+      <h2 style="color:#fff; margin-bottom:10px; font-weight:900;">Welcome</h2>
+      <p style="color:#666; font-size:12px; margin-bottom:20px;">Please enter your details to start.</p>
+      <div class="fld"><input id="profName" type="text" placeholder="Full Name" /></div>
+      <div class="fld"><input id="profPhone" type="tel" placeholder="Mobile Phone" /></div>
+      <button class="primary-btn" onclick="saveProfile()">Start Application</button>
     </div>
   </div>
 
   <div class="bottom-sheet" id="sheet">
     <div class="sheet-header">
-      <h2 id="sheetTitle" style="color:#fff; font-size:18px; font-weight:900;">Step 1 · Trip Details</h2>
+      <h2 id="sheetTitle" style="color:#fff; font-size:16px; font-weight:900;">Step 1 · Trip Details</h2>
       <div class="close-x" onclick="closeSheet()">✕</div>
     </div>
     
     <div id="step1">
-      <div class="fld"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Where from?" /></div>
-      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Add stop (optional)" /></div>
-      <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Where to?" /></div>
+      <div class="fld"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Pickup location" /></div>
+      <div class="fld"><label>Extra Stop</label><input id="stop" type="text" placeholder="Optional stop" /></div>
+      <div class="fld"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Drop-off location" /></div>
       <div style="display:flex; gap:10px;">
-        <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" /></div>
-        <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" /></div>
+        <div class="fld" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" oninput="formatDate(this)" /></div>
+        <div class="fld" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" oninput="formatTime(this)" /></div>
       </div>
-      <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <div class="toggle-row">
         <button id="amBtn" class="t-btn active" onclick="setAmpm('AM')">AM</button>
         <button id="pmBtn" class="t-btn" onclick="setAmpm('PM')">PM</button>
       </div>
@@ -112,27 +108,18 @@
     <div id="step2" class="hidden">
       <div class="est-card">
         <div class="est-title">Estimate Details</div>
-        <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
-        <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span>$65.00</span></div>
-        <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
-        <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
+        <div class="est-row"><span>Distance:</span><span id="resDist">--</span></div>
+        <div class="est-row"><span>Base Fare:</span><span>$65.00</span></div>
+        <div class="est-row"><span>Extra Cost:</span><span id="resExtra">--</span></div>
+        <div class="est-row"><span>Night Rate:</span><span id="resNight">--</span></div>
         <div class="est-total-line">
-          <span style="font-weight:700; color:#fff;">Estimated total</span>
+          <span style="font-weight:800; color:#fff;">Total Price</span>
           <span id="resTotal" class="total-val">--</span>
         </div>
       </div>
-      
-      <div class="fld">
-        <label>Ride Notes</label>
-        <textarea id="notes" rows="3" placeholder="Notes for your EQS chauffeur..."></textarea>
-      </div>
-
-      <button class="primary-btn" onclick="sendBooking()">Confirm & Send Request</button>
-      
-      <div style="display:flex; gap:10px;">
-        <button class="secondary-btn" style="flex:1" onclick="toggleStep(1)">❮ Edit Trip</button>
-        <button class="secondary-btn" style="flex:1" id="routeBtn" onclick="viewRoute()">🗺 View Route</button>
-      </div>
+      <div class="fld"><label>Special Notes</label><textarea id="notes" rows="3" placeholder="Additional requests..."></textarea></div>
+      <button class="primary-btn" onclick="sendBooking()">Confirm Booking</button>
+      <button style="width:100%; background:transparent; border:none; color:#555; font-size:12px; margin-top:15px; cursor:pointer;" onclick="toggleStep(1)">❮ Edit trip details</button>
     </div>
   </div>
 
@@ -142,6 +129,35 @@
     let currentAmpm = 'AM';
     let lastQuote = null;
 
+    // DATE & TIME AUTO-FORMATTER
+    function formatDate(i) {
+        let v = i.value.replace(/\D/g, '');
+        if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+        if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
+        i.value = v;
+    }
+    function formatTime(i) {
+        let v = i.value.replace(/\D/g, '');
+        if (v.length > 2) v = v.slice(0,2) + ':' + v.slice(2,4);
+        i.value = v;
+    }
+
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
+            styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#111111" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#666666" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#222222" }] },
+                { "featureType": "water", "stylers": [{ "color": "#000000" }] }
+            ]
+        });
+        const opt = { componentRestrictions: { country: 'us' } };
+        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+    }
+
     window.addEventListener('load', () => {
         initMap();
         if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
@@ -150,20 +166,10 @@
     function saveProfile() {
         const n = document.getElementById('profName').value;
         const p = document.getElementById('profPhone').value;
-        if(!n || !p) return alert("All fields mandatory.");
-        localStorage.setItem('jk_user', JSON.stringify({name: n, phone: p}));
-        document.getElementById('profileModal').style.display = 'none';
-    }
-
-    function initMap() {
-        new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
-            styles: [{ "elementType": "geometry", "stylers": [{ "color": "#212121" }] }, { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] }]
-        });
-        const opt = { componentRestrictions: { country: 'us' } };
-        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+        if(n && p) {
+            localStorage.setItem('jk_user', JSON.stringify({name:n, phone:p}));
+            document.getElementById('profileModal').style.display = 'none';
+        } else alert("Required fields missing.");
     }
 
     function openSheet() { document.getElementById('sheet').classList.add('active'); }
@@ -179,32 +185,26 @@
     async function calculatePrice() {
         const p = document.getElementById('pickup').value;
         const d = document.getElementById('dropoff').value;
-        if(!p || !d) return alert("Locations required.");
+        const b = document.getElementById('calcBtn');
+        if(!p || !d) return alert("Missing info.");
         
         try {
-            document.getElementById('calcBtn').innerText = "Calculating...";
+            b.innerText = "Processing..."; b.disabled = true;
             const res = await fetch(`${BACKEND}/calc?pickup=${encodeURIComponent(p)}&dropoff=${encodeURIComponent(d)}&isNight=${currentAmpm==='PM'}`);
+            if(!res.ok) throw new Error("Server Error");
             const data = await res.json();
             
             if(data.success) {
                 const pr = data.pricing;
                 lastQuote = { ...pr, pickup:p, dropoff:d, ampm:currentAmpm };
-                
-                // DETAY DÖKÜMÜ
                 document.getElementById('resDist').innerText = pr.miles + " miles";
                 document.getElementById('resExtra').innerText = `$${pr.extraCost.toFixed(2)} (${pr.extraMiles} mi x $2.00)`;
                 document.getElementById('resNight').innerText = pr.nightApplied ? "Yes (x1.25)" : "No";
                 document.getElementById('resTotal').innerText = "$" + pr.total.toFixed(2);
-                
                 toggleStep(2);
             }
-        } catch (e) { alert("Server error."); }
-        finally { document.getElementById('calcBtn').innerText = "Calculate Price"; }
-    }
-
-    function viewRoute() {
-        const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(document.getElementById('pickup').value)}&destination=${encodeURIComponent(document.getElementById('dropoff').value)}&travelmode=driving`;
-        window.open(url, '_blank');
+        } catch (e) { alert("Server is waking up. Try again in 5 seconds."); }
+        finally { b.innerText = "Calculate Price"; b.disabled = false; }
     }
 
     async function sendBooking() {
@@ -215,13 +215,11 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...lastQuote, customerName: u.name, customerPhone: u.phone, notes: document.getElementById('notes').value })
             });
-            const data = await res.json();
-            if(data.success) {
-                alert("Request Sent Successfully!");
-                closeSheet();
-            }
+            if(await res.json()) { alert("Request Sent!"); closeSheet(); }
         } catch (e) { alert("Failed."); }
     }
+
+    google.maps.event.addDomListener(window, 'load', initMap);
   </script>
 </body>
 </html>
