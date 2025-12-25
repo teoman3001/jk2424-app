@@ -5,7 +5,7 @@
   <title>JK2424 • Premium Private Service</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
-    /* JK2424 SIGNATURE LUXURY STYLE */
+    /* JK2424 ULTIMATE LUXURY THEME */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { height: 100%; width: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
 
@@ -46,39 +46,63 @@
 
     .primary-btn { width: 100%; background: #f5d05c; color: #000; border: none; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; }
 
-    /* SUCCESS TOAST */
-    #successToast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); border: 2px solid #f5d05c; padding: 35px; border-radius: 25px; z-index: 500; width: 85%; text-align: center; display: none; backdrop-filter: blur(10px); }
-
     /* ESTIMATE DETAILS */
     .est-card { background: #080808; border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 25px; }
     .est-row { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 9px; }
     .est-total-line { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
     .total-val { font-size: 26px; color: #f5d05c; font-weight: 900; }
 
-    /* GOOGLE AUTOCOMPLETE FIX */
+    /* CONFIRMATION / PAYMENT MODAL (POPUP) */
+    #paymentModal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+    .pay-card {
+      background: #111; border: 1px solid #333; width: 100%; max-width: 380px;
+      border-radius: 24px; padding: 30px 20px; text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative;
+    }
+    .pay-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+    .pay-title { color: #f5d05c; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .pay-desc { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 25px; padding: 0 10px; }
+    .pay-time { background: #1a1a1a; padding: 10px; border-radius: 8px; color: #fff; font-weight: 700; margin-bottom: 25px; display: inline-block; font-size: 13px; }
+    
+    .pay-btn-main { background: #f5d05c; color: #000; width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; border: none; font-size: 15px; cursor: pointer; margin-bottom: 15px; }
+    .pay-btn-cancel { background: transparent; color: #666; width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; border: 1px solid #333; font-size: 13px; cursor: pointer; }
+
+    /* MY TRIPS MODAL - REDESIGNED */
+    #tripsModal { position: fixed; inset: 0; background: #080808; z-index: 400; display: none; flex-direction: column; padding: 20px; }
+    .trips-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+    .trips-title { color: #fff; font-size: 20px; font-weight: 900; letter-spacing: 0.5px; }
+    
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 25px; background: #111; padding: 5px; border-radius: 12px; }
+    .tab { flex: 1; padding: 10px; text-align: center; border-radius: 8px; color: #666; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+    .tab.active { background: #222; color: #f5d05c; }
+    
+    .trip-list { flex: 1; overflow-y: auto; padding-bottom: 40px; }
+    /* APP STYLE CARD */
+    .trip-card { 
+      background: #111; border-radius: 16px; padding: 20px; margin-bottom: 15px; 
+      border: 1px solid #222; position: relative; display: flex; flex-direction: column; gap: 8px;
+    }
+    .trip-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .trip-status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .st-pending { background: rgba(245, 208, 92, 0.15); color: #f5d05c; }
+    .st-active { background: rgba(76, 175, 80, 0.15); color: #4CAF50; }
+    .st-cancel { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+    
+    .trip-route-line { font-size: 14px; color: #fff; font-weight: 600; line-height: 1.4; }
+    .trip-meta { font-size: 12px; color: #666; display: flex; gap: 10px; margin-top: 5px; }
+
     .pac-container { background-color: #0a0a0a !important; border: 1px solid #222 !important; border-radius: 12px !important; z-index: 9999 !important; }
     .pac-item { color: #f5d05c !important; border-top: 1px solid #222 !important; padding: 12px !important; }
     .pac-item-query { color: #fff !important; }
-    .pac-item:hover, .pac-item-selected { background-color: #1a1a1a !important; }
-
-    /* MY TRIPS MODAL */
-    #tripsModal { position: fixed; inset: 0; background: #000; z-index: 400; display: none; flex-direction: column; padding: 20px; overflow: hidden; }
-    .trips-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
-    .trips-title { color: #f5d05c; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
-    
-    .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #333; border-radius: 8px; color: #666; font-size: 12px; font-weight: 700; cursor: pointer; }
-    .tab.active { background: #f5d05c; color: #000; border-color: #f5d05c; }
-    
-    .trip-list { flex: 1; overflow-y: auto; padding-bottom: 40px; }
-    .trip-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 12px; position: relative; }
-    .trip-status { font-size: 10px; font-weight: 800; color: #f5d05c; text-transform: uppercase; margin-bottom: 8px; display: inline-block; border: 1px solid #f5d05c; padding: 3px 6px; border-radius: 4px; }
-    .trip-route { color: #fff; font-size: 14px; margin-bottom: 5px; font-weight: 600; }
-    .trip-date { color: #888; font-size: 12px; }
-    .trip-price { position: absolute; top: 15px; right: 15px; color: #fff; font-weight: 700; }
 
     .hidden { display: none !important; }
     #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    
+    @keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
   </style>
 </head>
 <body>
@@ -100,9 +124,16 @@
     <button class="book-btn" onclick="openSheet()">🚗 BOOK LUXURY RIDE</button>
   </div>
 
-  <div id="successToast">
-    <h3 style="color:#f5d05c; margin-bottom:12px; font-size:20px;">Request Submitted</h3>
-    <p style="color:#fff; font-size:14px; line-height:1.5;">Availability is being checked, and your chauffeur will get back to you as quickly as possible.</p>
+  <div id="paymentModal">
+    <div class="pay-card">
+      <span class="pay-icon">✨</span>
+      <div class="pay-title">Reservation Confirmed</div>
+      <div class="pay-desc">Your chauffeur is available. Please finalize your booking to secure this slot.</div>
+      <div id="payTimeDisplay" class="pay-time">--</div>
+      
+      <button class="pay-btn-main" onclick="alert('Payment Gateway Loading...')">MAKE PAYMENT</button>
+      <button class="pay-btn-cancel" onclick="cancelFromPopup()">CANCEL REQUEST</button>
+    </div>
   </div>
 
   <div id="profileModal">
@@ -117,7 +148,7 @@
 
   <div id="tripsModal">
     <div class="trips-header">
-      <div class="trips-title">MY TRIPS</div>
+      <div class="trips-title">My Trips</div>
       <div class="close-x" onclick="closeTrips()">✕</div>
     </div>
     <div class="tab-bar">
@@ -125,8 +156,7 @@
       <div class="tab" onclick="switchTab('active')">Active</div>
       <div class="tab" onclick="switchTab('history')">History</div>
     </div>
-    <div id="tripListContainer" class="trip-list">
-      </div>
+    <div id="tripListContainer" class="trip-list"></div>
   </div>
 
   <div class="bottom-sheet" id="sheet">
@@ -155,7 +185,7 @@
         <div class="est-row"><span>Total Distance:</span><span id="resDist">--</span></div>
         <div class="est-row"><span>Base Fare (inc. 10 mi):</span><span id="resBase">--</span></div>
         <div class="est-row"><span>Extra Miles Cost:</span><span id="resExtra">--</span></div>
-        <div class="est-row"><span>Night Rate Applied:</span><span id="resNight">--</span></div>
+        <div class="est-row"><span>Night Rate:</span><span id="resNight">--</span></div>
         <div class="est-total-line">
           <span style="font-weight:800; color:#fff;">Estimated total</span>
           <span id="resTotal" class="total-val">--</span>
@@ -174,28 +204,56 @@
     let lastQuote = null;
     let myBookings = [];
     let currentTab = 'pending';
+    let pendingInterval = null;
+    let currentPendingId = null;
 
     function formatDate(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); i.value = v; }
     function formatTime(i) { let v = i.value.replace(/\D/g, ''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); i.value = v; }
     
-    // YENİ: Saati 12'den büyük girerse düzelt
     function validateHour(i) {
         if(!i.value) return;
         let [h, m] = i.value.split(':');
-        if(parseInt(h) > 12) { alert("Please use 12-hour format (01-12)."); i.value = ""; }
+        if(parseInt(h) > 12 || parseInt(h) === 0) { alert("Please use 12-hour format (01-12)."); i.value = ""; }
     }
 
     function toggleMenu(open) { document.getElementById('sideMenu').classList.toggle('open', open); }
-    
-    // MY TRIPS MANTIĞI
+
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
+            styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
+            ]
+        });
+        const opt = { componentRestrictions: { country: 'us' } };
+        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
+        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
+    }
+
+    window.addEventListener('load', () => {
+        initMap();
+        if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
+        else checkPendingStatus(); // Check on load if we have pending
+    });
+
+    function saveProfile() {
+        const n = document.getElementById('profName').value;
+        const p = document.getElementById('profPhone').value;
+        if(n && p) { localStorage.setItem('jk_user', JSON.stringify({name:n, phone:p})); document.getElementById('profileModal').style.display = 'none'; }
+    }
+
+    // --- MY TRIPS LOGIC ---
     async function openTrips() {
         toggleMenu(false);
         const u = JSON.parse(localStorage.getItem('jk_user'));
         if(!u) return;
-
         document.getElementById('tripsModal').style.display = 'flex';
         document.getElementById('tripListContainer').innerHTML = '<div style="color:#666; text-align:center; margin-top:50px;">Loading trips...</div>';
-        
         try {
             const res = await fetch(`${BACKEND}/bookings/customer/${u.phone}`);
             const data = await res.json();
@@ -228,76 +286,48 @@
         }
 
         if (filtered.length === 0) {
-            container.innerHTML = '<div style="color:#444; text-align:center; margin-top:50px;">No trips found in this category.</div>';
+            container.innerHTML = '<div style="color:#444; text-align:center; margin-top:50px; font-size:12px;">No trips found in this category.</div>';
             return;
         }
 
-        container.innerHTML = filtered.map(b => `
-            <div class="trip-card" onclick="window.location.href='track.html?id=${b.id}'">
-                <span class="trip-status" style="border-color:${getStatusColor(b.status)}; color:${getStatusColor(b.status)}">${b.status.replace('_',' ')}</span>
-                <div class="trip-route">${b.pickup.split(',')[0]} ➝ ${b.dropoff.split(',')[0]}</div>
-                <div class="trip-date">${b.rideDate} @ ${b.rideTime} ${b.ampm}</div>
-                <div class="trip-price">$${Number(b.total).toFixed(0)}</div>
+        // NO CLICK FUNCTION (READ ONLY)
+        container.innerHTML = filtered.map(b => {
+            let badgeClass = 'st-pending';
+            if(b.status === 'cancelled') badgeClass = 'st-cancel';
+            else if(b.status !== 'pending') badgeClass = 'st-active';
+
+            return `
+            <div class="trip-card">
+                <div class="trip-top">
+                    <span class="trip-status-badge ${badgeClass}">${b.status.replace('_',' ')}</span>
+                    <span style="color:#f5d05c; font-weight:700;">$${Number(b.total).toFixed(0)}</span>
+                </div>
+                <div class="trip-route-line">${b.pickup.split(',')[0]} ➝ ${b.dropoff.split(',')[0]}</div>
+                <div class="trip-meta">
+                   <span>📅 ${b.rideDate}</span>
+                   <span>⏰ ${b.rideTime} ${b.ampm}</span>
+                </div>
             </div>
-        `).join('');
+        `}).join('');
     }
 
-    function getStatusColor(s) {
-        if(s === 'pending') return '#f5d05c';
-        if(s === 'cancelled') return '#ff4444';
-        if(s === 'completed') return '#888';
-        return '#4CAF50'; // Active colors
-    }
-
-    function initMap() {
-        const map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 38.9072, lng: -77.0369 }, zoom: 12, disableDefaultUI: true,
-            styles: [
-                { "elementType": "geometry", "stylers": [{ "color": "#0d0d0d" }] },
-                { "elementType": "labels.text.fill", "stylers": [{ "color": "#4d4d4d" }] },
-                { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
-            ]
-        });
-        const opt = { componentRestrictions: { country: 'us' } };
-        new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('stop'), opt);
-        new google.maps.places.Autocomplete(document.getElementById('dropoff'), opt);
-    }
-
-    window.addEventListener('load', () => {
-        initMap();
-        if(!localStorage.getItem('jk_user')) document.getElementById('profileModal').style.display = 'flex';
-    });
-
-    function saveProfile() {
-        const n = document.getElementById('profName').value;
-        const p = document.getElementById('profPhone').value;
-        if(n && p) { localStorage.setItem('jk_user', JSON.stringify({name:n, phone:p})); document.getElementById('profileModal').style.display = 'none'; }
-    }
-
+    // --- BOOKING LOGIC ---
     function openSheet() { document.getElementById('sheet').classList.add('active'); }
     function closeSheet() { document.getElementById('sheet').classList.remove('active'); }
     function setAmpm(v) { currentAmpm = v; document.getElementById('amBtn').classList.toggle('active', v==='AM'); document.getElementById('pmBtn').classList.toggle('active', v==='PM'); }
-
+    
     function toggleStep(s) {
         document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
         document.getElementById('step2').classList.toggle('hidden', s === 1);
         document.getElementById('sheetTitle').innerText = s === 1 ? "Step 1 · Trip Details" : "Step 2 · Confirmation";
     }
 
-    // YENİ GECE MANTIĞI: 11 PM (23:00) ile 05:59 (6 AM) arası gecedir.
     function checkIsNight(timeStr, ampm) {
         if (!timeStr || timeStr.length < 5) return false;
         let [h, m] = timeStr.split(':').map(Number);
-        
-        // 12 Saat -> 24 Saat Çevirimi
-        if (ampm === 'PM' && h !== 12) h += 12; // Örn: 11 PM -> 23
-        if (ampm === 'AM' && h === 12) h = 0;   // Örn: 12 AM -> 00
-
-        // Kural: 23:00'den büyük EŞİT veya 6'dan KÜÇÜK
-        return (h >= 23 || h < 6);
+        if (ampm === 'PM' && h !== 12) h += 12;
+        if (ampm === 'AM' && h === 12) h = 0;
+        return (h >= 23 || h < 6); // 11 PM to 6 AM
     }
 
     async function calculatePrice() {
@@ -308,10 +338,8 @@
 
         if(!p || !d) return alert("Select locations.");
         if(timeVal.length !== 5) return alert("Please enter time as HH:MM");
-        
-        // 12 den buyukse uyar
         let [th, tm] = timeVal.split(':');
-        if(parseInt(th) > 12) return alert("Please use 12-hour format.");
+        if(parseInt(th) > 12 || parseInt(th) === 0) return alert("Please use 12-hour format.");
 
         const isNight = checkIsNight(timeVal, currentAmpm);
 
@@ -327,7 +355,6 @@
                 document.getElementById('resExtra').innerText = `$${(data.pricing.extraCost || 0).toFixed(2)} (${data.pricing.extraMiles || 0} mi)`;
                 document.getElementById('resNight').innerText = data.pricing.nightApplied ? `Yes (x${data.pricing.nightMultiplier})` : "No";
                 document.getElementById('resTotal').innerText = "$" + (data.pricing.total || 0).toFixed(2);
-                
                 toggleStep(2);
             }
         } catch (e) { alert("Server starting... try again."); }
@@ -344,24 +371,68 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...lastQuote, customerName: u.name, customerPhone: u.phone, notes: document.getElementById('notes').value })
             });
-            
             const data = await res.json();
 
             if(res.ok) {
                 closeSheet();
-                const toast = document.getElementById('successToast');
-                toast.style.display = 'block';
-                // 3 saniye sonra kapat ve My Trips'i aç
-                setTimeout(() => { 
-                    toast.style.display = 'none'; 
-                    openTrips(); // Otomatik olarak listeyi aç
-                }, 3000);
+                // Start polling for confirmation
+                currentPendingId = data.booking.id;
+                localStorage.setItem('pendingId', currentPendingId);
+                checkPendingStatus();
+                openTrips(); 
             } else {
-                // Eğer çifte rezervasyon hatası varsa (409)
                 alert(data.message || "Error occurred.");
             }
         } catch (e) { alert("Connection Error."); }
         finally { b.innerText = "Confirm Booking"; b.disabled = false; }
+    }
+
+    // --- POLLING FOR CONFIRMATION POPUP ---
+    function checkPendingStatus() {
+        if(pendingInterval) clearInterval(pendingInterval);
+        const storedId = localStorage.getItem('pendingId');
+        if(!storedId) return;
+        currentPendingId = storedId;
+
+        pendingInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`${BACKEND}/bookings/${currentPendingId}`);
+                const data = await res.json();
+                if(data.success && data.booking) {
+                    if (data.booking.status === 'confirmed') {
+                        // BINGO! Show popup
+                        showPaymentModal(data.booking);
+                        clearInterval(pendingInterval);
+                        localStorage.removeItem('pendingId');
+                        // Refresh trips list if open
+                        if(document.getElementById('tripsModal').style.display === 'flex') openTrips();
+                    } else if (data.booking.status === 'cancelled') {
+                        clearInterval(pendingInterval);
+                        localStorage.removeItem('pendingId');
+                    }
+                }
+            } catch(e) { console.log("Syncing..."); }
+        }, 5000); // Check every 5 seconds
+    }
+
+    function showPaymentModal(booking) {
+        document.getElementById('payTimeDisplay').innerText = `${booking.rideDate} @ ${booking.rideTime} ${booking.ampm}`;
+        document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    async function cancelFromPopup() {
+        if(!confirm("Are you sure you want to cancel?")) return;
+        if(!currentPendingId) return;
+
+        try {
+            await fetch(`${BACKEND}/bookings/${currentPendingId}/status`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ status: 'cancelled' })
+            });
+            document.getElementById('paymentModal').style.display = 'none';
+            openTrips(); // Refresh list to show history
+        } catch(e) { alert("Error cancelling."); }
     }
   </script>
 </body>
