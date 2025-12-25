@@ -25,9 +25,9 @@
       
       <div class="card">
         <div class="step-pill">Step 1 · Trip Details</div>
-        <div class="field"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Tysons, VA" /></div>
-        <div class="field"><label>Extra Stop (Optional)</label><input id="stop" type="text" placeholder="Optional extra stop" /></div>
-        <div class="field"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Dulles Airport" /></div>
+        <div class="field"><label>Pickup Location</label><input id="pickup" type="text" placeholder="Tysons, VA" autocomplete="off" /></div>
+        <div class="field"><label>Extra Stop (Optional)</label><input id="stop" type="text" placeholder="Optional extra stop" autocomplete="off" /></div>
+        <div class="field"><label>Drop-off Location</label><input id="dropoff" type="text" placeholder="Dulles Airport" autocomplete="off" /></div>
         <div style="display:flex; gap:10px;">
           <div class="field" style="flex:1;"><label>Date</label><input id="rideDate" type="text" placeholder="MM/DD/YYYY" maxlength="10" /></div>
           <div class="field" style="flex:1;"><label>Time</label><input id="rideTime" type="text" placeholder="HH:MM" maxlength="5" /></div>
@@ -43,13 +43,11 @@
 
     <div id="sectionStep2" class="hidden">
       <h2 style="font-size: 24px; margin-bottom: 5px;">Passenger Info</h2>
-      <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Almost there. Confirm your details to finish.</p>
       <div class="card">
         <div class="step-pill">Step 2 · Passenger Details</div>
         <div class="summary-box">
-          <span class="sum-title">Trip Summary</span>
-          <div id="sumRoute" class="sum-text"></div>
-          <div id="sumTime" class="sum-text"></div>
+          <div id="sumRoute" style="font-size:13px; color:#ccc; line-height:1.4;"></div>
+          <div id="sumTime" style="font-size:13px; color:#ccc; margin-top:5px;"></div>
           <span id="sumTotal" class="sum-total"></span>
         </div>
         <div class="field"><label>Full Name</label><input id="fullName" type="text" placeholder="John Doe" /></div>
