@@ -2,13 +2,10 @@ const BACKEND = 'https://jk2424-backend.onrender.com';
 let currentAmpm = 'AM';
 let lastQuote = null;
 
-// Google Autocomplete ve Buton Dinleyicileri
 window.addEventListener('DOMContentLoaded', () => {
-    // AM/PM Seçimi
     document.getElementById('amBtn').onclick = () => { currentAmpm = 'AM'; document.getElementById('amBtn').classList.add('active'); document.getElementById('pmBtn').classList.remove('active'); };
     document.getElementById('pmBtn').onclick = () => { currentAmpm = 'PM'; document.getElementById('pmBtn').classList.add('active'); document.getElementById('amBtn').classList.remove('active'); };
 
-    // Google Autocomplete
     if (typeof google !== 'undefined') {
         const opt = { componentRestrictions: { country: 'us' } };
         new google.maps.places.Autocomplete(document.getElementById('pickup'), opt);
@@ -17,7 +14,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Tarih Formatlayıcı
 document.getElementById('rideDate').oninput = (e) => {
     let v = e.target.value.replace(/\D/g, '');
     if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
@@ -37,12 +33,12 @@ function checkLastBooking() {
     else alert("No active booking found.");
 }
 
-// Hesaplama Motoru
 async function calculatePrice() {
     const btn = document.getElementById('calcBtn');
     const p = document.getElementById('pickup').value;
     const d = document.getElementById('dropoff').value;
     const t = document.getElementById('rideTime').value;
+    const date = document.getElementById('rideDate').value;
 
     if(!p || !d || t.length < 5) return alert("Please complete trip details.");
 
@@ -56,17 +52,22 @@ async function calculatePrice() {
         const data = await res.json();
         
         if(data.success) {
-            lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:document.getElementById('rideDate').value, rideTime:t, ampm:currentAmpm, total:data.pricing.total, miles:data.pricing.miles };
-            document.getElementById('sumRoute').innerText = `From: ${p} → To: ${d}`;
+            lastQuote = { pickup:p, dropoff:d, stop:document.getElementById('stop').value, rideDate:date, rideTime:t, ampm:currentAmpm, total:data.pricing.total, miles:data.pricing.miles };
+            
+            // Step 2 Özetini Doldur
+            document.getElementById('sumRoute').innerText = `Pickup: ${p} \nDrop-off: ${d}`;
+            document.getElementById('sumTime').innerText = `Schedule: ${date} @ ${t} ${currentAmpm}`;
             document.getElementById('sumTotal').innerText = `$${data.pricing.total.toFixed(2)}`;
+            
+            // Geçiş Yap
             document.getElementById('sectionStep1').classList.add('hidden');
             document.getElementById('sectionStep2').classList.remove('hidden');
             document.getElementById('headerBack').style.visibility = 'visible';
+            window.scrollTo(0,0);
         }
-    } catch (e) { alert("Server connection error."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
+    } catch (e) { alert("Error connecting to server."); } finally { btn.innerText = "Calculate Price"; btn.disabled = false; }
 }
 
-// Rezervasyon Gönderimi
 async function sendBooking() {
     const btn = document.getElementById('bookBtn');
     const name = document.getElementById('fullName').value;
@@ -85,5 +86,5 @@ async function sendBooking() {
             localStorage.setItem("jk2424_booking_id", data.booking.id);
             window.location.href = "track.html?id=" + data.booking.id;
         }
-    } catch (e) { alert("Failed to send reservation."); }
+    } catch (e) { alert("Failed to send reservation."); } finally { btn.innerText = "Confirm Booking"; btn.disabled = false; }
 }
